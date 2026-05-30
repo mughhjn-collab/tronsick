@@ -1,0 +1,185 @@
+/* ─── GAME FRAME ─── */
+.game-panel{padding:16px 0 40px !important;}
+.game-frame{max-width:none;width:100%;}
+.back-btn{margin:16px 50px 16px;display:inline-block;}
+/* ─── DICE WRAP ─── */
+.dg-wrap{background:#141c28;margin:0 50px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08);box-shadow:0 8px 40px rgba(0,0,0,.4);}
+.dg-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);}
+.dg-tab{flex:0;padding:13px 28px;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.4);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.dg-tab-act{color:#fff;border-bottom:2px solid #22c55e;background:rgba(34,197,94,.05);}
+
+/* ─── TWO COLUMN LAYOUT ─── */
+.dg-layout{display:grid;grid-template-columns:1fr 380px;gap:0;min-height:420px;}
+.dg-left{padding:24px 28px;border-right:1px solid rgba(255,255,255,.07);}
+.dg-right{padding:24px 24px;display:flex;flex-direction:column;gap:16px;}
+
+/* ─── HEX + SLIDER ─── */
+.dg-display{margin-bottom:20px;}
+.dg-hex-wrap{position:relative;padding-top:60px;margin-bottom:10px;}
+.hex-bubble{position:absolute;top:0;left:50%;transform:translateX(-50%);width:76px;height:60px;background:linear-gradient(145deg,#d0d5e8,#b8bed4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:900;color:#1a1f2e;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);z-index:2;transition:background .3s;}
+.hex-win{background:linear-gradient(145deg,#22c55e,#16a34a)!important;color:#fff!important;}
+.hex-lose{background:linear-gradient(145deg,#ef4444,#b91c1c)!important;color:#fff!important;}
+.dg-slider{width:100%;-webkit-appearance:none;appearance:none;height:14px;border-radius:100px;outline:none;cursor:pointer;background:linear-gradient(to right,#22c55e 50%,#f59e0b 50%);}
+.dg-slider::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.5);cursor:pointer;border:3px solid #aaa;}
+.dg-scale{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.3);margin-top:8px;}
+
+/* ─── STATS ROW ─── */
+.dg-stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin-top:24px;}
+.dg-stat{padding:14px 16px;display:flex;flex-direction:column;gap:6px;background:#1a2030;}
+.dg-stat-mid{border-left:1px solid rgba(255,255,255,.07);border-right:1px solid rgba(255,255,255,.07);}
+.dg-slbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;}
+.dg-sval{display:flex;align-items:center;gap:6px;}
+.dg-sinp{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;border-radius:6px;padding:5px 8px;width:80px;outline:none;transition:border-color .2s;}
+.dg-sinp:focus{border-color:rgba(34,197,94,.4);}
+.dg-sx{font-size:13px;color:rgba(255,255,255,.4);font-weight:700;}
+.dg-arrow-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#fff;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.dg-arrow-btn:hover{border-color:#3ecf8e;color:#3ecf8e;}
+
+/* ─── AMOUNT ─── */
+.dg-amount-sec{}
+.dg-amt-lbl{font-size:12px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.dg-dot{width:8px;height:8px;border-radius:50%;background:#3ecf8e;display:inline-block;}
+.dg-amt-row{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:8px 12px;}
+.dg-coin-ic{font-size:18px;color:#3ecf8e;flex-shrink:0;}
+.dg-amt-inp{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;min-width:60px;}
+.dg-sz-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.dg-sz-btn:hover{border-color:#3ecf8e;color:#3ecf8e;}
+
+/* ─── ROLL BTN ─── */
+.dg-roll-btn{width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:900;font-size:15px;letter-spacing:1px;border:none;border-radius:10px;cursor:pointer;transition:filter .2s,transform .2s;box-shadow:0 4px 16px rgba(34,197,94,.3);}
+.dg-roll-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.dg-roll-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* ─── WIN AMOUNT ─── */
+.dg-win-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:rgba(0,0,0,.15);border-radius:8px;border:1px solid rgba(255,255,255,.06);}
+.dg-wlbl{font-size:12px;color:rgba(255,255,255,.4);font-weight:600;}
+.dg-wval{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#fff;}
+
+/* ─── AUTO ─── */
+.dg-auto-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.dg-auto-col{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px;}
+.dg-auto-hd{font-size:11px;font-weight:800;color:#fff;margin-bottom:10px;text-transform:uppercase;}
+.dg-aprow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.dg-aprow span{font-size:11px;color:rgba(255,255,255,.4);}
+.dg-apinp{display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 7px;}
+.dg-apinp input{background:transparent;border:none;outline:none;color:#fff;font-size:12px;font-weight:700;width:42px;text-align:right;}
+.dg-apinp span{font-size:11px;color:rgba(255,255,255,.3);}
+.dg-arl{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;cursor:pointer;}
+.dg-arl input{accent-color:#3ecf8e;width:13px;height:13px;}
+.dg-alims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.dg-alim{display:flex;flex-direction:column;gap:4px;}
+.dg-lim-inp{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;border-radius:6px;padding:7px 9px;outline:none;width:100%;}
+.dg-bc{display:flex;align-items:center;color:#3ecf8e;}
+
+/* ─── BET HISTORY ─── */
+.dg-bsec{border-top:1px solid rgba(255,255,255,.07);}
+/* BET TABS CENTERED */
+.dg-bet-tabs{display:flex;justify-content:center;border-bottom:1px solid rgba(255,255,255,.07);}
+.dg-btab{padding:11px 32px;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.35);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.dg-btab-act{color:#fff;border-bottom:2px solid #22c55e;}
+/* BET HISTORY TABLE */
+.dg-bet-list{max-height:300px;overflow-y:auto;}
+.dg-hist-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.dg-hist-tbl thead{position:sticky;top:0;}
+.dg-hist-tbl th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;background:#141c28;border-bottom:1px solid rgba(255,255,255,.08);}
+.dg-hist-row{cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.dg-hist-row:hover{background:rgba(255,255,255,.04);}
+.dg-hist-row td{padding:11px 16px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.7);}
+.dg-hist-row td:first-child{color:#fff;font-family:'Inter',sans-serif;font-weight:600;}
+.dg-dice-ico{font-size:14px;}
+.dg-mult-win{color:#22c55e!important;font-weight:700;}
+.dg-mult-lose{color:rgba(255,255,255,.3)!important;}
+.dg-pos{color:#22c55e!important;font-weight:700;}
+.dg-neg{color:#ef4444!important;font-weight:700;}
+.dg-no-bets{text-align:center;padding:30px;color:rgba(255,255,255,.2);font-size:13px;}
+
+/* ─── SEEDS ─── */
+.dg-seeds{padding:16px 20px;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.1);}
+.dg-seeds-grid{display:grid;grid-template-columns:1fr 1fr 180px;gap:14px;margin-bottom:12px;}
+.dg-seed-item{}
+.dg-seed-inp{width:100%;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;border-radius:6px;padding:7px 10px;outline:none;margin-top:4px;}
+.dg-seed-hash{font-family:'JetBrains Mono',monospace;font-size:11px;color:#f59e0b;word-break:break-all;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:7px 10px;margin-top:4px;}
+.dg-seed-nonce{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:900;color:#fff;margin-top:6px;}
+.dg-verify-btn{background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;font-weight:700;font-size:13px;padding:10px 20px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.dg-verify-btn:hover{background:rgba(62,207,142,.22);}
+
+/* ─── BET MODAL ─── */
+.bet-modal{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;}
+.bet-modal[style*="flex"]{display:flex!important;}
+.bm-box{background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:420px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);}
+.bm-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.bm-title{font-size:14px;font-weight:800;color:#fff;letter-spacing:.5px;}
+.bm-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.bm-close:hover{color:#fff;border-color:#fff;}
+.bm-roll-disp{text-align:center;font-family:'JetBrains Mono',monospace;font-size:48px;font-weight:900;padding:14px;margin-bottom:14px;border-radius:10px;background:rgba(0,0,0,.2);}
+.bm-win{color:#22c55e;}
+.bm-lose{color:#ef4444;}
+.bm-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;}
+.bm-row span:first-child{color:rgba(255,255,255,.45);}
+.bm-row span:last-child{color:#fff;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.bm-result{text-align:center;margin:14px 0 10px;padding:12px;border-radius:10px;font-size:14px;font-weight:900;letter-spacing:.5px;}
+.bm-result.bm-win{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#22c55e;}
+.bm-result.bm-lose{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#ef4444;}
+/* SEED SECTION IN MODAL */
+.bm-seeds{background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px;margin-bottom:12px;}
+.bm-seed-row{margin-bottom:8px;}
+.bm-seed-row:last-child{margin-bottom:0;}
+.bm-slbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.bm-sval{font-family:'JetBrains Mono',monospace;font-size:11px;color:#fff;word-break:break-all;}
+.bm-gold{color:#f59e0b!important;}
+.bm-verify-btn{width:100%;padding:11px;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;font-weight:700;font-size:13px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.bm-verify-btn:hover{background:rgba(62,207,142,.22);}
+
+/* ─── GAMES PAGE ─── */
+.games-level-bar{max-width:800px;margin:0 auto;padding:20px 28px 16px;}
+
+/* 4 columns × 2 rows grid */
+.game-grid-single{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+  padding:28px 40px 40px;
+  max-width:1100px;
+  margin:0 auto;
+}
+
+/* Base game card */
+.game-grid-single .gc{
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  transition:transform .22s,box-shadow .22s;
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+}
+.game-grid-single .gc:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 44px rgba(0,0,0,.55);}
+
+/* Each card inner image area */
+.game-grid-single .gc-img{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:20px 10px 0;
+}
+
+/* Individual card backgrounds */
+.gc-dice-only{background:linear-gradient(135deg,#0f3460,#533483);}
+.gc-limbo-card{background:linear-gradient(135deg,#1a0533,#2d1b69);}
+.gc-wheel-card{background:linear-gradient(135deg,#1a2a0a,#2d4a14);}
+.gc-mines-card{background:linear-gradient(135deg,#330a0a,#5c1a1a);}
+.gc-sicbo-card{background:linear-gradient(135deg,#0a1a33,#0f2d5c);}
+.gc-diamond-card{background:linear-gradient(135deg,#051a2a,#083350);}
+
+.gc-dice-img{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px 10px 0;}
+.dice-card-dots{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px;}
+.dice-card-dots span{width:14px;height:14px;background:#3ecf8e;border-radius:50%;box-shadow:0 0 8px rgba(62,207,142,.6);}
+.gc-dice-label{font-size:13px;font-weight:900;color:#fff;letter-spacing:2px;padding:10px 0;text-align:center;background:rgba(0,0,0,.3);width:100%;}
+
+@media(max-width:900px){.dg-layout{grid-template-columns:1fr;}.dg-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.07);}.dg-seeds-grid{grid-template-columns:1fr 1fr;}.game-grid-single{grid-template-columns:repeat(2,1fr);padding:20px;}}
+@media(max-width:600px){.dg-seeds-grid{grid-template-columns:1fr;}.dg-alims{grid-template-columns:1fr 1fr;}.game-grid-single{grid-template-columns:repeat(2,1fr);gap:12px;padding:16px;}}

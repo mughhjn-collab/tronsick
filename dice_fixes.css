@@ -1,0 +1,209 @@
+/* HEX BUBBLE — positioned by JS, no transform */
+.hex-bubble{position:absolute;top:0;left:0;width:76px;height:60px;background:linear-gradient(145deg,#d0d5e8,#b8bed4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:900;color:#1a1f2e;clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%);z-index:2;transition:background .3s,left .08s;}
+.hex-win{background:linear-gradient(145deg,#22c55e,#16a34a)!important;color:#fff!important;}
+.hex-lose{background:linear-gradient(145deg,#ef4444,#b91c1c)!important;color:#fff!important;}
+/* TRX ICON */
+.dg-trx-ico{font-size:11px;font-weight:900;color:#3ecf8e;background:rgba(62,207,142,.15);border:1px solid rgba(62,207,142,.25);border-radius:4px;padding:2px 5px;flex-shrink:0;letter-spacing:.5px;}
+/* HIST TABLE — FULL WIDTH COLUMNS */
+.dg-bet-list{max-height:300px;overflow-y:auto;}
+.dg-hist-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
+.dg-hist-tbl thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;background:#141c28;border-bottom:1px solid rgba(255,255,255,.08);}
+.dg-hist-tbl th:nth-child(1){width:10%;}
+.dg-hist-tbl th:nth-child(2){width:18%;}
+.dg-hist-tbl th:nth-child(3){width:27%;}
+.dg-hist-tbl th:nth-child(4){width:20%;}
+.dg-hist-tbl th:nth-child(5){width:25%;}
+.dg-hist-row{cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.dg-hist-row:hover{background:rgba(255,255,255,.05);}
+.dg-hist-row td{padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,.65);}
+.dg-hist-row td:first-child{color:rgba(255,255,255,.35);}
+.dg-hist-row td:nth-child(2){color:#fff;font-family:'Inter',sans-serif;font-weight:600;}
+.dg-dice-ico{font-size:14px;}
+.dg-tc-time{font-size:12px;}
+.dg-mult-win{color:#22c55e!important;font-weight:700;}
+.dg-mult-lose{color:rgba(255,255,255,.25)!important;}
+.dg-pos{color:#22c55e!important;font-weight:700;}
+.dg-neg{color:#ef4444!important;font-weight:700;}
+.dg-no-bets{text-align:center;padding:30px;color:rgba(255,255,255,.2);font-size:13px;}
+/* BET MODAL — IMAGE 2 STYLE */
+.bet-modal{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;}
+.bet-modal[style*="flex"]{display:flex!important;}
+.bm-box{background:#1e2535;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:22px;width:420px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+.bm-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.bm-title{font-size:14px;font-weight:800;color:#fff;}
+.bm-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.bm-close:hover{color:#fff;}
+.bm-result{text-align:center;padding:11px;border-radius:8px;font-size:14px;font-weight:900;letter-spacing:.5px;margin-bottom:16px;}
+.bm-result.bm-win{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:#22c55e;}
+.bm-result.bm-lose{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#ef4444;}
+/* SEED FIELDS */
+.bm-sf-group{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.bm-sf{}
+.bm-sf-lbl{font-size:11px;color:rgba(255,255,255,.45);margin-bottom:5px;font-weight:600;}
+.bm-sf-row{display:flex;align-items:center;gap:0;background:#141c28;border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
+.bm-sf-ico{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(255,255,255,.4);background:rgba(255,255,255,.04);border-right:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+.bm-sf-inp{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;padding:0 12px;height:40px;overflow:hidden;text-overflow:ellipsis;}
+.bm-verify-btn{width:100%;padding:13px;background:#3ecf8e;color:#fff;font-weight:900;font-size:14px;letter-spacing:1px;border:none;border-radius:8px;cursor:pointer;transition:filter .2s;text-transform:uppercase;}
+.bm-verify-btn:hover{filter:brightness(1.08);}
+
+/* TRX LOGO */
+.dg-trx-logo{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+/* AMOUNT INPUT FIX */
+.dg-amt-inp{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#fff;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;width:0;}
+
+.trx-hdr-logo{width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;}
+
+/* PAYOUT INPUT RESPONSIVE */
+.dg-stats-row{display:flex;gap:8px;flex-wrap:wrap;}
+.dg-stat{flex:1;min-width:80px;}
+.dg-sval{display:flex;align-items:center;gap:4px;min-width:0;}
+.dg-sinp{flex:1;min-width:0;width:0;background:#0d1117;border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:8px 6px;text-align:center;}
+.dg-sinp::-webkit-inner-spin-button,.dg-sinp::-webkit-outer-spin-button{-webkit-appearance:none;}
+.dg-sx{color:rgba(255,255,255,.4);font-size:13px;flex-shrink:0;}
+
+/* ═══════════════════════════════ LIMBO GAME ═══════════════════════════════ */
+.lb-wrap{max-width:700px;margin:16px auto;font-family:'JetBrains Mono',monospace;}
+/* Game cards grid — 4 columns × 2 rows */
+.game-grid-single{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:20px;padding:28px 40px 40px;max-width:1100px;margin:0 auto;}
+.gc-limbo-card{background:linear-gradient(135deg,#0d1117 0%,#1a1f35 50%,#0d1117 100%);border:1px solid rgba(100,120,255,.25);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.gc-limbo-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(100,120,255,.3);}
+.gc-limbo-img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:20px;min-height:120px;position:relative;overflow:hidden;}
+.lb-card-rocket{font-size:48px;filter:drop-shadow(0 0 12px rgba(100,180,255,.6));animation:lbFloat 2s ease-in-out infinite;}
+@keyframes lbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lb-card-mult{font-size:13px;color:#6480ff;font-weight:700;}
+/* Display */
+.lb-display{position:relative;background:radial-gradient(ellipse at center bottom,#0f1e3a 0%,#060c18 70%);border-radius:16px;overflow:hidden;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(100,120,255,.2);margin-bottom:12px;}
+.lb-stars{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 10% 20%, white .5px, transparent 0),radial-gradient(1px 1px at 30% 60%, white .5px, transparent 0),radial-gradient(1px 1px at 50% 10%, white .5px, transparent 0),radial-gradient(1px 1px at 70% 40%, white .5px, transparent 0),radial-gradient(1px 1px at 85% 70%, white .5px, transparent 0),radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,.5) .5px, transparent 0),radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,.5) .5px, transparent 0);opacity:.6;}
+.lb-multiplier{font-size:52px;font-weight:900;color:#22c55e;letter-spacing:-1px;text-shadow:0 0 30px rgba(34,197,94,.5);z-index:2;transition:color .3s;}
+.lb-rocket-area{display:flex;flex-direction:column;align-items:center;gap:0;z-index:2;margin-top:4px;}
+.lb-rocket{font-size:48px;transition:transform .15s ease-out;filter:drop-shadow(0 0 10px rgba(255,160,50,.7));}
+.lb-moon{width:120px;height:30px;background:radial-gradient(ellipse,#2a2e3f 0%,#1a1e2b 60%,transparent 100%);border-radius:50%;opacity:.8;margin-top:-5px;}
+/* Stats row */
+.lb-stats{display:flex;gap:16px;margin-bottom:4px;background:#0d1117;border-radius:10px;padding:14px 16px;border:1px solid rgba(255,255,255,.07);}
+.lb-stat{flex:1;min-width:100px;}
+.lb-srow{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.lb-sinp{flex:1;min-width:0;background:#060c18;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:15px;font-weight:700;padding:8px 10px;font-family:inherit;width:0;}
+.lb-sinp::-webkit-inner-spin-button,.lb-sinp::-webkit-outer-spin-button{-webkit-appearance:none;}
+.lb-sx{color:rgba(255,255,255,.4);font-size:13px;}
+.lb-arr{background:#1a2035;border:1px solid rgba(100,120,255,.3);border-radius:6px;color:#6480ff;width:28px;height:32px;cursor:pointer;font-size:16px;line-height:1;transition:background .15s;}
+.lb-arr:hover{background:#2a3055;}
+.lb-bet-row{margin:12px 0 4px;}
+/* dg-mult colors for limbo table */
+.dg-mult-win{color:#22c55e;font-weight:700;}
+.dg-mult-lose{color:#ef4444;font-weight:700;}
+
+/* =================== WHEEL GAME =================== */
+.wl-wrap{max-width:600px;margin:16px auto;font-family:'JetBrains Mono',monospace;}
+.gc-wheel-card{background:linear-gradient(135deg,#0d1117 0%,#1e1a35 50%,#0d1117 100%);border:1px solid rgba(180,83,9,.25);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.gc-wheel-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(180,83,9,.3);}
+.gc-wheel-img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;min-height:120px;}
+.wl-card-icon{font-size:44px;filter:drop-shadow(0 0 12px rgba(245,158,11,.5));}
+.wl-card-modes{display:flex;gap:6px;}
+.wl-card-modes span{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);}
+.wl-modes{display:flex;gap:10px;margin-bottom:14px;}
+.wl-mode-btn{flex:1;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:8px;background:#0d1117;color:rgba(255,255,255,.5);font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.5px;transition:all .2s;}
+.wl-mode-btn.wl-mode-act{background:#1d4ed8;border-color:#3b82f6;color:#fff;box-shadow:0 0 16px rgba(59,130,246,.3);}
+.wl-display{position:relative;display:flex;flex-direction:column;align-items:center;background:radial-gradient(ellipse at center,#111827 0%,#060c18 100%);border-radius:16px;padding:20px 20px 12px;border:1px solid rgba(255,255,255,.07);margin-bottom:12px;}
+.wl-pointer-wrap{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:10;}
+.wl-pointer{color:#ef4444;font-size:22px;line-height:1;filter:drop-shadow(0 0 6px rgba(239,68,68,.7));}
+#wlCanvas{border-radius:50%;display:block;}
+.wl-result-badge{margin-top:10px;font-size:18px;font-weight:900;min-height:28px;letter-spacing:.5px;transition:color .3s;}
+.wl-res-win{color:#22c55e;text-shadow:0 0 20px rgba(34,197,94,.5);}
+.wl-res-lose{color:#ef4444;}
+.wl-legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#0d1117;border-radius:8px;border:1px solid rgba(255,255,255,.07);margin-bottom:4px;}
+.wl-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;}
+.wl-leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.wl-leg-pct{color:rgba(255,255,255,.35);font-size:10px;}
+
+/* WHEEL DISPLAY FIX - clean layout, no dark box */
+.wl-display{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  background:radial-gradient(ellipse at center,#0e1525 0%,#060c18 100%);
+  border-radius:20px;
+  padding:28px 16px 16px;
+  border:1px solid rgba(255,255,255,.08);
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.wl-display::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(100,120,220,0.08) 0%,transparent 70%);}
+#wlCanvas{border-radius:50%;display:block;box-shadow:0 0 40px rgba(0,0,0,0.6),0 0 80px rgba(29,78,216,0.15);}
+.wl-pointer-wrap{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:10;}
+.wl-pointer{color:#ef4444;font-size:26px;line-height:1;filter:drop-shadow(0 2px 8px rgba(239,68,68,.9));}
+.wl-result-badge{margin-top:14px;font-size:20px;font-weight:900;min-height:30px;letter-spacing:.5px;font-family:'JetBrains Mono',monospace;}
+.wl-wrap{max-width:520px;margin:16px auto;font-family:'Inter',sans-serif;}
+
+/* =================== DIAMOND GAME =================== */
+.dm-wrap{max-width:520px;margin:16px auto;}
+.dm-table{background:#0d1117;border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px;display:flex;flex-direction:column;gap:6px;}
+.dm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);transition:all .2s;cursor:default;}
+.dm-gems{display:flex;gap:8px;align-items:center;}
+.dm-gem{font-size:22px;transition:all .2s;filter:drop-shadow(0 0 0px transparent);}
+.dm-gem-lit{color:#22d3ee;filter:drop-shadow(0 0 8px rgba(6,182,212,.8));text-shadow:0 0 10px #06b6d4;}
+.dm-gem-dim{color:rgba(255,255,255,.12);}
+.dm-mult-lbl{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#fff;}
+.dm-row-win{background:rgba(34,197,94,.12)!important;border-color:rgba(34,197,94,.4)!important;box-shadow:0 0 20px rgba(34,197,94,.2);}
+.dm-row-win .dm-mult-lbl{color:#22c55e;}
+.dm-row-win .dm-gem-lit{color:#22c55e;filter:drop-shadow(0 0 10px rgba(34,197,94,.9));}
+.dm-row-lose{background:rgba(239,68,68,.08)!important;border-color:rgba(239,68,68,.3)!important;}
+.dm-row-active{background:rgba(250,204,21,.08)!important;border-color:rgba(250,204,21,.3)!important;}
+.gc-diamond-card{background:linear-gradient(135deg,#060c18 0%,#0d1a2e 50%,#060c18 100%);border:1px solid rgba(6,182,212,.3);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.gc-diamond-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(6,182,212,.3);}
+
+/* =================== MINES GAME =================== */
+.mn-wrap{max-width:520px;margin:16px auto;}
+.mn-display{background:radial-gradient(ellipse at center,#0e1525 0%,#060c18 100%);border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px;}
+.mn-top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.mn-info{display:flex;align-items:center;gap:10px;}
+.mn-mult-badge{background:linear-gradient(135deg,#1e3a5f,#2d5986);border:1px solid rgba(100,150,220,.3);border-radius:8px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#22c55e;letter-spacing:.5px;}
+.mn-pick-cnt{font-size:12px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+.mn-cashout-btn{background:linear-gradient(135deg,#16a34a,#15803d);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;padding:10px 18px;cursor:pointer;transition:all .2s;line-height:1.3;}
+.mn-cashout-btn:disabled{background:#1f2937;color:rgba(255,255,255,.3);cursor:not-allowed;}
+.mn-cashout-btn:not(:disabled):hover{box-shadow:0 0 20px rgba(22,163,74,.4);}
+.mn-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.mn-cell{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .18s;font-weight:700;user-select:none;}
+.mn-hidden{background:linear-gradient(135deg,#1e2a45,#162038);border:1px solid rgba(100,130,200,.2);color:rgba(255,255,255,.4);font-size:16px;}
+.mn-hidden:hover{background:linear-gradient(135deg,#243254,#1d2a4a);border-color:rgba(100,130,255,.4);transform:scale(1.05);box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.mn-safe{background:linear-gradient(135deg,#14532d,#15803d);border:1px solid rgba(34,197,94,.4);box-shadow:0 0 12px rgba(34,197,94,.2);animation:mnSafePop .2s ease-out;}
+.mn-mine{background:linear-gradient(135deg,#7f1d1d,#991b1b);border:1px solid rgba(239,68,68,.5);box-shadow:0 0 16px rgba(239,68,68,.4);animation:mnMinePop .3s ease-out;}
+@keyframes mnSafePop{0%{transform:scale(0.8);opacity:0.5}100%{transform:scale(1);opacity:1}}
+@keyframes mnMinePop{0%{transform:scale(1.2)}50%{transform:scale(0.9)}100%{transform:scale(1)}}
+.mn-mines-sel{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.mn-sel-lbl{font-size:12px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.mn-mines-btns{display:flex;gap:6px;}
+.mn-mine-btn{padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#0d1117;color:rgba(255,255,255,.5);font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;}
+.mn-mine-btn.mn-mine-act{background:#ef4444;border-color:#f87171;color:#fff;box-shadow:0 0 12px rgba(239,68,68,.3);}
+.mn-auto-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.gc-mines-card{background:linear-gradient(135deg,#0d1117 0%,#1f0a0a 50%,#0d1117 100%);border:1px solid rgba(239,68,68,.25);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.gc-mines-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(239,68,68,.25);}
+.mn-card-grid{font-size:14px;letter-spacing:2px;}
+
+/* =================== SIC BO GAME =================== */
+.sb-wrap{max-width:560px;margin:16px auto;font-family:'Inter',sans-serif;}
+.sb-display{background:radial-gradient(ellipse at center,#0e1525 0%,#060c18 100%);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,.07);margin-bottom:14px;text-align:center;}
+.sb-dice-row{display:flex;justify-content:center;gap:16px;margin-bottom:12px;}
+.sb-die{width:70px;height:70px;background:linear-gradient(135deg,#1e2a45,#162038);border:2px solid rgba(100,130,220,.3);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;transition:all .15s;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.sb-die.rolling{animation:sbDieRoll .1s ease-in-out infinite;}
+@keyframes sbDieRoll{0%{transform:rotate(-5deg) scale(1.05)}50%{transform:rotate(5deg) scale(0.95)}100%{transform:rotate(-5deg) scale(1.05)}}
+.sb-sum-badge{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:rgba(255,255,255,.6);transition:color .3s;}
+.sb-bet-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.sb-bigsmall-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sb-num-row{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;}
+.sb-bet-btn{background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 4px;cursor:pointer;text-align:center;transition:all .15s;user-select:none;}
+.sb-bet-btn:hover{border-color:rgba(59,130,246,.5);background:#111827;}
+.sb-bet-btn.sb-selected{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;border-color:#3b82f6!important;box-shadow:0 0 16px rgba(59,130,246,.4);}
+.sb-bigsmall-btn{padding:14px 8px;}
+.sb-btn-main{font-size:18px;font-weight:900;color:#fff;}
+.sb-bigsmall-btn .sb-btn-main{font-size:20px;}
+.sb-btn-sub{font-size:10px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.sb-num-btn .sb-btn-main{font-size:15px;}
+.gc-sicbo-card{background:linear-gradient(135deg,#0d1117 0%,#0f1a35 50%,#0d1117 100%);border:1px solid rgba(59,130,246,.25);cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.gc-sicbo-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(59,130,246,.3);}
+/* Mines input fix */
+.mn-mine-input{background:#0d1117;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:15px;font-weight:700;padding:8px 12px;font-family:'JetBrains Mono',monospace;width:100px;max-width:120px;}
+.mn-mine-input::-webkit-inner-spin-button,.mn-mine-input::-webkit-outer-spin-button{opacity:1;}
+.mn-mines-sel{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 0;}
+.mn-cell.mn-hidden{background:linear-gradient(135deg,#1e2a45,#162038);border:1px solid rgba(100,130,200,.15);}
+.mn-cell.mn-hidden:empty{cursor:pointer;}
