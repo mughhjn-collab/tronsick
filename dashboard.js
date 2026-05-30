@@ -4,18 +4,9 @@ function closeSidebar(){document.getElementById('sidebar').classList.remove('ope
 const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','settings','contact'];
 var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdraw',surveys:'Surveys',affiliates:'Affiliates',gifts:'Gift Cards',cashback:'Cashback',contest:'Contest',settings:'Settings',contact:'Contact'};
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',settings:'/settings.php',contact:'/contact.php'};
-function go(key, skipHistory){
-PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});
-const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');
-const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');
-closeSidebar();window.scrollTo(0,0);
-var title=(PAGE_TITLES[key]||key.charAt(0).toUpperCase()+key.slice(1))+' – TronSick';
-document.title=title;
-try{sessionStorage.setItem('lastSection',key);}catch(e){}
-var url=PAGE_URLS[key]||'/faucet.php';
-if(!skipHistory){history.pushState({section:key},'',url);}
-else{history.replaceState({section:key},'',url);}
-}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';}
+function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
+
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 document.addEventListener('DOMContentLoaded',()=>{
 const dep=document.getElementById('depAddr');if(dep)dep.textContent='T'+Array.from({length:33},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random()*36)]).join('');
