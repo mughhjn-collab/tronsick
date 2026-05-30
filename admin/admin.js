@@ -822,23 +822,124 @@ function buildMsgTable(limit){
   '</tbody></table></div>';
 }
 
-// â”€â”€ USERS â”€â”€
 function buildUsers(){
   var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
   var rows=users.map(function(u){
-    return '<tr><td>'+u.name+'</td><td>'+u.email+'</td><td>'+parseFloat(u.balance||0).toFixed(4)+' TRX</td><td><span class="tbl-badge '+(u.banned?'tbl-red':'tbl-green')+'">'+(u.banned?'Banned':'Active')+'</span></td><td>'+new Date(u.joined||Date.now()).toLocaleDateString()+'</td><td>'+
-    '<button class="btn btn-sm '+(u.banned?'btn-primary':'btn-danger')+'" onclick="banUser(\''+u.id+'\')">'+(u.banned?'Unban':'Ban')+'</button> '+
-    '<button class="btn btn-sm btn-warning" onclick="adjustBalance(\''+u.id+'\')"><i class="fas fa-coins"></i></button>'+
+    return '<tr>'+
+    '<td><strong>'+u.name+'</strong></td>'+
+    '<td style="color:rgba(255,255,255,.6)">'+u.email+'</td>'+
+    '<td><span style="color:#3ecf8e;font-weight:700">'+parseFloat(u.balance||0).toFixed(4)+' TRX</span></td>'+
+    '<td><span class="tbl-badge '+(u.banned?'tbl-red':'tbl-green')+'">'+(u.banned?'🔴 Banned':'🟢 Active')+'</span></td>'+
+    '<td>'+new Date(u.joined||Date.now()).toLocaleDateString()+'</td>'+
+    '<td style="white-space:nowrap">'+
+    '<button class="btn btn-sm btn-primary" onclick="editUserModal(\''+u.id+'\')"><i class="fas fa-edit"></i> Edit</button> '+
+    '<button class="btn btn-sm '+(u.banned?'btn-success':'btn-danger')+'" onclick="banUser(\''+u.id+'\')"><i class="fas fa-'+(u.banned?'unlock':'ban')+'"></i> '+(u.banned?'Unban':'Ban')+'</button>'+
     '</td></tr>';
   }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No users yet. <button class="btn btn-sm btn-secondary" onclick="addDemoUser()" style="margin-left:10px">Add Test Users</button></td></tr>';
-  return '<div class="pg-hdr"><h1>User Management</h1><p>View and manage all registered users.</p></div>'+
+  return '<div class="pg-hdr"><h1>User Management</h1><p>View, edit and manage all registered users.</p></div>'+
   card('Users','users',{cls:'badge-blue',txt:users.length+' Total'},
     '<div class="tbl-toolbar">'+
     '<input class="tbl-search" placeholder="Search users..." oninput="filterTable(\'userTbody\',this.value)"/>'+
-    '<button class="btn btn-sm btn-warning" onclick="addDemoUser()"><i class="fas fa-plus"></i> Add Test User</button>'+
+    '<button class="btn btn-sm btn-success" onclick="showAddUserModal()"><i class="fas fa-user-plus"></i> Add User</button>'+
+    '<button class="btn btn-sm btn-warning" onclick="addDemoUser()"><i class="fas fa-plus"></i> Test User</button>'+
     '</div>'+
-    '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Email</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="userTbody">'+rows+'</tbody></table></div>'
+    '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Email</th><th>Balance</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="userTbody">'+rows+'</tbody></table></div>'+
+    // Edit User Modal
+    '<div id="editUserModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)closeEditUser()">'+
+    '<div style="background:#0f1a14;border:1px solid rgba(62,207,142,.2);border-radius:16px;padding:28px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'+
+    '<h3 style="margin:0;color:#fff;font-size:16px">✏️ Edit User</h3>'+
+    '<button onclick="closeEditUser()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:18px">×</button>'+
+    '</div>'+
+    '<div class="form-group"><label>Username</label><input type="text" id="euName" style="width:100%;box-sizing:border-box"/></div>'+
+    '<div class="form-group"><label>Email</label><input type="email" id="euEmail" style="width:100%;box-sizing:border-box"/></div>'+
+    '<div class="form-group"><label>Current Balance (TRX)</label><input type="number" id="euBalance" step="0.000001" style="width:100%;box-sizing:border-box"/></div>'+
+    '<div class="form-group"><label>Add / Subtract Balance</label>'+
+    '<div style="display:flex;gap:8px">'+
+    '<input type="number" id="euAdjust" placeholder="e.g. +10 or -5" step="0.01" style="flex:1"/>'+
+    '<button class="btn btn-success" onclick="applyBalAdj()" style="white-space:nowrap">Apply</button>'+
+    '</div></div>'+
+    '<input type="hidden" id="euId"/>'+
+    '<div style="display:flex;gap:10px;margin-top:20px">'+
+    '<button class="btn btn-primary" onclick="saveEditUser()" style="flex:1">💾 Save Changes</button>'+
+    '<button class="btn btn-secondary" onclick="closeEditUser()" style="flex:1">Cancel</button>'+
+    '</div></div></div>'+
+    // Add User Modal
+    '<div id="addUserModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)closeAddUser()">'+
+    '<div style="background:#0f1a14;border:1px solid rgba(62,207,142,.2);border-radius:16px;padding:28px;width:100%;max-width:400px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'+
+    '<h3 style="margin:0;color:#fff;font-size:16px">➕ Add New User</h3>'+
+    '<button onclick="closeAddUser()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:18px">×</button>'+
+    '</div>'+
+    '<div class="form-group"><label>Username</label><input type="text" id="auName" placeholder="username" style="width:100%;box-sizing:border-box"/></div>'+
+    '<div class="form-group"><label>Email</label><input type="email" id="auEmail" placeholder="user@example.com" style="width:100%;box-sizing:border-box"/></div>'+
+    '<div class="form-group"><label>Starting Balance (TRX)</label><input type="number" id="auBalance" value="0" step="0.01" style="width:100%;box-sizing:border-box"/></div>'+
+    '<button class="btn btn-success" onclick="saveNewUser()" style="width:100%;margin-top:10px">✅ Create User</button>'+
+    '</div></div>'
   );
+}
+
+function editUserModal(id){
+  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
+  var u=users.find(function(x){return x.id===id;});
+  if(!u) return;
+  document.getElementById('euId').value=u.id;
+  document.getElementById('euName').value=u.name;
+  document.getElementById('euEmail').value=u.email;
+  document.getElementById('euBalance').value=parseFloat(u.balance||0).toFixed(6);
+  document.getElementById('euAdjust').value='';
+  var modal=document.getElementById('editUserModal');
+  if(modal){ modal.style.display='flex'; }
+}
+function applyBalAdj(){
+  var adj=parseFloat(document.getElementById('euAdjust').value||'0');
+  if(isNaN(adj)){ toast('Enter a valid amount'); return; }
+  var cur=parseFloat(document.getElementById('euBalance').value||'0');
+  document.getElementById('euBalance').value=Math.max(0,cur+adj).toFixed(6);
+  document.getElementById('euAdjust').value='';
+  toast('Balance updated — click Save to confirm');
+}
+function saveEditUser(){
+  var id=document.getElementById('euId').value;
+  var name=document.getElementById('euName').value.trim();
+  var email=document.getElementById('euEmail').value.trim();
+  var bal=parseFloat(document.getElementById('euBalance').value||'0');
+  if(!name||!email){ toast('Name and email required'); return; }
+  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
+  users.forEach(function(u){
+    if(u.id===id){ u.name=name; u.email=email; u.balance=bal.toFixed(6); }
+  });
+  localStorage.setItem('adm_users',JSON.stringify(users));
+  toast('User saved ✅');
+  closeEditUser();
+  document.getElementById('admContent').innerHTML=buildUsers();
+}
+function closeEditUser(){
+  var m=document.getElementById('editUserModal');
+  if(m) m.style.display='none';
+}
+function showAddUserModal(){
+  document.getElementById('auName').value='';
+  document.getElementById('auEmail').value='';
+  document.getElementById('auBalance').value='0';
+  var m=document.getElementById('addUserModal');
+  if(m) m.style.display='flex';
+}
+function saveNewUser(){
+  var name=document.getElementById('auName').value.trim();
+  var email=document.getElementById('auEmail').value.trim();
+  var bal=parseFloat(document.getElementById('auBalance').value||'0');
+  if(!name||!email){ toast('Name and email required'); return; }
+  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
+  users.push({id:'u'+Date.now(),name:name,email:email,balance:bal.toFixed(6),banned:false,joined:new Date().toISOString()});
+  localStorage.setItem('adm_users',JSON.stringify(users));
+  toast('User added ✅');
+  closeAddUser();
+  document.getElementById('admContent').innerHTML=buildUsers();
+}
+function closeAddUser(){
+  var m=document.getElementById('addUserModal');
+  if(m) m.style.display='none';
 }
 
 function banUser(id){

@@ -26,6 +26,12 @@ try{
   var bal=parseFloat(localStorage.getItem('userBalance')||'0');
   var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);
   var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';
+  // ── Username & Email sync ──
+  var uname=localStorage.getItem('userName')||'User';
+  var uemail=localStorage.getItem('userEmail')||'';
+  var unEl=document.getElementById('userName');if(unEl)unEl.textContent=uname;
+  var emEl=document.getElementById('setEmail');if(emEl&&uemail)emEl.value=uemail;
+  var emEl2=document.getElementById('contactEmail');if(emEl2&&uemail)emEl2.value=uemail;
   // Also restore wager display
   var w=parseFloat(localStorage.getItem('totalWagered')||'0');
   if(w>0){
@@ -45,6 +51,47 @@ try{
     pcts.forEach(function(e){e.textContent=pct.toFixed(0)+'%';});
   }
 }catch(e){}}
+
+// ── SETTINGS TABS ──
+function settTab(tab){
+  ['security','twofa'].forEach(function(t){
+    var panel=document.getElementById('sp'+t.charAt(0).toUpperCase()+t.slice(1));
+    var btn=document.getElementById('st'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(panel) panel.style.display='none';
+    if(btn){ btn.classList.remove('sett-tab-act'); }
+  });
+  var activePanel=document.getElementById('sp'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  var activeBtn=document.getElementById('st'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(activePanel) activePanel.style.display='block';
+  if(activeBtn) activeBtn.classList.add('sett-tab-act');
+}
+function copyTfaKey(){
+  var k=document.getElementById('tfaKey');
+  if(k){ navigator.clipboard.writeText(k.value).then(function(){ showToast('Key copied!'); }); }
+}
+function enable2FA(){
+  var code=document.getElementById('tfaCode');
+  var status=document.getElementById('tfaStatus');
+  if(!code||!code.value||code.value.length!==6){ showToast('Enter 6-digit code'); return; }
+  if(status){
+    status.style.cssText='color:#3ecf8e;font-size:13px;font-weight:700;margin-top:10px';
+    status.textContent='✅ 2FA enabled successfully!';
+  }
+  localStorage.setItem('tfa_enabled','1');
+  showToast('2FA Enabled!');
+}
+function changePassword(){
+  var cur=document.getElementById('setPwdCur');
+  var nw=document.getElementById('setPwdNew');
+  var cf=document.getElementById('setPwdConf');
+  if(!cur||!nw||!cf) return;
+  if(nw.value.length<8){ showToast('Password must be at least 8 characters'); return; }
+  if(nw.value!==cf.value){ showToast('Passwords do not match'); return; }
+  localStorage.setItem('userPwd', nw.value);
+  showToast('Password changed successfully!');
+  cur.value=''; nw.value=''; cf.value='';
+}
+
 function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());syncBal();}catch(e){}}
 function updateWager(amt){
 try{
