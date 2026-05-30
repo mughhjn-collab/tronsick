@@ -70,14 +70,7 @@ try{
   localStorage.setItem('userLevel',curLvl.toLowerCase());
 }catch(e){}}
 
-// ── GLOBAL BET MODAL HELPERS ──
-function closeBetModal(){
-  var m=document.getElementById('betModal');if(m)m.style.display='none';
-  // Also close game-specific modals
-  ['dmModal','dgBetModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
-}
-function showBetModal(){var m=document.getElementById('betModal');if(m)m.style.display='flex';}
-// ── END MODAL HELPERS ──
+// ── GLOBAL BET MODAL HELPERS (replaced below in showBetModal) ──
 
 function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
 // ── END BALANCE HELPERS ──
@@ -667,20 +660,54 @@ html+='</tr>';
 html+='</tbody></table>';
 list.innerHTML=html;
 }
+function _ensureBetModal(){
+var m=document.getElementById('betModal');
+if(m)return m;
+// Create modal dynamically and append to body
+var div=document.createElement('div');
+div.id='betModal';
+div.className='bet-modal';
+div.style.cssText='display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;';
+div.innerHTML='<div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);">'+
+'<div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
+'<div class="bm-title" id="bmTitle" style="font-size:15px;font-weight:800;color:#fff;">&#127922; Bet Info</div>'+
+'<button class="bm-close" onclick="_closeBetModal(this)" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;">&#215;</button>'+
+'</div>'+
+'<div class="bm-result" id="bmResult" style="text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;"></div>'+
+'<div id="bmSeeds"></div>'+
+'<div id="bmVerifyLink" style="text-align:center;margin-top:14px;"></div>'+
+'</div>';
+div.onclick=function(e){if(e.target===div)_closeBetModal();};
+document.body.appendChild(div);
+return div;
+}
+function _closeBetModal(){
+var m=document.getElementById('betModal');if(m)m.style.display='none';
+}
+function closeBetModal(){_closeBetModal();}
 function showBetModal(i){
 window._dgVerifyIdx=i;
 var b=betHistory[i];if(!b)return;
-var modal=document.getElementById('betModal');if(!modal)return;
+var modal=_ensureBetModal();
+var title=document.getElementById('bmTitle');
+if(title)title.textContent='\u{1F3B2} Dice - Bet Info';
 var res=document.getElementById('bmResult');
-if(res){res.textContent=(b.win?'WIN +':'LOSS ')+Math.abs(b.profit).toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
+if(res){
+  res.textContent=(b.win?'WIN +':'LOSS ')+Math.abs(b.profit).toFixed(6)+' TRX';
+  res.style.cssText=b.win?'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e':'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
+}
 var seeds=document.getElementById('bmSeeds');
 if(seeds)seeds.innerHTML=
-'<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div>'+
-'<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&#60;/&#62;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+
-'<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+
-'<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
+'<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+(b.sv||'')+'"></div></div>'+
+'<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="'+(b.ssh||'')+'"></div></div>'+
+'<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+(b.cs||'')+'"></div></div>'+
+'<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+(b.id||0)+'"></div></div>';
+var vl=document.getElementById('bmVerifyLink');
+if(vl){var vUrl='/verify.php?game=dice&seed='+encodeURIComponent(b.sv||'')+'&hash='+encodeURIComponent(b.ssh||'')+'&client='+encodeURIComponent(b.cs||'')+'&nonce='+(b.id||0)+'&win='+(b.win?1:0)+'&profit='+b.profit+'&bet='+b.bet;
+vl.innerHTML='<a href="'+vUrl+'" class="bm-verify-btn" style="display:inline-block;padding:11px 28px;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;">&#128270; Verify</a>';}
 modal.style.display='flex';
 }
+
 
 // ==========================================
 // TOWER GAME
@@ -819,9 +846,10 @@ html+='</tbody></table>';list.innerHTML=html;}
 // END TOWER G
 
 function showTwBetModal(i){
+var modal=_ensureBetModal();
+var title=document.getElementById('bmTitle');if(title)title.textContent='\u{1F3D7} Tower - Bet Info';
 var b=twBetHistory[i];if(!b)return;
-var modal=document.getElementById('betModal');if(!modal)return;
-var title=document.getElementById('bmTitle');if(title)title.textContent='\u1f3d7 Tower - Bet Info';
+
 var res=document.getElementById('bmResult');
 if(res){res.textContent=(b.win?'WIN +':'LOSS ')+Math.abs(b.profit).toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
 var seeds=document.getElementById('bmSeeds');
