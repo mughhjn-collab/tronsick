@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deploy via FTP to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -19,8 +20,11 @@ jobs:
           username: u895912460
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
+          protocol: ftp
           local-dir: ./
-          server-dir: /public_html/
+          server-dir: /domains/tronsick.io/public_html/
+          timeout: 60000
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
@@ -29,3 +33,4 @@ jobs:
             **/fix_*.js
             **/append_*.js
             **/rename_*.js
+            **/add_*.js
