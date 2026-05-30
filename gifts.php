@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="dashboard.css?v=2"/>
-  <link rel="stylesheet" href="games_new.css?v=3"/>
+  <link rel="stylesheet" href="games_new.css?v=5"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -211,12 +211,17 @@
         <div class="gc-label2">Diamond</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('tower')" id="gc-tower">
-        <div class="gc-art gc-art-tower">
-          <div class="tower-icon-3d">&#x1F3D7;</div>
-          <div class="tower-diff-3d">EASY &bull; HARD</div>
+      <div class="gc-wrap2" onclick="openGame('coinflip')" id="gc-coinflip">
+        <div class="gc-art gc-art-coinflip">
+          <div class="cf-coin-3d-art">
+            <div class="cf-coin-inner">
+              <div class="cf-coin-face cf-coin-h">H</div>
+              <div class="cf-coin-face cf-coin-t">T</div>
+            </div>
+          </div>
+          <div class="cf-card-label">HEAD &bull; TAIL</div>
         </div>
-        <div class="gc-label2">Tower</div>
+        <div class="gc-label2">Coin Flip</div>
       </div>
 
     </div>
@@ -669,7 +674,7 @@
   </div>
 </div>
 
-<script src="dashboard.js"></script>
+<script src="dashboard.js?v=5"></script>
 <script>window._INIT_SECTION='gifts';</script>
 </body>
 </html>

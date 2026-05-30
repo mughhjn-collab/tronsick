@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="dashboard.css?v=2"/>
-  <link rel="stylesheet" href="games_new.css?v=3"/>
+  <link rel="stylesheet" href="games_new.css?v=5"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -699,7 +699,7 @@
   </div>
 </div>
 
-<script src="dashboard.js"></script>
+<script src="dashboard.js?v=5"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
@@ -708,7 +708,7 @@ if(typeof updateWager!=='function'){window.updateWager=function(){};}
 if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
 // My All Bets logic
 var _abTab='all';
-function abSetTab(t){_abTab=t;['all','dice','limbo','wheel','mines','sicbo','diamond','tower'].forEach(function(k){var el=document.getElementById('abTab'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('ab-tab-act',k===t);});renderAllBets();}
+function abSetTab(t){_abTab=t;['all','dice','limbo','wheel','mines','sicbo','diamond','tower','coinflip'].forEach(function(k){var el=document.getElementById('abTab'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('ab-tab-act',k===t);});renderAllBets();}
 function renderAllBets(){
   var keys={dice:'diceHistory',limbo:'limboHistory',wheel:'wheelHistory',mines:'mnHistory',sicbo:'sbHistory',diamond:'dmHistory',tower:'twHistory',coinflip:'cfHistory'};
   var gameNames={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#127922; Sic Bo',diamond:'&#9670; Diamond',tower:'&#127959; Tower',coinflip:'&#x1FA99; Coin Flip'};
