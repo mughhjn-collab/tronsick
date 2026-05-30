@@ -616,6 +616,143 @@ if(seeds)seeds.innerHTML=
 '<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
 modal.style.display='flex';
 }
+
+// ==========================================
+// TOWER GAME
+// ==========================================
+// TOWER GAME
+// ==========================================
+var TW_PAYOUTS={easy:[1.46,2.12,3.08,4.48,6.52,9.49,13.81,20.09,29.23,42.53],medium:[1.94,3.76,7.29,14.14,27.43,53.21,103.23,200.27,388.52,753.73],hard:[2.91,8.47,24.65,71.73,208.73,607.40,1767.53,5143.51,14967.61,43555.75]};
+var TW_COLS={easy:3,medium:2,hard:3},TW_MINES={easy:1,medium:1,hard:2};
+var twMode='easy',twActive=false,twBet=0,twCurrentRow=0,twGrid=[],twNonce=0,twBetHistory=[];
+function buildTowerUI(){
+var h='<div class="tw-wrap">';
+h+='<div class="tw-card">';
+h+='<div class="tw-grid-area" id="twGridArea">'+twBuildGrid('easy')+'</div>';
+h+='<div class="tw-modes"><label class="tw-mode-opt"><input type="radio" name="twMode" value="easy" checked onchange="twChangeMode(this.value)"><span class="tw-pill tw-easy">Easy</span></label><label class="tw-mode-opt"><input type="radio" name="twMode" value="medium" onchange="twChangeMode(this.value)"><span class="tw-pill tw-med">Medium</span></label><label class="tw-mode-opt"><input type="radio" name="twMode" value="hard" onchange="twChangeMode(this.value)"><span class="tw-pill tw-hard">Hard</span></label></div>';
+h+='<div class="tw-cashout-bar" id="twCashoutBar" style="display:none"><span class="tw-mult-lbl">Current: <strong id="twMult">0.00x</strong></span><button class="tw-co-btn" onclick="twCashOut()">&#128176; Cash Out</button></div>';
+h+='<div class="lb-bet-row"><div class="dg-amt-lbl"><span class="dg-dot"></span> Bet Amount</div>';
+h+='<div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="twAmt" type="number" value="0.0001" step="0.000001" min="0"><button class="dg-sz-btn" onclick="twSetAmt(\'min\')">MIN</button><button class="dg-sz-btn" onclick="twSetAmt(\'half\')">1/2</button><button class="dg-sz-btn" onclick="twSetAmt(\'2x\')">2x</button><button class="dg-sz-btn" onclick="twSetAmt(\'max\')">MAX</button></div></div>';
+h+='<div class="dg-win-row"><span class="dg-wlbl">Win Amount</span><div class="dg-wval"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><span id="twWinAmt">0.00000000</span></div></div>';
+h+='<button class="dg-roll-btn" id="twStartBtn" onclick="twStart()">Start Game</button>';
+h+='<div class="dg-bsec"><div class="dg-bet-tabs"><button class="dg-btab dg-btab-act">My Bets</button></div><div class="dg-bet-list" id="twBetList"><div class="dg-no-bets">No bets yet.</div></div></div>';
+h+='</div></div>';return h;}
+function twBuildGrid(mode){
+var cols=TW_COLS[mode],pays=TW_PAYOUTS[mode];
+var h='<div class="tw-grid tw-grid-'+mode+'" id="twGrid">';
+for(var row=9;row>=0;row--){
+h+='<div class="tw-row tw-row-idle" id="twRow'+row+'"><div class="tw-row-cells">';
+for(var col=0;col<cols;col++){
+h+='<div class="tw-cell" id="twCell_'+row+'_'+col+'" onclick="twClickCell('+row+','+col+')">x'+pays[row].toFixed(2)+'</div>';}
+h+='</div></div>';}
+h+='</div>';return h;}
+function initTower(){
+twBetHistory=[];
+try{var s=localStorage.getItem('twHistory');if(s)twBetHistory=JSON.parse(s)||[];}catch(e){}
+twActive=false;twNonce=0;twMode='easy';twCurrentRow=0;twGrid=[];
+twRenderBets();}
+function twChangeMode(m){if(twActive)return;twMode=m;var a=document.getElementById('twGridArea');if(a)a.innerHTML=twBuildGrid(m);}
+function twStart(){
+if(twActive)return;
+var bet=parseFloat((document.getElementById('twAmt')||{}).value)||0;
+var bal=parseFloat(document.getElementById('userBalance').textContent)||0;
+if(bet<=0){showToast('Enter bet!');return;}
+if(bal<bet){showToast('Insufficient balance!');return;}
+twBet=bet;addBal(-bet);updateWager(bet);twNonce++;twActive=true;twCurrentRow=0;twGrid=[];
+var cols=TW_COLS[twMode],mines=TW_MINES[twMode];
+for(var r=0;r<10;r++){
+var pos=[],mi=[];
+for(var c=0;c<cols;c++)pos.push(c);
+pos.sort(function(){return Math.random()-.5;});
+for(var m=0;m<mines;m++)mi.push(pos[m]);
+twGrid.push({mi:mi,revealed:false,sel:-1});}
+twRefreshGrid();
+var bar=document.getElementById('twCashoutBar');if(bar)bar.style.display='flex';
+var btn=document.getElementById('twStartBtn');if(btn){btn.disabled=true;btn.textContent='In Progress...';}
+}
+
+function twRefreshGrid(){
+var cols=TW_COLS[twMode];
+var pays=TW_PAYOUTS[twMode];
+for(var row=0;row<10;row++){
+var re=document.getElementById('twRow'+row);if(!re)continue;
+var g=twGrid[row];
+var cls='tw-row ';
+if(twActive&&row===twCurrentRow)cls+='tw-row-active';
+else if(twGrid.length>0&&row<twCurrentRow)cls+='tw-row-passed';
+else if(twActive)cls+='tw-row-future';
+else cls+='tw-row-idle';
+re.className=cls;
+for(var col=0;col<cols;col++){
+var cell=document.getElementById('twCell_'+row+'_'+col);if(!cell)continue;
+cell.className='tw-cell';
+if(twActive&&row===twCurrentRow){
+cell.innerHTML='x'+pays[row].toFixed(2);
+cell.classList.add('tw-cell-pick');
+}else if(g&&g.revealed){
+if(g.mi.indexOf(col)>=0){cell.classList.add('tw-cell-mine');cell.innerHTML='&#x1F4A3;';}
+else if(col===g.sel){cell.classList.add('tw-cell-safe');cell.innerHTML='&#10003;';}
+else{cell.classList.add('tw-cell-faded');cell.innerHTML='x'+pays[row].toFixed(2);}
+}else if(twActive){
+cell.innerHTML='x'+pays[row].toFixed(2);
+cell.classList.add('tw-cell-locked');
+}else{
+cell.innerHTML='x'+pays[row].toFixed(2);
+cell.classList.add('tw-cell-locked');
+}}}}
+
+function twClickCell(row,col){
+if(!twActive||row!==twCurrentRow)return;
+var g=twGrid[row];
+if(!g)return;
+var isMine=g.mi.indexOf(col)>=0;
+g.revealed=true;g.sel=col;
+if(isMine){
+twActive=false;twRefreshGrid();
+var wa=document.getElementById('twWinAmt');if(wa){wa.textContent='-'+twBet.toFixed(8);wa.style.color='#ef4444';}
+var ts=('0'+new Date().getDate()).slice(-2)+'/'+(('0'+(new Date().getMonth()+1)).slice(-2));
+twBetHistory.unshift({id:twNonce,mode:twMode,bet:twBet,win:false,mult:0,profit:-twBet,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed});
+try{localStorage.setItem('twHistory',JSON.stringify(twBetHistory.slice(0,50)));}catch(e){}
+twRenderBets();showToast('BOOM! Mine hit!');
+var bar=document.getElementById('twCashoutBar');if(bar)bar.style.display='none';
+var btn=document.getElementById('twStartBtn');if(btn){btn.disabled=false;btn.textContent='Start Game';}
+setTimeout(function(){var a=document.getElementById('twGridArea');if(a)a.innerHTML=twBuildGrid(twMode);},1200);
+}else{
+twCurrentRow++;
+var mult=TW_PAYOUTS[twMode][row];
+var mm=document.getElementById('twMult');if(mm)mm.textContent=mult.toFixed(2)+'x';
+var wa=document.getElementById('twWinAmt');if(wa){wa.textContent=(twBet*mult).toFixed(8);wa.style.color='#22c55e';}
+twRefreshGrid();
+if(twCurrentRow>=10)twCashOut();}}
+function twCashOut(){
+if(!twActive||twCurrentRow===0){showToast('Pick at least one row first!');return;}
+var r=twCurrentRow-1;
+var mult=TW_PAYOUTS[twMode][r];
+var won=twBet*mult;addBal(won);var profit=won-twBet;
+twActive=false;
+var ts=('0'+new Date().getDate()).slice(-2)+'/'+(('0'+(new Date().getMonth()+1)).slice(-2));
+twBetHistory.unshift({id:twNonce,mode:twMode,bet:twBet,win:true,mult:mult,profit:profit,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed});
+try{localStorage.setItem('twHistory',JSON.stringify(twBetHistory.slice(0,50)));}catch(e){}
+twRenderBets();
+showToast('Cashed out! +'+profit.toFixed(6)+' TRX');
+var wa=document.getElementById('twWinAmt');if(wa){wa.textContent='+'+profit.toFixed(8);wa.style.color='#22c55e';}
+var bar=document.getElementById('twCashoutBar');if(bar)bar.style.display='none';
+var btn=document.getElementById('twStartBtn');if(btn){btn.disabled=false;btn.textContent='Start Game';}
+setTimeout(function(){var a=document.getElementById('twGridArea');if(a)a.innerHTML=twBuildGrid(twMode);},600);}
+function twSetAmt(sz){var inp=document.getElementById('twAmt');if(!inp)return;var bal=parseFloat(document.getElementById('userBalance').textContent)||0;var cur=parseFloat(inp.value)||0;if(sz==='min')inp.value='0.000001';else if(sz==='half')inp.value=(cur>0?cur/2:0.00005).toFixed(6);else if(sz==='2x')inp.value=(cur>0?cur*2:0.0002).toFixed(6);else if(sz==='max')inp.value=bal.toFixed(6);}
+function twRenderBets(){
+var list=document.getElementById('twBetList');if(!list)return;
+if(twBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}
+var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Result</th><th>Profit</th></tr></thead><tbody>';
+twBetHistory.slice(0,50).forEach(function(b){
+html+='<tr class="dg-hist-row" style="cursor:pointer" onclick="showTwBetModal('+twBetHistory.indexOf(b)+')"><td class="dg-tc-time">'+b.ts+'</td><td>&#x1F3D7; Tower</td>';
+html+='<td>'+b.bet.toFixed(8)+'</td>';
+html+='<td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+(b.win?b.mult.toFixed(2)+'x':'LOSE')+'</td>';
+html+='<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';
+});
+html+='</tbody></table>';list.innerHTML=html;}
+// END TOWER G
+
 function showTwBetModal(i){
 var b=twBetHistory[i];if(!b)return;
 var modal=document.getElementById('betModal');if(!modal)return;
