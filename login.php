@@ -104,7 +104,34 @@ function handleLogin(e) {
   err.style.display='none';
   const btn = document.getElementById('loginBtn');
   btn.textContent='Logging in…'; btn.disabled=true;
-  setTimeout(() => { window.location.href='faucet.php'; }, 1500);
+  setTimeout(() => {
+    // Determine username from input
+    const uname = id.includes('@') ? (id.split('@')[0]) : id;
+    const uemail = id.includes('@') ? id : (id + '@tronsick.io');
+    const uid = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'') + '_' + Date.now();
+    // Save session to localStorage
+    localStorage.setItem('userName', uname);
+    localStorage.setItem('userEmail', uemail);
+    localStorage.setItem('userLoggedIn', '1');
+    localStorage.setItem('userId', uid);
+    // Register user in admin panel user list (if not already there)
+    try {
+      const admUsers = JSON.parse(localStorage.getItem('adm_users') || '[]');
+      const exists = admUsers.find(u => u.name === uname || u.email === uemail);
+      if (!exists) {
+        admUsers.push({
+          id: uid,
+          name: uname,
+          email: uemail,
+          balance: '0.000000',
+          banned: false,
+          joined: new Date().toISOString()
+        });
+        localStorage.setItem('adm_users', JSON.stringify(admUsers));
+      }
+    } catch(e) {}
+    window.location.href='faucet.php';
+  }, 1500);
 }
 // Show registration success banner
 (function(){

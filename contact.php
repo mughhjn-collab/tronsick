@@ -36,7 +36,7 @@
     <a class="sb-item"        id="nav-settings"    href="/settings.php">  <i>&#9881;</i><s>Settings</s></a>
     <a class="sb-item"        id="nav-contact"     href="/contact.php">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
-    <a class="sb-item sb-out" href="index.php">                              <i>&#x1F534;</i><s>Logout</s></a>
+    <a class="sb-item sb-out" href="/logout.php">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
 </aside>
 
