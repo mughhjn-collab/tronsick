@@ -1,6 +1,6 @@
 ﻿
-// Auth guard
-if(!sessionStorage.getItem('adminAuth')){window.location.href='index.php';}
+// Auth guard â€” localStorage so it persists across tabs and refreshes
+if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
 
 // State
 var S={
@@ -77,7 +77,7 @@ function showSection(btn,sec){
 }
 
 function doLogout(){
-  sessionStorage.removeItem('adminAuth');
+  localStorage.removeItem('adminAuth');
   window.location.href='index.php';
 }
 
@@ -108,7 +108,7 @@ function toggleSetting(stateKey,saveKey,val){
 }
 
 function fld(label,id,val,type,extra){
-  return '<div class="form-group"><label>'+label+'</label><input type="'+(type||'text')+'" id="'+id+'" value="'+val+'" '+(extra||')+'/></div>';
+  return '<div class="form-group"><label>'+label+'</label><input type="'+(type||'text')+'" id="'+id+'" value="'+val+'" '+(extra||'')+'/></div>';
 }
 
 // â”€â”€ DASHBOARD â”€â”€

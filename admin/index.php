@@ -199,10 +199,10 @@ function doAdminLogin(e) {
     err.style.display = 'none';
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in…';
     btn.disabled = true;
-    // Set session
-    sessionStorage.setItem('adminAuth', btoa(user + ':' + Date.now()));
+    // Set auth token in localStorage (persists across tabs & refreshes)
+    localStorage.setItem('adminAuth', btoa(user + ':' + Date.now()));
     localStorage.setItem('adminLastLogin', new Date().toISOString());
-    setTimeout(function(){ window.location.href = 'dashboard.php'; }, 1000);
+    setTimeout(function(){ window.location.href = 'dashboard.php'; }, 800);
   } else {
     loginAttempts++;
     sessionStorage.setItem('loginAttempts', loginAttempts);
@@ -219,8 +219,8 @@ function doAdminLogin(e) {
   }
 }
 
-// If already logged in, redirect
-if (sessionStorage.getItem('adminAuth')) {
+// If already logged in, redirect to dashboard
+if (localStorage.getItem('adminAuth')) {
   window.location.href = 'dashboard.php';
 }
 
