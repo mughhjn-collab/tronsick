@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -96,7 +96,7 @@
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="capChk" onchange="onCap(this)"/>
-            <span class="cap-box"><span class="cap-tick">âœ”</span></span>
+            <span class="cap-box"><span class="cap-tick">&#10003;</span></span>
             <span>I am not a robot</span>
           </label>
           <button class="claim-btn" id="claimBtn" disabled onclick="doClaim()">CLAIM</button>
@@ -137,7 +137,7 @@
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="bonChk" onchange="onBon(this)"/>
-            <span class="cap-box"><span class="cap-tick">âœ”</span></span>
+            <span class="cap-box"><span class="cap-tick">&#10003;</span></span>
             <span>I am not a robot</span>
           </label>
           <button class="claim-btn roll-btn" id="bonBtn" disabled onclick="doRoll()">ROLL</button>

@@ -25,7 +25,8 @@ function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.get
 let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=1800-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
 function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn)btn.textContent='Next claim in '+m+':'+s;if(note){note.textContent='Cooldown: '+m+':'+s;note.style.color='#f59e0b';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
-function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{const amt=(Math.random()*.004+.001).toFixed(6);addBal(parseFloat(amt));note.textContent='Claimed '+amt+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(1800),1500);},1200);}
+var LEVEL_PAYOUTS={stone:0.005,iron:0.01,bronze:0.02,silver:0.07,gold:0.5,platinum:5.0,diamond:15.0,master:60.0};
+function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=LEVEL_PAYOUTS[lvl]||0.005;addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(1800),1500);},1200);}
 let rollsLeft=0;
 function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
@@ -613,7 +614,7 @@ if(seeds)seeds.innerHTML=
 '<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&#60;/&#62;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+
 '<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+
 '<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
-var vbtn=document.getElementById('bmVerifyBtn');if(vbtn){vbtn.onclick=function(){twVerify(i);};}
+seeds.innerHTML+='<div style="text-align:center;margin-top:16px"><button class="bm-verify-btn" onclick="twVerify('+i+')">&#128270; Verify this bet</button></div>';
 modal.style.display='flex';
 }
 
@@ -629,8 +630,8 @@ if(seeds)seeds.innerHTML=
 '<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div>'+
 '<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&#60;/&#62;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+
 '<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+
-'<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
-var vbtn=document.getElementById('bmVerifyBtn');if(vbtn){vbtn.onclick=function(){sbVerify(i);};}
+'<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>'+
+'<div style="text-align:center;margin-top:16px"><button class="bm-verify-btn" onclick="sbVerify('+i+')">&#128270; Verify this bet</button></div>';
 modal.style.display='flex';
 }
 function sbVerify(i){

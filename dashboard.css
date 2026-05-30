@@ -720,3 +720,19 @@ button{cursor:pointer}
 .contact-img-preview img{width:100%;height:100%;object-fit:cover}
 .contact-img-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 .contact-img-rm:hover{background:#ef4444}
+
+/* ══ GAME CARD WRAPPER (name below) ══ */
+.gc-wrapper{display:flex;flex-direction:column;align-items:center;cursor:pointer;gap:0}
+.gc-wrapper .gc{width:100%;margin:0}
+.gc-name{text-align:center;font-size:13px;font-weight:700;color:rgba(232,240,235,.8);letter-spacing:.5px;padding:8px 0 4px;text-transform:uppercase}
+.gc-wrapper:hover .gc-name{color:#3ecf8e}
+.mn-big-bomb{font-size:36px;margin-bottom:4px}
+.gc-mines-img,.gc-sicbo-img,.gc-diamond-img,.gc-tower-img{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+.sb-card-dice{font-size:28px;letter-spacing:4px}
+.sb-card-tag{font-size:11px;color:#3b82f6;font-weight:700;margin-top:6px}
+.dm-card-gems{font-size:36px;letter-spacing:2px;color:#22d3ee;text-shadow:0 0 12px #06b6d4}
+.dm-card-mult{font-size:12px;color:#f59e0b;font-weight:700;margin-top:6px}
+.tw-card-diff{font-size:11px;color:#a78bfa;font-weight:700;margin-top:6px}
+/* ══ VERIFY BUTTON IN BET MODAL ══ */
+.bm-verify-btn{background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:all .2s}
+.bm-verify-btn:hover{opacity:.9;transform:translateY(-1px)}
