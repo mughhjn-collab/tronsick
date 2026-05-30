@@ -144,7 +144,15 @@ function handleReg(e) {
   err.style.display='none';
   const btn = document.getElementById('regBtn');
   btn.textContent='Creating Account…'; btn.disabled=true;
-  setTimeout(() => { window.location.href='login.php'; }, 1800);
+  setTimeout(() => {
+    // Give new user 3 bonus rolls
+    localStorage.setItem('bonusRolls','3');
+    localStorage.setItem('newUserBonus','0'); // mark as fresh (dashboard will read bonusRolls)
+    localStorage.setItem('regUser', u);
+    // Redirect to login with success flag
+    window.location.href='login.php?registered=1&user='+encodeURIComponent(u);
+  }, 1500);
+}
 }
 </script>
 </body>

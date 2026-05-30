@@ -104,8 +104,23 @@ function handleLogin(e) {
   err.style.display='none';
   const btn = document.getElementById('loginBtn');
   btn.textContent='Logging in…'; btn.disabled=true;
-  setTimeout(() => { window.location.href='dashboard.php'; }, 1500);
+  setTimeout(() => { window.location.href='faucet.php'; }, 1500);
 }
+// Show registration success banner
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  if(p.get('registered')==='1'){
+    const name=decodeURIComponent(p.get('user')||'');
+    const banner=document.createElement('div');
+    banner.style.cssText='position:fixed;top:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#052e16,#065f46);border:1px solid #10b981;color:#34d399;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center;';
+    banner.innerHTML='&#127881; Welcome'+(name?' <strong>'+name+'</strong>':'')+' ! Account created.<br><span style="font-size:12px;opacity:.8">&#127922; You received <strong>3 FREE bonus rolls</strong> — login to use them!</span>';
+    document.body.appendChild(banner);
+    setTimeout(()=>banner.remove(),5000);
+    // Clean URL
+    history.replaceState(null,'',window.location.pathname);
+  }
+})();
 </script>
 </body>
 </html>
+
