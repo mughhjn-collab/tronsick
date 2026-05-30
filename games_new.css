@@ -183,3 +183,20 @@
 
 @media(max-width:900px){.dg-layout{grid-template-columns:1fr;}.dg-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.07);}.dg-seeds-grid{grid-template-columns:1fr 1fr;}.game-grid-single{grid-template-columns:repeat(2,1fr);padding:20px;}}
 @media(max-width:600px){.dg-seeds-grid{grid-template-columns:1fr;}.dg-alims{grid-template-columns:1fr 1fr;}.game-grid-single{grid-template-columns:repeat(2,1fr);gap:12px;padding:16px;}}
+
+/* ─── MY ALL BETS SECTION ─── */
+.all-bets-section{max-width:1100px;margin:32px auto 40px;padding:0 28px;}
+.all-bets-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.all-bets-hd span{font-size:17px;font-weight:800;color:#fff;letter-spacing:.3px;}
+.all-bets-refresh{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.25);color:#3ecf8e;font-size:12px;font-weight:700;padding:6px 14px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.all-bets-refresh:hover{background:rgba(62,207,142,.2);}
+.all-bets-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.ab-tab{padding:7px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:rgba(255,255,255,.4);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.ab-tab-act{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.35);color:#3ecf8e;}
+.ab-tab:hover:not(.ab-tab-act){color:#fff;border-color:rgba(255,255,255,.2);}
+.all-bets-body{background:#141c28;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35);}
+.all-bets-body .dg-hist-tbl{width:100%;}
+.all-bets-body .dg-no-bets{padding:40px;}
+.all-bets-body .dg-bet-list{max-height:400px;overflow-y:auto;}
+.dg-tc-time{font-size:12px;color:rgba(255,255,255,.4)!important;font-family:'Inter',sans-serif!important;font-weight:500!important;}
+
