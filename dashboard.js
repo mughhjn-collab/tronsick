@@ -24,7 +24,8 @@ syncBal();initClaimTimer();initNewUserBonus();
 // Show section based on PHP-injected variable (each page sets window._INIT_SECTION)
 var _initSec=(typeof window._INIT_SECTION!=='undefined')?window._INIT_SECTION:'home';
 _showSection(_initSec);
-if(_initSec==='games'){try{var _lg=sessionStorage.getItem('lastGame');if(_lg)openGame(_lg,true);}catch(e){}}
+// Auto-restore of last game disabled — always show grid first
+try{sessionStorage.removeItem('lastGame');}catch(e){}
 });
 function onCap(cb){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=!cb.checked;note.textContent=cb.checked?'Click CLAIM to receive your TRX':'Complete captcha to claim';note.style.color=cb.checked?'#3ecf8e':'';}
 function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){rollsLeft=1;document.getElementById('rollCount').textContent=rollsLeft;btn.disabled=false;note.textContent='Click ROLL to spin!';note.style.color='#3ecf8e';}else{rollsLeft=0;btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
@@ -72,41 +73,44 @@ hard:[
 
 function openGame(name, skipHistory){
 go('games',true);
+// Hide grid + extras, show game panel
 var grid=document.getElementById('gameGrid');
 if(grid)grid.style.display='none';
-var panel=document.getElementById('gamePanel');
-if(panel)panel.style.display='block';
-var allBets=document.getElementById('allBetsSection');
-if(allBets)allBets.style.display='none';
 var lvlBar=document.getElementById('gamesLevelBar');
 if(lvlBar)lvlBar.style.display='none';
+var allBets=document.getElementById('allBetsSection');
+if(allBets)allBets.style.display='none';
+var panel=document.getElementById('gamePanel');
+if(panel)panel.style.display='block';
+// Build game UI
 var frame=document.getElementById('gameFrame');
+if(!frame)return;
 if(name==='dice'){frame.innerHTML=buildDiceUI();initDice();}
-if(name==='limbo'){frame.innerHTML=buildLimboUI();initLimbo();}
-if(name==='wheel'){frame.innerHTML=buildWheelUI();initWheel();}
-if(name==='mines'){frame.innerHTML=buildMinesUI();initMines();}
-if(name==='diamond'){frame.innerHTML=buildDiamondUI();initDiamond();}
-if(name==='sicbo'){frame.innerHTML=buildSicBoUI();initSicBo();}
-if(name==='tower'){frame.innerHTML=buildTowerUI();initTower();}
-try{sessionStorage.setItem('lastGame',name);}catch(e){}
-if(!skipHistory)history.replaceState(null,'',window.location.pathname);
+else if(name==='limbo'){frame.innerHTML=buildLimboUI();initLimbo();}
+else if(name==='wheel'){frame.innerHTML=buildWheelUI();initWheel();}
+else if(name==='mines'){frame.innerHTML=buildMinesUI();initMines();}
+else if(name==='diamond'){frame.innerHTML=buildDiamondUI();initDiamond();}
+else if(name==='sicbo'){frame.innerHTML=buildSicBoUI();initSicBo();}
+else if(name==='tower'){frame.innerHTML=buildTowerUI();initTower();}
+else{closeGame();return;}
 window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
-var grid=document.getElementById('gameGrid');
-if(grid)grid.style.display='';
+// Restore grid, hide panel
 var panel=document.getElementById('gamePanel');
 if(panel)panel.style.display='none';
-var allBets=document.getElementById('allBetsSection');
-if(allBets)allBets.style.display='';
-var lvlBar=document.getElementById('gamesLevelBar');
-if(lvlBar)lvlBar.style.display='';
 var frame=document.getElementById('gameFrame');
 if(frame)frame.innerHTML='';
-stopAutoMode();
+var grid=document.getElementById('gameGrid');
+if(grid)grid.style.display='';
+var lvlBar=document.getElementById('gamesLevelBar');
+if(lvlBar)lvlBar.style.display='';
+var allBets=document.getElementById('allBetsSection');
+if(allBets)allBets.style.display='';
+try{stopAutoMode();}catch(e){}
 try{sessionStorage.removeItem('lastGame');}catch(e){}
 window.scrollTo(0,0);
-try{if(typeof renderAllBets==='function')renderAllBets();}catch(e){}
+try{if(typeof renderAllBets==='function')setTimeout(renderAllBets,50);}catch(e){}
 }
 // ==========================================
 // DIAMOND GAME
