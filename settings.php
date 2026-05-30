@@ -545,8 +545,8 @@
 
       <!-- Tabs -->
       <div class="sett-tabs">
-        <button class="sett-tab sett-tab-act" id="stSecurity" onclick="settTab('security')">Security</button>
-        <button class="sett-tab" id="stTwoFA" onclick="settTab('twofa')">2FA</button>
+        <button class="sett-tab sett-tab-act" id="stSecurity" onclick="document.getElementById('spSecurity').style.display='block';document.getElementById('spTwoFA').style.display='none';document.getElementById('stSecurity').classList.add('sett-tab-act');document.getElementById('stTwoFA').classList.remove('sett-tab-act');">Security</button>
+        <button class="sett-tab" id="stTwoFA" onclick="document.getElementById('spSecurity').style.display='none';document.getElementById('spTwoFA').style.display='block';document.getElementById('stSecurity').classList.remove('sett-tab-act');document.getElementById('stTwoFA').classList.add('sett-tab-act');">2FA</button>
       </div>
 
       <!-- SECURITY TAB -->
@@ -607,6 +607,7 @@
           <button class="sett-save-btn" style="margin-top:0;width:auto;padding:12px 22px" onclick="enable2FA()">ENABLE</button>
         </div>
         <div class="twofa-status" id="tfaStatus"></div>
+        <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,.4)">&#9888; This is a demo 2FA setup. Enter any 6-digit code to activate.</p>
       </div>
 
     </div>
@@ -672,48 +673,65 @@
 <script src="dashboard.js"></script>
 <script>window._INIT_SECTION='settings';</script>
 <script>
-// ── SETTINGS PAGE INIT ──
-(function(){
-  var uname  = localStorage.getItem('userName')  || 'User';
+// ── SETTINGS GUARANTEED INLINE INIT ──
+(function init(){
+  // Email from localStorage
   var uemail = localStorage.getItem('userEmail') || '';
-  // Set username in welcome
-  var unEl = document.getElementById('userName');
-  if(unEl) unEl.textContent = uname;
-  // Set email in settings field
+  var uname  = localStorage.getItem('userName')  || 'User';
   var emEl = document.getElementById('setEmail');
   if(emEl && uemail) emEl.value = uemail;
-  // 2FA settTab function — guaranteed available inline
+  var unEl = document.getElementById('userName');
+  if(unEl) unEl.textContent = uname;
+
+  // Override settTab with guaranteed version using exact IDs
   window.settTab = function(tab){
-    var panels = {security:'spSecurity', twofa:'spTwoFA'};
-    var btns   = {security:'stSecurity', twofa:'stTwoFA'};
-    Object.keys(panels).forEach(function(t){
-      var p=document.getElementById(panels[t]); if(p) p.style.display='none';
-      var b=document.getElementById(btns[t]); if(b) b.classList.remove('sett-tab-act');
-    });
-    var ap=document.getElementById(panels[tab]); if(ap) ap.style.display='block';
-    var ab=document.getElementById(btns[tab]);  if(ab) ab.classList.add('sett-tab-act');
+    var sp = {security: document.getElementById('spSecurity'), twofa: document.getElementById('spTwoFA')};
+    var st = {security: document.getElementById('stSecurity'), twofa: document.getElementById('stTwoFA')};
+    for(var k in sp){ if(sp[k]) sp[k].style.display='none'; }
+    for(var k in st){ if(st[k]) st[k].classList.remove('sett-tab-act'); }
+    if(sp[tab]) sp[tab].style.display='block';
+    if(st[tab]) st[tab].classList.add('sett-tab-act');
   };
-  window.copyTfaKey = function(){
-    var k=document.getElementById('tfaKey');
-    if(k){ navigator.clipboard.writeText(k.value).then(function(){ alert('Key copied!'); }); }
-  };
+
+  // enable2FA inline
   window.enable2FA = function(){
-    var code=(document.getElementById('tfaCode')||{}).value||'';
-    var st=document.getElementById('tfaStatus');
-    if(code.length!==6){ alert('Enter 6-digit code'); return; }
-    if(st){ st.style.cssText='color:#3ecf8e;font-size:14px;font-weight:700;margin-top:12px'; st.textContent='✅ 2FA Enabled Successfully!'; }
+    var code = (document.getElementById('tfaCode')||{}).value||'';
+    var st = document.getElementById('tfaStatus');
+    if(code.length !== 6){ alert('Please enter a 6-digit code from your authenticator app'); return; }
+    if(st){
+      st.style.cssText = 'color:#3ecf8e;font-size:14px;font-weight:700;margin-top:12px;padding:10px;background:rgba(62,207,142,.1);border-radius:8px;border:1px solid rgba(62,207,142,.3)';
+      st.textContent = '\u2705 2FA Enabled Successfully!';
+    }
     localStorage.setItem('tfa_enabled','1');
   };
+
+  // copyTfaKey inline
+  window.copyTfaKey = function(){
+    var k = document.getElementById('tfaKey');
+    if(!k) return;
+    navigator.clipboard.writeText(k.value).then(function(){
+      var btn = document.querySelector('.aff-copy-btn');
+      if(btn){ btn.textContent='\u2714'; setTimeout(function(){ btn.innerHTML='&#128203;'; },1500); }
+    }).catch(function(){
+      k.select(); document.execCommand('copy');
+    });
+  };
+
+  // changePassword inline
   window.changePassword = function(){
-    var cur=document.getElementById('setPwdCur'),nw=document.getElementById('setPwdNew'),cf=document.getElementById('setPwdConf');
-    if(!nw||nw.value.length<8){ alert('Min 8 characters'); return; }
-    if(nw.value!==cf.value){ alert('Passwords do not match'); return; }
-    localStorage.setItem('userPwd',nw.value);
-    alert('Password changed!');
-    if(cur) cur.value=''; nw.value=''; if(cf) cf.value='';
+    var cur = (document.getElementById('setPwdCur')||{}).value||'';
+    var nw  = (document.getElementById('setPwdNew')||{}).value||'';
+    var cf  = (document.getElementById('setPwdConf')||{}).value||'';
+    if(nw.length < 8){ alert('Password must be at least 8 characters'); return; }
+    if(nw !== cf){ alert('Passwords do not match'); return; }
+    localStorage.setItem('userPwd', nw);
+    var el = document.getElementById('setPwdCur');
+    var el2= document.getElementById('setPwdNew');
+    var el3= document.getElementById('setPwdConf');
+    if(el) el.value=''; if(el2) el2.value=''; if(el3) el3.value='';
+    alert('\u2705 Password changed successfully!');
   };
 })();
 </script>
 </body>
 </html>
-
