@@ -1,0 +1,16 @@
+Options -Indexes
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# Redirect .html to .php
+RewriteCond %{THE_REQUEST} \.html[\ ?]
+RewriteRule ^(.+)\.html$ /$1.php [R=301,L]
+
+# Remove .php extension from URL
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^.]+)$ $1.php [L]
+
+# Default charset
+AddDefaultCharset UTF-8

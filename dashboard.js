@@ -2,18 +2,22 @@
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
 const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','settings','contact'];
+var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdraw',surveys:'Surveys',affiliates:'Affiliates',gifts:'Gift Cards',cashback:'Cashback',contest:'Contest',settings:'Settings',contact:'Contact'};
 function go(key, skipHistory){
 PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});
 const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');
 const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');
 closeSidebar();window.scrollTo(0,0);
 try{sessionStorage.setItem('lastSection',key);}catch(e){}
-if(!skipHistory)history.pushState({section:key,game:null},'','#'+key);
+var title=(PAGE_TITLES[key]||key.charAt(0).toUpperCase()+key.slice(1))+' – TronSick';
+document.title=title;
+if(!skipHistory)history.pushState({section:key,game:null},'','/dashboard.php#'+key);
+else history.replaceState({section:key,game:null},'','/dashboard.php#'+key);
 }
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 document.addEventListener('DOMContentLoaded',()=>{
 const dep=document.getElementById('depAddr');if(dep)dep.textContent='T'+Array.from({length:33},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random()*36)]).join('');
-const aff=document.getElementById('affLink');if(aff)aff.value='https://tronflux.io/ref/'+Math.random().toString(36).substr(2,8);
+const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
 // Restore last position + build correct history stack
@@ -22,17 +26,17 @@ var ls=sessionStorage.getItem('lastSection');
 var lg=sessionStorage.getItem('lastGame');
 if(ls&&PAGES.indexOf(ls)>=0){
 // Step 1: base state = home
-history.replaceState({section:'home',game:null},'','#home');
+history.replaceState({section:'home',game:null},'','/dashboard.php#home');
 // Step 2: push section state
 go(ls,true);
-history.pushState({section:ls,game:null},'','#'+ls);
+history.pushState({section:ls,game:null},'','/dashboard.php#'+ls);
 // Step 3: if game was open, push game state
-if(lg){openGame(lg,true);history.pushState({section:'games',game:lg},'','#game-'+lg);}
+if(lg){openGame(lg,true);history.pushState({section:'games',game:lg},'','/dashboard.php#game-'+lg);}
 }else{
 // No session - just set base state
-history.replaceState({section:'home',game:null},'','#home');
+history.replaceState({section:'home',game:null},'','/dashboard.php#home');
 }
-}catch(e){history.replaceState({section:'home',game:null},'','#home');}
+}catch(e){history.replaceState({section:'home',game:null},'','/dashboard.php#home');}
 // Browser back/forward via popstate + hashchange fallback
 var _navLock=false;
 function _handleNav(){
