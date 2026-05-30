@@ -73,15 +73,9 @@ hard:[
 
 function openGame(name, skipHistory){
 go('games',true);
-// Hide grid + extras, show game panel
-var grid=document.getElementById('gameGrid');
-if(grid)grid.style.display='none';
-var lvlBar=document.getElementById('gamesLevelBar');
-if(lvlBar)lvlBar.style.display='none';
-var allBets=document.getElementById('allBetsSection');
-if(allBets)allBets.style.display='none';
-var panel=document.getElementById('gamePanel');
-if(panel)panel.style.display='block';
+// CSS handles hide/show via .game-open class on #sec-games
+var sec=document.getElementById('sec-games');
+if(sec)sec.classList.add('game-open');
 // Build game UI
 var frame=document.getElementById('gameFrame');
 if(!frame)return;
@@ -96,17 +90,11 @@ else{closeGame();return;}
 window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
-// Restore grid, hide panel
-var panel=document.getElementById('gamePanel');
-if(panel)panel.style.display='none';
+// Remove game-open class — CSS restores grid automatically
+var sec=document.getElementById('sec-games');
+if(sec)sec.classList.remove('game-open');
 var frame=document.getElementById('gameFrame');
 if(frame)frame.innerHTML='';
-var grid=document.getElementById('gameGrid');
-if(grid)grid.style.display='';
-var lvlBar=document.getElementById('gamesLevelBar');
-if(lvlBar)lvlBar.style.display='';
-var allBets=document.getElementById('allBetsSection');
-if(allBets)allBets.style.display='';
 try{stopAutoMode();}catch(e){}
 try{sessionStorage.removeItem('lastGame');}catch(e){}
 window.scrollTo(0,0);

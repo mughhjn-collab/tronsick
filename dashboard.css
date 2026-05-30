@@ -338,13 +338,17 @@ button{cursor:pointer}
 @media(max-width:480px){.foot-in{grid-template-columns:1fr}}
 /* ======= GAME SECTION STATE CONTROL ======= */
 /* Default state: show grid, hide panel */
-#sec-games .game-grid-single { display: flex; flex-wrap: wrap; gap: 14px; padding: 16px 20px; }
+#sec-games .game-grid-single,
+#sec-games .game-grid-new { display: grid; }
 #sec-games .games-level-bar { display: block; }
+#sec-games .all-bets-section { display: block; }
 #sec-games .game-panel { display: none !important; }
 
-/* game-open state: hide grid + level bar, show panel */
-#sec-games.game-open .game-grid-single { display: none !important; }
+/* game-open state: hide grid + level bar + all-bets, show panel */
+#sec-games.game-open .game-grid-single,
+#sec-games.game-open .game-grid-new { display: none !important; }
 #sec-games.game-open .games-level-bar { display: none !important; }
+#sec-games.game-open .all-bets-section { display: none !important; }
 #sec-games.game-open .game-panel { display: block !important; }
 /* ===== SIC BO Result Highlights ===== */
 .sb-result-win {
