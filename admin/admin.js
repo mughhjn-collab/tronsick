@@ -567,36 +567,148 @@ function testOxaPay(){
 // â”€â”€ CONTACT MESSAGES â”€â”€
 function buildContact(){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]');
+  var unread=msgs.filter(function(m){return m.status==='unread';}).length;
   var rows=msgs.map(function(m){
-    return '<tr><td>'+m.user+'</td><td>'+m.email+'</td><td>'+m.subject+'</td><td><span class="tbl-badge '+(m.status==='unread'?'tbl-yellow':'tbl-green')+'">'+m.status+'</span></td><td>'+new Date(m.date).toLocaleDateString()+'</td><td>'+
-    '<button class="btn btn-sm btn-primary" style="margin-right:4px" onclick="viewMsg(\''+m.id+'\')"><i class="fas fa-eye"></i></button>'+
+    var replies=m.replies?m.replies.length:0;
+    return '<tr id="msgrow_'+m.id+'" style="cursor:pointer" onclick="openMsgModal(\''+m.id+'\')">'+
+    '<td><strong style="color:#fff">'+m.user+'</strong></td>'+
+    '<td style="color:rgba(255,255,255,.6)">'+m.email+'</td>'+
+    '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+m.subject+'</td>'+
+    '<td><span class="tbl-badge '+(m.status==='unread'?'tbl-yellow':m.status==='replied'?'tbl-blue':'tbl-green')+'">'+m.status+'</span></td>'+
+    '<td style="color:rgba(255,255,255,.4)">'+new Date(m.date).toLocaleDateString()+'</td>'+
+    '<td onclick="event.stopPropagation()">'+
+    '<button class="btn btn-sm btn-primary" style="margin-right:4px" onclick="openMsgModal(\''+m.id+'\')"><i class="fas fa-envelope-open-text"></i> View</button>'+
     '<button class="btn btn-sm btn-danger" onclick="deleteMsg(\''+m.id+'\')"><i class="fas fa-trash"></i></button>'+
     '</td></tr>';
-  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No messages yet</td></tr>';
-  return '<div class="pg-hdr"><h1>Contact Messages</h1><p>View and manage user support messages.</p></div>'+
-  card('Messages','envelope',{cls:'badge-yellow',txt:msgs.filter(function(m){return m.status==='unread';}).length+' Unread'},
+  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:28px"><i class="fas fa-inbox" style="font-size:24px;margin-bottom:8px;display:block"></i>No messages yet</td></tr>';
+
+  return '<div class="pg-hdr"><h1>Contact Messages</h1><p>View and reply to user support messages.</p></div>'+
+  card('Messages','envelope',{cls:unread>0?'badge-yellow':'badge-green',txt:unread+' Unread'},
     '<div class="tbl-toolbar">'+
-    '<input class="tbl-search" placeholder="Search messages..." oninput="filterTable(\'msgTbody\',this.value)"/>'+
+    '<input class="tbl-search" placeholder="Search by user, email or subject..." oninput="filterTable(\'msgTbody\',this.value)"/>'+
     '<button class="btn btn-sm btn-secondary" onclick="markAllRead()"><i class="fas fa-check-double"></i> Mark All Read</button>'+
+    '<button class="btn btn-sm btn-danger" onclick="if(confirm(\'Delete all messages?\')) {localStorage.removeItem(\'adm_msgs\');document.getElementById(\'admContent\').innerHTML=buildContact();}"><i class="fas fa-trash"></i> Clear All</button>'+
     '<button class="btn btn-sm btn-warning" onclick="addDemoMsg()"><i class="fas fa-plus"></i> Test Msg</button>'+
     '</div>'+
     '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>User</th><th>Email</th><th>Subject</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="msgTbody">'+rows+'</tbody></table></div>'
-  );
+  )+
+  '<div id="msgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;overflow-y:auto;padding:20px" onclick="if(event.target===this)closeMsgModal()">'+
+  '<div style="background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:620px;margin:auto;box-shadow:0 24px 80px rgba(0,0,0,.6)">'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">'+
+  '<div style="font-size:16px;font-weight:800;color:#fff"><i class="fas fa-envelope" style="color:#3ecf8e;margin-right:8px"></i><span id="mmSubject">Message</span></div>'+
+  '<button onclick="closeMsgModal()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">Ã—</button>'+
+  '</div>'+
+  '<div style="padding:20px 24px">'+
+  '<div style="display:flex;gap:20px;margin-bottom:16px;flex-wrap:wrap">'+
+  '<div><div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:3px">From</div><div id="mmUser" style="font-size:14px;color:#fff;font-weight:600"></div></div>'+
+  '<div><div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:3px">Email</div><div id="mmEmail" style="font-size:14px;color:#3ecf8e"></div></div>'+
+  '<div><div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:3px">Date</div><div id="mmDate" style="font-size:14px;color:rgba(255,255,255,.6)"></div></div>'+
+  '</div>'+
+  '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;margin-bottom:16px">'+
+  '<div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:8px">Message</div>'+
+  '<div id="mmBody" style="font-size:14px;color:rgba(255,255,255,.85);line-height:1.7;white-space:pre-wrap"></div>'+
+  '</div>'+
+  '<div id="mmImages" style="display:none;margin-bottom:16px"><div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:8px">Attached Images</div><div id="mmImgList"></div></div>'+
+  '<div id="mmReplies" style="margin-bottom:16px"></div>'+
+  '<div style="background:rgba(62,207,142,.05);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:16px">'+
+  '<div style="font-size:12px;font-weight:700;color:#3ecf8e;margin-bottom:10px"><i class="fas fa-reply"></i> Reply to User</div>'+
+  '<textarea id="mmReplyText" placeholder="Type your reply here..." style="width:100%;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;padding:12px 14px;color:#fff;font-size:13px;font-family:inherit;resize:vertical;min-height:100px;outline:none" onfocus="this.style.borderColor=\'rgba(62,207,142,.4)\'"></textarea>'+
+  '<div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end">'+
+  '<button class="btn btn-secondary" onclick="closeMsgModal()">Cancel</button>'+
+  '<button class="btn btn-primary" id="mmReplyBtn" onclick="sendMsgReply()"><i class="fas fa-paper-plane"></i> Send Reply</button>'+
+  '</div></div>'+
+  '</div></div></div>';
 }
 
-function viewMsg(id){
+var _currentMsgId = null;
+
+function openMsgModal(id){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]');
   var m=msgs.find(function(x){return x.id===id;});
   if(!m) return;
-  m.status='read';
-  localStorage.setItem('adm_msgs',JSON.stringify(msgs));
-  alert('From: '+m.email+'\nSubject: '+m.subject+'\n\n'+m.message);
-  document.getElementById('admContent').innerHTML=buildContact();
+  _currentMsgId=id;
+  if(m.status==='unread'){
+    m.status='read';
+    localStorage.setItem('adm_msgs',JSON.stringify(msgs));
+    var badge=document.querySelector('.adm-card-hd .hd-badge');
+    if(badge){
+      var unread=msgs.filter(function(x){return x.status==='unread';}).length;
+      badge.textContent=unread+' Unread';
+      badge.className='hd-badge '+(unread>0?'badge-yellow':'badge-green');
+    }
+  }
+  var row=document.getElementById('msgrow_'+id);
+  if(row){var b=row.querySelector('.tbl-badge');if(b){b.textContent=m.status;b.className='tbl-badge '+(m.status==='replied'?'tbl-blue':'tbl-green');}}
+  document.getElementById('mmSubject').textContent=m.subject;
+  document.getElementById('mmUser').textContent=m.user;
+  document.getElementById('mmEmail').textContent=m.email;
+  document.getElementById('mmDate').textContent=new Date(m.date).toLocaleString();
+  document.getElementById('mmBody').textContent=m.message||'(no message body)';
+  document.getElementById('mmReplyText').value='';
+  var imgs=m.images||[];
+  var imgDiv=document.getElementById('mmImages');
+  var imgList=document.getElementById('mmImgList');
+  if(imgs.length>0){
+    imgDiv.style.display='block';
+    imgList.innerHTML=imgs.map(function(n){return '<span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;font-size:12px;color:rgba(255,255,255,.6);margin-right:6px"><i class="fas fa-image" style="margin-right:4px"></i>'+n+'</span>';}).join('');
+  } else { imgDiv.style.display='none'; }
+  _renderReplies(m);
+  var modal=document.getElementById('msgModal');
+  if(modal) modal.style.display='flex';
 }
+
+function _renderReplies(m){
+  var container=document.getElementById('mmReplies');
+  if(!container) return;
+  var replies=m.replies||[];
+  if(!replies.length){container.innerHTML='';return;}
+  container.innerHTML='<div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:8px">Previous Replies ('+replies.length+')</div>'+
+  replies.map(function(r){
+    return '<div style="background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:10px;padding:12px 16px;margin-bottom:8px">'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
+    '<span style="font-size:12px;font-weight:700;color:#3ecf8e"><i class="fas fa-shield-halved"></i> Admin Reply</span>'+
+    '<span style="font-size:11px;color:rgba(255,255,255,.3)">'+new Date(r.date).toLocaleString()+'</span>'+
+    '</div>'+
+    '<div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.6;white-space:pre-wrap">'+r.text+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function sendMsgReply(){
+  var text=(document.getElementById('mmReplyText')||{}).value;
+  if(!text||!text.trim()){toast('Reply cannot be empty','error');return;}
+  if(!_currentMsgId){toast('No message selected','error');return;}
+  var btn=document.getElementById('mmReplyBtn');
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';}
+  setTimeout(function(){
+    var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]');
+    var m=msgs.find(function(x){return x.id===_currentMsgId;});
+    if(!m){toast('Message not found','error');return;}
+    if(!m.replies) m.replies=[];
+    m.replies.push({text:text.trim(),date:new Date().toISOString(),admin:true});
+    m.status='replied';
+    localStorage.setItem('adm_msgs',JSON.stringify(msgs));
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reply';}
+    document.getElementById('mmReplyText').value='';
+    _renderReplies(m);
+    toast('Reply sent to '+m.email+'!');
+    var row=document.getElementById('msgrow_'+_currentMsgId);
+    if(row){var b=row.querySelector('.tbl-badge');if(b){b.textContent='replied';b.className='tbl-badge tbl-blue';}}
+  },600);
+}
+
+function closeMsgModal(){
+  var modal=document.getElementById('msgModal');
+  if(modal) modal.style.display='none';
+  _currentMsgId=null;
+}
+
+function viewMsg(id){ openMsgModal(id); }
 
 function deleteMsg(id){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]').filter(function(m){return m.id!==id;});
   localStorage.setItem('adm_msgs',JSON.stringify(msgs));
+  closeMsgModal();
   toast('Message deleted');
   document.getElementById('admContent').innerHTML=buildContact();
 }
@@ -611,7 +723,10 @@ function markAllRead(){
 
 function addDemoMsg(){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]');
-  msgs.push({id:'msg'+Date.now(),user:'TestUser',email:'test@example.com',subject:'Payment Issue',message:'Hello, I have an issue with my withdrawal.',status:'unread',date:new Date().toISOString()});
+  var subjects=['Withdrawal Problem','Login Issue','Faucet Not Working','Game Bug Report','Balance Missing'];
+  var bodies=['Hello, I have an issue with my withdrawal. Please help!','I cannot login to my account.','The faucet is not giving me TRX today.','I found a bug in the dice game.','My balance disappeared after playing.'];
+  var i=Math.floor(Math.random()*5);
+  msgs.unshift({id:'msg'+Date.now(),user:'User'+Math.floor(Math.random()*999),email:'user'+Math.floor(Math.random()*999)+'@example.com',subject:subjects[i],message:bodies[i],images:[],status:'unread',date:new Date().toISOString()});
   localStorage.setItem('adm_msgs',JSON.stringify(msgs));
   toast('Test message added');
   document.getElementById('admContent').innerHTML=buildContact();
@@ -621,7 +736,10 @@ function buildMsgTable(limit){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]').slice(0,limit||5);
   if(!msgs.length) return '<p style="color:rgba(255,255,255,.3);font-size:13px;padding:12px 0">No messages yet</p>';
   return '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>User</th><th>Subject</th><th>Status</th></tr></thead><tbody>'+
-  msgs.map(function(m){return '<tr><td>'+m.user+'</td><td>'+m.subject+'</td><td><span class="tbl-badge '+(m.status==='unread'?'tbl-yellow':'tbl-green')+'">'+m.status+'</span></td></tr>';}).join('')+
+  msgs.map(function(m){
+    var s=m.status==='replied'?'tbl-blue':m.status==='unread'?'tbl-yellow':'tbl-green';
+    return '<tr><td>'+m.user+'</td><td>'+m.subject+'</td><td><span class="tbl-badge '+s+'">'+m.status+'</span></td></tr>';
+  }).join('')+
   '</tbody></table></div>';
 }
 
