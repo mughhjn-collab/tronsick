@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -671,5 +671,49 @@
 
 <script src="dashboard.js"></script>
 <script>window._INIT_SECTION='settings';</script>
+<script>
+// ── SETTINGS PAGE INIT ──
+(function(){
+  var uname  = localStorage.getItem('userName')  || 'User';
+  var uemail = localStorage.getItem('userEmail') || '';
+  // Set username in welcome
+  var unEl = document.getElementById('userName');
+  if(unEl) unEl.textContent = uname;
+  // Set email in settings field
+  var emEl = document.getElementById('setEmail');
+  if(emEl && uemail) emEl.value = uemail;
+  // 2FA settTab function — guaranteed available inline
+  window.settTab = function(tab){
+    var panels = {security:'spSecurity', twofa:'spTwoFA'};
+    var btns   = {security:'stSecurity', twofa:'stTwoFA'};
+    Object.keys(panels).forEach(function(t){
+      var p=document.getElementById(panels[t]); if(p) p.style.display='none';
+      var b=document.getElementById(btns[t]); if(b) b.classList.remove('sett-tab-act');
+    });
+    var ap=document.getElementById(panels[tab]); if(ap) ap.style.display='block';
+    var ab=document.getElementById(btns[tab]);  if(ab) ab.classList.add('sett-tab-act');
+  };
+  window.copyTfaKey = function(){
+    var k=document.getElementById('tfaKey');
+    if(k){ navigator.clipboard.writeText(k.value).then(function(){ alert('Key copied!'); }); }
+  };
+  window.enable2FA = function(){
+    var code=(document.getElementById('tfaCode')||{}).value||'';
+    var st=document.getElementById('tfaStatus');
+    if(code.length!==6){ alert('Enter 6-digit code'); return; }
+    if(st){ st.style.cssText='color:#3ecf8e;font-size:14px;font-weight:700;margin-top:12px'; st.textContent='✅ 2FA Enabled Successfully!'; }
+    localStorage.setItem('tfa_enabled','1');
+  };
+  window.changePassword = function(){
+    var cur=document.getElementById('setPwdCur'),nw=document.getElementById('setPwdNew'),cf=document.getElementById('setPwdConf');
+    if(!nw||nw.value.length<8){ alert('Min 8 characters'); return; }
+    if(nw.value!==cf.value){ alert('Passwords do not match'); return; }
+    localStorage.setItem('userPwd',nw.value);
+    alert('Password changed!');
+    if(cur) cur.value=''; nw.value=''; if(cf) cf.value='';
+  };
+})();
+</script>
 </body>
 </html>
+

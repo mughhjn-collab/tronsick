@@ -52,18 +52,20 @@ try{
   }
 }catch(e){}}
 
-// ── SETTINGS TABS ──
+// ── SETTINGS TABS ── (exact IDs: spSecurity, spTwoFA, stSecurity, stTwoFA)
 function settTab(tab){
-  ['security','twofa'].forEach(function(t){
-    var panel=document.getElementById('sp'+t.charAt(0).toUpperCase()+t.slice(1));
-    var btn=document.getElementById('st'+t.charAt(0).toUpperCase()+t.slice(1));
-    if(panel) panel.style.display='none';
-    if(btn){ btn.classList.remove('sett-tab-act'); }
+  var panels={security:'spSecurity',twofa:'spTwoFA'};
+  var btns  ={security:'stSecurity',twofa:'stTwoFA'};
+  Object.keys(panels).forEach(function(t){
+    var p=document.getElementById(panels[t]);
+    var b=document.getElementById(btns[t]);
+    if(p) p.style.display='none';
+    if(b) b.classList.remove('sett-tab-act');
   });
-  var activePanel=document.getElementById('sp'+tab.charAt(0).toUpperCase()+tab.slice(1));
-  var activeBtn=document.getElementById('st'+tab.charAt(0).toUpperCase()+tab.slice(1));
-  if(activePanel) activePanel.style.display='block';
-  if(activeBtn) activeBtn.classList.add('sett-tab-act');
+  var ap=document.getElementById(panels[tab]);
+  var ab=document.getElementById(btns[tab]);
+  if(ap) ap.style.display='block';
+  if(ab) ab.classList.add('sett-tab-act');
 }
 function copyTfaKey(){
   var k=document.getElementById('tfaKey');
@@ -91,6 +93,21 @@ function changePassword(){
   showToast('Password changed successfully!');
   cur.value=''; nw.value=''; cf.value='';
 }
+
+// ── USER INFO INIT (runs on every page load) ──
+document.addEventListener('DOMContentLoaded', function(){
+  var uname  = localStorage.getItem('userName')  || 'User';
+  var uemail = localStorage.getItem('userEmail') || '';
+  // Welcome username
+  var unEl = document.getElementById('userName');
+  if(unEl) unEl.textContent = uname;
+  // Settings email field
+  var emEl = document.getElementById('setEmail');
+  if(emEl && uemail) emEl.value = uemail;
+  // Contact email field
+  var ceEl = document.getElementById('contactEmail');
+  if(ceEl && uemail) ceEl.value = uemail;
+});
 
 function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());syncBal();}catch(e){}}
 function updateWager(amt){
