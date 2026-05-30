@@ -13,35 +13,10 @@ const dep=document.getElementById('depAddr');if(dep)dep.textContent='T'+Array.fr
 const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
-// Restore last position + build correct history stack
-try{
-var ls=sessionStorage.getItem('lastSection');
-var lg=sessionStorage.getItem('lastGame');
-if(ls&&PAGES.indexOf(ls)>=0){
-// Step 1: base state = home
-history.replaceState({section:'home',game:null},'','/dashboard.php#home');
-// Step 2: push section state
-go(ls,true);
-history.pushState({section:ls,game:null},'','/dashboard.php#'+ls);
-// Step 3: if game was open, push game state
-if(lg){openGame(lg,true);history.pushState({section:'games',game:lg},'','/dashboard.php#game-'+lg);}
-}else{
-// No session - just set base state
-history.replaceState({section:'home',game:null},'','/dashboard.php#home');
-}
-}catch(e){history.replaceState({section:'home',game:null},'','/dashboard.php#home');}
-// Browser back/forward via popstate + hashchange fallback
-var _navLock=false;
-function _handleNav(){
-if(_navLock)return;_navLock=true;
-var hash=window.location.hash.replace('#','');
-if(hash.startsWith('game-')){var gn=hash.replace('game-','');closeGame(true);go('games',true);openGame(gn,true);}
-else if(PAGES.indexOf(hash)>=0){closeGame(true);go(hash,true);}
-else{closeGame(true);go('home',true);}
-setTimeout(function(){_navLock=false;},50);
-}
-window.addEventListener('popstate',_handleNav);
-window.addEventListener('hashchange',_handleNav);
+// Show section based on PHP-injected variable (each page sets window._INIT_SECTION)
+var _initSec=(typeof window._INIT_SECTION!=='undefined')?window._INIT_SECTION:'home';
+_showSection(_initSec);
+if(_initSec==='games'){try{var _lg=sessionStorage.getItem('lastGame');if(_lg)openGame(_lg,true);}catch(e){}}
 });
 function onCap(cb){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=!cb.checked;note.textContent=cb.checked?'Click CLAIM to receive your TRX':'Complete captcha to claim';note.style.color=cb.checked?'#3ecf8e':'';}
 function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){rollsLeft=1;document.getElementById('rollCount').textContent=rollsLeft;btn.disabled=false;note.textContent='Click ROLL to spin!';note.style.color='#3ecf8e';}else{rollsLeft=0;btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
