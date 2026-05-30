@@ -158,59 +158,67 @@
       <div class="prog-pct" id="gProgPct">0%</div>
     </div>
 
-    <!-- Single Dice Card -->
-    <div class="game-grid-single">
-      <div class="gc gc-dice-only" onclick="openGame('dice')" id="gc-dice">
-        <div class="gc-img gc-dice-img">
-          <div class="dice-card-dots">
+    <!-- Games Grid -->
+    <div class="game-grid-new">
+
+      <div class="gc-wrap2" onclick="openGame('dice')" id="gc-dice">
+        <div class="gc-art gc-art-dice">
+          <div class="dice-dots-3d">
             <span></span><span></span><span></span>
             <span></span><span></span><span></span>
           </div>
-          <div class="gc-dice-label">DICE</div>
         </div>
+        <div class="gc-label2">Dice</div>
       </div>
-      <div class="gc gc-limbo-card" onclick="openGame('limbo')" id="gc-limbo">
-        <div class="gc-img gc-limbo-img">
-          <div class="lb-card-rocket">&#x1F680;</div>
-          <div class="lb-card-mult">1.00x</div>
-          <div class="gc-dice-label">LIMBO</div>
+
+      <div class="gc-wrap2" onclick="openGame('limbo')" id="gc-limbo">
+        <div class="gc-art gc-art-limbo">
+          <div class="limbo-rocket-3d">&#x1F680;</div>
+          <div class="limbo-mult-3d">1.00x</div>
         </div>
+        <div class="gc-label2">Limbo</div>
       </div>
-      <div class="gc gc-wheel-card" onclick="openGame('wheel')" id="gc-wheel">
-        <div class="gc-img gc-wheel-img">
-          <div class="wl-card-icon">&#x1F3A1;</div>
-          <div class="wl-card-modes"><span>LOW</span><span>MED</span><span>HIGH</span></div>
-          <div class="gc-dice-label">WHEEL</div>
+
+      <div class="gc-wrap2" onclick="openGame('wheel')" id="gc-wheel">
+        <div class="gc-art gc-art-wheel">
+          <div class="wheel-icon-3d">&#x1F3A1;</div>
+          <div class="wheel-modes-3d"><span>LOW</span><span>MED</span><span>HIGH</span></div>
         </div>
+        <div class="gc-label2">Wheel</div>
       </div>
-      <div class="gc gc-mines-card" onclick="openGame('mines')" id="gc-mines">
-        <div class="gc-img">
-          <div style="font-size:36px;margin-bottom:6px">&#x1F4A3;</div>
-          <div class="mn-card-grid">&#x1F48E;&#x1F48E;&#x1F48E;&#x1F48E;&#x1F4A3;</div>
-          <div class="gc-dice-label">MINES</div>
+
+      <div class="gc-wrap2" onclick="openGame('mines')" id="gc-mines">
+        <div class="gc-art gc-art-mines">
+          <div class="mines-bomb-3d">&#x1F4A3;</div>
+          <div class="mines-gems-3d">&#x1F48E;&#x1F48E;&#x1F48E;</div>
         </div>
+        <div class="gc-label2">Mines</div>
       </div>
-      <div class="gc gc-sicbo-card" onclick="openGame('sicbo')" id="gc-sicbo">
-        <div class="gc-img">
-          <div style="font-size:28px;letter-spacing:4px">&#9861;&#9858;&#9859;</div>
-          <div style="font-size:11px;color:#3b82f6;font-weight:700;margin-top:4px">SMALL / BIG</div>
-          <div class="gc-dice-label">SIC BO</div>
+
+      <div class="gc-wrap2" onclick="openGame('sicbo')" id="gc-sicbo">
+        <div class="gc-art gc-art-sicbo">
+          <div class="sicbo-dice-3d">&#9861;&#9858;&#9859;</div>
+          <div class="sicbo-tag-3d">SMALL &bull; BIG</div>
         </div>
+        <div class="gc-label2">Sic Bo</div>
       </div>
-      <div class="gc gc-diamond-card" onclick="openGame('diamond')" id="gc-diamond">
-        <div class="gc-img">
-          <div style="font-size:36px;letter-spacing:2px;color:#22d3ee;text-shadow:0 0 12px #06b6d4">&#9830;&#9830;&#9830;</div>
-          <div style="font-size:12px;color:#f59e0b;font-weight:700;margin-top:4px">40.00x</div>
-          <div class="gc-dice-label">DIAMOND</div>
+
+      <div class="gc-wrap2" onclick="openGame('diamond')" id="gc-diamond">
+        <div class="gc-art gc-art-diamond">
+          <div class="diamond-gems-3d">&#9830;&#9830;&#9830;</div>
+          <div class="diamond-mult-3d">40.00x</div>
         </div>
+        <div class="gc-label2">Diamond</div>
       </div>
-      <div class="gc gc-tower-card" onclick="openGame('tower')" id="gc-tower">
-        <div class="gc-img">
-          <div class="tw-card-icon">&#x1F3D7;</div>
-          <div style="font-size:11px;color:#a78bfa;font-weight:700;margin-top:4px">EASY / MED / HARD</div>
-          <div class="gc-dice-label">TOWER</div>
+
+      <div class="gc-wrap2" onclick="openGame('tower')" id="gc-tower">
+        <div class="gc-art gc-art-tower">
+          <div class="tower-icon-3d">&#x1F3D7;</div>
+          <div class="tower-diff-3d">EASY &bull; HARD</div>
         </div>
+        <div class="gc-label2">Tower</div>
       </div>
+
     </div>
     <!-- GAME PANEL -->
     <div class="game-panel" id="gamePanel">
