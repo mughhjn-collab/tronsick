@@ -99,7 +99,7 @@ function dmBet(){if(dmSpinning)return;var bet=parseFloat((document.getElementByI
 function dmRenderBets(){var list=document.getElementById('dmBetList');if(!list)return;if(dmBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Mult</th><th>Profit</th></tr></thead><tbody>';dmBetHistory.slice(0,50).forEach(function(b,i){html+='<tr class="dg-hist-row" onclick="dmShowModal('+i+')">';html+='<td class="dg-tc-time">'+b.ts+'</td><td>&#9670; Diamond</td><td>'+b.bet.toFixed(8)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+b.mult.toFixed(2)+'x</td><td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 function dmShowModal(i){window._dmVerifyIdx=i;var b=dmBetHistory[i];if(!b)return;var modal=document.getElementById('dmModal');if(!modal)return;var res=document.getElementById('dmBmResult');if(res){res.textContent=(b.win?'WIN ':'LOSS ')+b.mult.toFixed(2)+'x  '+(b.profit>=0?'+':'')+b.profit.toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}var seeds=document.getElementById('dmBmSeeds');if(seeds)seeds.innerHTML='<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">=</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div><div class="bm-sf"><div class="bm-sf-lbl">Hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div><div class="bm-sf"><div class="bm-sf-lbl">Client</div><div class="bm-sf-row"><span class="bm-sf-ico">@</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div><div class="bm-sf"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';modal.style.display='flex';}
 function dmCloseModal(){var m=document.getElementById('dmModal');if(m)m.style.display='none';}
-function dmVerify(){var b=dmBetHistory[window._dmVerifyIdx||0];localStorage.setItem('dgVerifyData',JSON.stringify({game:'Diamond',clientSeed:clientSeed,serverSeedHash:serverSeedHash,serverSeed:serverSeed,nonce:dmNonce,bet:b||null,bets:dmBetHistory.slice(0,50)}));window.open('verify.html','_blank');}
+function dmVerify(){var b=dmBetHistory[window._dmVerifyIdx||0];localStorage.setItem('dgVerifyData',JSON.stringify({game:'Diamond',clientSeed:clientSeed,serverSeedHash:serverSeedHash,serverSeed:serverSeed,nonce:dmNonce,bet:b||null,bets:dmBetHistory.slice(0,50)}));window.open('verify.php','_blank');}
 // END DIAMOND GAME
 // ==========================================
 // SIC BO GAME
@@ -186,7 +186,7 @@ function mnStartAuto(){var bet=parseFloat((document.getElementById('mnAmt')||{})
 function mnStopAuto(){mnAutoRunning=false;if(mnAutoTimer){clearTimeout(mnAutoTimer);mnAutoTimer=null;}var btn=document.getElementById('mnAutoBtn');if(btn){btn.textContent='Start Auto';btn.style.background='';}}
 function mnAutoNext(){if(!mnAutoRunning)return;var bal=parseFloat(document.getElementById('userBalance').textContent)||0;var bet=parseFloat((document.getElementById('mnAmt')||{}).value)||0;if(bal<bet){showToast('Insufficient balance!');mnStopAuto();return;}mnAutoTimer=setTimeout(function(){mnBetStart();var picks=parseInt((document.getElementById('mnAutoPicksInp')||{}).value)||3;mnAutoTimer=setTimeout(function(){mnAutoPickN(picks,0);},400);},500);}
 function mnAutoPickN(target,done){if(!mnAutoRunning||!mnActive)return;if(done>=target){mnCashOut();return;}var avail=[];mnGrid.forEach(function(c,i){if(!c.revealed)avail.push(i);});if(!avail.length){mnCashOut();return;}mnReveal(avail[Math.floor(Math.random()*avail.length)]);if(mnActive)mnAutoTimer=setTimeout(function(){mnAutoPickN(target,done+1);},400);}
-function mnRenderBets(){var list=document.getElementById('mnBetList');if(!list)return;if(mnBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Mines</th><th>Picks</th><th>Bet</th><th>Mult</th><th>Profit</th></tr></thead><tbody>';mnBetHistory.slice(0,50).forEach(function(b,i){html+='<tr class="dg-hist-row" style="cursor:pointer" onclick="showTwBetModal('+twBetHistory.indexOf(b)+')">'+'<td class="dg-tc-time">'+b.ts+'</td><td>'+b.mines+'</td><td>'+b.picks+'</td><td>'+b.bet.toFixed(8)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+(b.win?b.mult.toFixed(2)+'x':'BOOM')+'</td><td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
+function mnRenderBets(){var list=document.getElementById('mnBetList');if(!list)return;if(mnBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Mines</th><th>Picks</th><th>Bet</th><th>Mult</th><th>Profit</th></tr></thead><tbody>';mnBetHistory.slice(0,50).forEach(function(b,i){html+='<tr class="dg-hist-row" style="cursor:pointer" onclick="showMnBetModal('+i+')">'+'<td class="dg-tc-time">'+b.ts+'</td><td>'+b.mines+'</td><td>'+b.picks+'</td><td>'+b.bet.toFixed(8)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+(b.win?b.mult.toFixed(2)+'x':'BOOM')+'</td><td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 // END MINES GAME
 
 // ==========================================
@@ -636,12 +636,28 @@ modal.style.display='flex';
 }
 function sbVerify(i){
 var b=sbBetHistory[i]||sbBetHistory[window._sbVerifyIdx||0];if(!b)return;
-var url='verify.html?game=sicbo&seed='+encodeURIComponent(b.sv)+'&hash='+encodeURIComponent(b.ssh)+'&client='+encodeURIComponent(b.cs)+'&nonce='+b.id;
+var url='verify.php?game=sicbo&seed='+encodeURIComponent(b.sv)+'&hash='+encodeURIComponent(b.ssh)+'&client='+encodeURIComponent(b.cs)+'&nonce='+b.id+'&win='+(b.win?1:0)+'&profit='+b.profit+'&bet='+b.betAmt+'&sum='+b.sum;
+window.open(url,'_blank');
+}
+
+function showMnBetModal(i){
+var b=mnBetHistory[i];if(!b)return;
+var modal=document.getElementById('betModal');if(!modal)return;
+var title=document.getElementById('bmTitle');if(title)title.textContent='💣 Mines - Bet Info';
+var res=document.getElementById('bmResult');
+if(res){res.textContent=(b.win?'WIN +':'LOSS ')+Math.abs(b.profit).toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
+var seeds=document.getElementById('bmSeeds');
+if(seeds)seeds.innerHTML='<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&#60;/&#62;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+'<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>'+'<div style="text-align:center;margin-top:16px"><button class="bm-verify-btn" onclick="mnVerify('+i+')">&#128270; Verify this bet</button></div>';
+modal.style.display='flex';
+}
+function mnVerify(i){
+var b=mnBetHistory[i];if(!b)return;
+var url='verify.php?game=mines&seed='+encodeURIComponent(b.sv)+'&hash='+encodeURIComponent(b.ssh)+'&client='+encodeURIComponent(b.cs)+'&nonce='+b.id+'&win='+(b.win?1:0)+'&profit='+b.profit+'&bet='+b.bet+'&mines='+b.mines+'&picks='+b.picks;
 window.open(url,'_blank');
 }
 function twVerify(i){
 var b=twBetHistory[i]||twBetHistory[window._twVerifyIdx||0];if(!b)return;
-var url='verify.html?game=tower&seed='+encodeURIComponent(b.sv)+'&hash='+encodeURIComponent(b.ssh)+'&client='+encodeURIComponent(b.cs)+'&nonce='+b.id+'&mode='+b.mode;
+var url='verify.php?game=tower&seed='+encodeURIComponent(b.sv)+'&hash='+encodeURIComponent(b.ssh)+'&client='+encodeURIComponent(b.cs)+'&nonce='+b.id+'&win='+(b.win?1:0)+'&profit='+b.profit+'&bet='+b.bet+'&mode='+b.mode;
 window.open(url,'_blank');
 }
 function closeBetModal(){var m=document.getElementById('betModal');if(m)m.style.display='none';}
