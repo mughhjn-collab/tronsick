@@ -708,3 +708,15 @@ button{cursor:pointer}
 .ct-wager{font-family:'JetBrains Mono',monospace;font-weight:700;color:#fff}
 .ct-reward-val{color:var(--green);font-weight:800;font-family:'JetBrains Mono',monospace}
 @media(max-width:680px){.ct-my-grid{grid-template-columns:1fr 1fr}}
+
+/* ══ CONTACT IMAGE UPLOAD ══ */
+.contact-upload-area{margin-top:8px;border:2px dashed rgba(255,255,255,.15);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(0,0,0,.1)}
+.contact-upload-area:hover{border-color:var(--green);background:rgba(62,207,142,.04)}
+.contact-upload-icon{font-size:32px;margin-bottom:8px;opacity:.5}
+.contact-upload-txt{font-size:13px;color:rgba(232,240,235,.6);font-weight:600;margin-bottom:4px}
+.contact-upload-hint{font-size:11px;color:rgba(232,240,235,.35)}
+.contact-img-previews{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.contact-img-preview{position:relative;width:90px;height:90px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.contact-img-preview img{width:100%;height:100%;object-fit:cover}
+.contact-img-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.contact-img-rm:hover{background:#ef4444}

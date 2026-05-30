@@ -615,15 +615,20 @@
         <input class="fi" type="email" id="contactEmail" value="user@tronsick.io" readonly style="background:rgba(0,0,0,.08);color:rgba(232,240,235,.6)"/>
 
         <label class="fl contact-lbl" style="margin-top:14px">Subject</label>
-        <input class="fi" type="text" id="contactSubj" placeholder=""/>
+        <input class="fi" type="text" id="contactSubj" placeholder="Enter subject"/>
 
         <label class="fl contact-lbl" style="margin-top:14px">Message</label>
-        <textarea class="fi" id="contactMsg" rows="7" style="resize:vertical"></textarea>
+        <textarea class="fi" id="contactMsg" rows="6" style="resize:vertical" placeholder="Write your message here..."></textarea>
 
-        <div class="contact-attach">
-          <span>&#128204; Attach images</span>
-          <p class="sn">Upload an image and paste the image url into the massage</p>
+        <!-- Image Upload -->
+        <label class="fl contact-lbl" style="margin-top:14px">&#128247; Attach Images <span style="font-weight:400;color:rgba(232,240,235,.4);font-size:12px">(optional, max 3 images)</span></label>
+        <div class="contact-upload-area" id="contactUploadArea" onclick="document.getElementById('contactImgInp').click()">
+          <div class="contact-upload-icon">&#128444;</div>
+          <div class="contact-upload-txt">Click to upload images or drag &amp; drop here</div>
+          <div class="contact-upload-hint">JPG, PNG, GIF &bull; Max 5MB each</div>
+          <input type="file" id="contactImgInp" accept="image/*" multiple style="display:none" onchange="previewContactImages(this)"/>
         </div>
+        <div class="contact-img-previews" id="contactImgPreviews"></div>
 
         <button class="contact-send-btn" onclick="sendContact()">SEND MESSAGE</button>
       </div>

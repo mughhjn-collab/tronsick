@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard â€“ TronSick</title>
+  <title>Games &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="dashboard.css?v=2"/>
@@ -36,7 +36,7 @@
     <a class="sb-item"        id="nav-settings"    onclick="go('settings')">  <i>&#9881;</i><s>Settings</s></a>
     <a class="sb-item"        id="nav-contact"     onclick="go('contact')">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
-    <a class="sb-item sb-out" href="index.html">                              <i>&#x1F534;</i><s>Logout</s></a>
+    <a class="sb-item sb-out" href="index.php">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
 </aside>
 
@@ -104,7 +104,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE â€” Roll System -->
+      <!-- BONUS PANE "” Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -114,11 +114,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 â€“ 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 â€“ 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 â€“ 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 â€“ 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 â€“ 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "“ 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "“ 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "“ 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "“ 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "“ 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -662,5 +662,6 @@
 </div>
 
 <script src="dashboard.js"></script>
+<script>window._INIT_SECTION='games';</script>
 </body>
 </html>

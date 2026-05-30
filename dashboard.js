@@ -3,16 +3,18 @@ function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
 const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','settings','contact'];
 var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdraw',surveys:'Surveys',affiliates:'Affiliates',gifts:'Gift Cards',cashback:'Cashback',contest:'Contest',settings:'Settings',contact:'Contact'};
+var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',settings:'/settings.php',contact:'/contact.php'};
 function go(key, skipHistory){
 PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});
 const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');
 const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');
 closeSidebar();window.scrollTo(0,0);
-try{sessionStorage.setItem('lastSection',key);}catch(e){}
 var title=(PAGE_TITLES[key]||key.charAt(0).toUpperCase()+key.slice(1))+' – TronSick';
 document.title=title;
-if(!skipHistory)history.pushState({section:key,game:null},'','/dashboard.php#'+key);
-else history.replaceState({section:key,game:null},'','/dashboard.php#'+key);
+try{sessionStorage.setItem('lastSection',key);}catch(e){}
+var url=PAGE_URLS[key]||'/faucet.php';
+if(!skipHistory){history.pushState({section:key},'',url);}
+else{history.replaceState({section:key},'',url);}
 }
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1046,3 +1048,45 @@ html+='<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.
 });
 html+='</tbody></table>';list.innerHTML=html;}
 // END TOWER GAME
+
+// ── CONTACT IMAGE UPLOAD ──
+var _contactImages=[];
+function previewContactImages(inp){
+  var files=Array.from(inp.files);
+  if(_contactImages.length+files.length>3){showToast('Max 3 images allowed.');return;}
+  files.forEach(function(f){
+    if(f.size>5*1024*1024){showToast('File too large: '+f.name+' (max 5MB)');return;}
+    var reader=new FileReader();
+    reader.onload=function(e){
+      _contactImages.push({name:f.name,data:e.target.result});
+      renderContactPreviews();
+    };
+    reader.readAsDataURL(f);
+  });
+  inp.value='';
+}
+function renderContactPreviews(){
+  var wrap=document.getElementById('contactImgPreviews');
+  if(!wrap)return;
+  wrap.innerHTML='';
+  _contactImages.forEach(function(img,i){
+    var div=document.createElement('div');
+    div.className='contact-img-preview';
+    div.innerHTML='<img src="'+img.data+'" alt="preview"><button class="contact-img-rm" onclick="removeContactImg('+i+')" title="Remove">&times;</button>';
+    wrap.appendChild(div);
+  });
+}
+function removeContactImg(i){_contactImages.splice(i,1);renderContactPreviews();}
+
+// Drag-and-drop support
+document.addEventListener('DOMContentLoaded',function(){
+  var area=document.getElementById('contactUploadArea');
+  if(!area)return;
+  area.addEventListener('dragover',function(e){e.preventDefault();area.style.borderColor='var(--green)';});
+  area.addEventListener('dragleave',function(){area.style.borderColor='';});
+  area.addEventListener('drop',function(e){
+    e.preventDefault();area.style.borderColor='';
+    var fake={files:e.dataTransfer.files};
+    previewContactImages(fake);
+  });
+});

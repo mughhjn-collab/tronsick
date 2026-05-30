@@ -1,16 +1,21 @@
 Options -Indexes
-DirectoryIndex index.php
+DirectoryIndex faucet.php index.php
 
 RewriteEngine On
 
+# Redirect old dashboard.html/php to faucet.php
+RewriteRule ^dashboard\.html$ /faucet.php [R=301,L]
+RewriteRule ^dashboard\.php$ /faucet.php [R=301,L]
+RewriteRule ^index\.html$ /faucet.php [R=301,L]
+RewriteRule ^index\.php$ /faucet.php [R=301,L]
+
 # Redirect .html to .php
-RewriteCond %{THE_REQUEST} \.html[\ ?]
+RewriteCond %{THE_REQUEST} \.html[\s?]
 RewriteRule ^(.+)\.html$ /$1.php [R=301,L]
 
-# Remove .php extension from URL
+# Remove .php extension (optional clean URLs)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^([^.]+)$ $1.php [L]
 
-# Default charset
 AddDefaultCharset UTF-8
