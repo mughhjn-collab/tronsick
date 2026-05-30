@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -670,6 +670,17 @@
 </div>
 
 <script src="dashboard.js"></script>
-<script>window._INIT_SECTION='home';</script>
+<script>
+window._INIT_SECTION='home';
+// Fallback helpers – activate only if dashboard.js didn't define them
+if(typeof addBal!=='function'){
+  window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);var w=document.getElementById('wdBal');if(w)w.textContent=b.toFixed(6)+' TRX';}catch(x){}};
+}
+if(typeof syncBal!=='function'){
+  window.syncBal=function(){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};
+}
+if(typeof updateWager!=='function'){window.updateWager=function(){};}
+if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('wdAmt');if(e)e.value=Math.max(0,b-0.1).toFixed(6);};}
+</script>
 </body>
 </html>

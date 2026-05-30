@@ -10,6 +10,12 @@ function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('se
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
 
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
+// ── BALANCE HELPERS ──
+function syncBal(){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';}catch(e){}}
+function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());syncBal();}catch(e){}}
+function updateWager(amt){try{var w=parseFloat(localStorage.getItem('totalWagered')||'0');w+=Math.abs(amt);localStorage.setItem('totalWagered',w.toString());var el=document.getElementById('wagered');if(el)el.textContent=w.toFixed(6);var gel=document.getElementById('gWagered');if(gel)gel.textContent=w.toFixed(6);}catch(e){}}
+function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
+// ── END BALANCE HELPERS ──
 document.addEventListener('DOMContentLoaded',()=>{
 const dep=document.getElementById('depAddr');if(dep)dep.textContent='T'+Array.from({length:33},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random()*36)]).join('');
 const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
