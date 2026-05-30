@@ -866,18 +866,39 @@ modal.style.display='flex';
 // ── CONTACT FORM FUNCTIONS ──
 var _contactImages = [];
 
+// Compress image via canvas before storing (keeps localStorage under quota)
+function _compressImage(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var MAX = 800;
+      var w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', 0.70));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function previewContactImages(input) {
   var files = Array.from(input.files);
   files = files.slice(0, 3 - _contactImages.length);
   files.forEach(function(file) {
-    if (!file.type.startsWith('image/')) return;
-    if (file.size > 5 * 1024 * 1024) { showToast('Image too large (max 5MB)'); return; }
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      _contactImages.push({ name: file.name, data: e.target.result });
+    if (!file.type.startsWith('image/')) { showToast('Only images allowed'); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast('Image too large (max 10MB)'); return; }
+    var name = file.name;
+    _compressImage(file, function(compressedData) {
+      _contactImages.push({ name: name, data: compressedData });
       _renderContactPreviews();
-    };
-    reader.readAsDataURL(file);
+    });
   });
   input.value = '';
 }
@@ -914,7 +935,7 @@ function sendContact() {
   if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
   setTimeout(function() {
     var msgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
-    msgs.unshift({
+    var newMsg = {
       id: 'msg' + Date.now(),
       user: localStorage.getItem('userName') || 'User',
       email: (document.getElementById('contactEmail') || {}).value || 'user@tronsick.io',
@@ -924,8 +945,17 @@ function sendContact() {
       imageData: _contactImages.map(function(i) { return { name: i.name, data: i.data }; }),
       status: 'unread',
       date: new Date().toISOString()
-    });
-    localStorage.setItem('adm_msgs', JSON.stringify(msgs));
+    };
+    msgs.unshift(newMsg);
+    // Try saving with images; fallback to saving without if quota exceeded
+    try {
+      localStorage.setItem('adm_msgs', JSON.stringify(msgs));
+    } catch(e) {
+      // localStorage quota exceeded — strip image data and retry
+      msgs[0].imageData = msgs[0].imageData.map(function(img) { return { name: img.name, data: null }; });
+      try { localStorage.setItem('adm_msgs', JSON.stringify(msgs)); } catch(e2) { /* still fail */ }
+      showToast('Images too large to store — sent without image data');
+    }
     subj.value = ''; msg.value = '';
     _contactImages = []; _renderContactPreviews();
     if (btn) { btn.disabled = false; btn.textContent = 'SEND MESSAGE'; }
@@ -942,3 +972,4 @@ function sendContact() {
   }, 800);
 }
 // ── END CONTACT FORM FUNCTIONS ──
+

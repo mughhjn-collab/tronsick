@@ -782,9 +782,21 @@ function addDemoMsg(){
   var subjects=['Withdrawal Problem','Login Issue','Faucet Not Working','Game Bug Report','Balance Missing'];
   var bodies=['Hello, I have an issue with my withdrawal. Please help!','I cannot login to my account.','The faucet is not giving me TRX today.','I found a bug in the dice game.','My balance disappeared after playing.'];
   var i=Math.floor(Math.random()*5);
-  msgs.unshift({id:'msg'+Date.now(),user:'User'+Math.floor(Math.random()*999),email:'user'+Math.floor(Math.random()*999)+'@example.com',subject:subjects[i],message:bodies[i],images:[],status:'unread',date:new Date().toISOString()});
+  // Small 8x8 green dot as test image (real base64 PNG)
+  var testImg='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAK0lEQVQY02NgYGD4z8BAAGAEYiIwMgIxAwMTiMmIyQAAAAAA//8DAAj+Av7dA1oAAAAASUVORK5CYII=';
+  msgs.unshift({
+    id:'msg'+Date.now(),
+    user:'TestUser'+Math.floor(Math.random()*999),
+    email:'user'+Math.floor(Math.random()*999)+'@example.com',
+    subject:subjects[i],
+    message:bodies[i]+'\n\nI have attached a screenshot for reference.',
+    images:['screenshot.png'],
+    imageData:[{name:'screenshot.png',data:testImg}],
+    status:'unread',
+    date:new Date().toISOString()
+  });
   localStorage.setItem('adm_msgs',JSON.stringify(msgs));
-  toast('Test message added');
+  toast('Test message added (with image)');
   document.getElementById('admContent').innerHTML=buildContact();
 }
 
