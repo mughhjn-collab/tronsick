@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -36,7 +36,7 @@
     <a class="sb-item"        id="nav-settings"    href="/settings.php">  <i>&#9881;</i><s>Settings</s></a>
     <a class="sb-item"        id="nav-contact"     href="/contact.php">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
-    <a class="sb-item sb-out" href="/logout.php">                              <i>&#x1F534;</i><s>Logout</s></a>
+    <a class="sb-item sb-out" href="javascript:void(0)" onclick="doSiteLogout()">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
 </aside>
 
@@ -104,7 +104,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE "” Roll System -->
+      <!-- BONUS PANE "ï¿½ Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -114,11 +114,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 "“ 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 "“ 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 "“ 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 "“ 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 "“ 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "ï¿½ 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "ï¿½ 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "ï¿½ 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "ï¿½ 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "ï¿½ 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -657,7 +657,7 @@
 </main>
 
 
-<!-- BET INFO MODAL — shared by all games -->
+<!-- BET INFO MODAL ï¿½ shared by all games -->
 <div class="bet-modal" id="betModal" onclick="closeBetModal()" style="display:none">
   <div class="bm-box" onclick="event.stopPropagation()">
     <div class="bm-hd">

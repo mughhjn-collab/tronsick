@@ -1,5 +1,15 @@
 // Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
+
+// ── LOGOUT ──
+function doSiteLogout(){
+  var keys=['userName','userEmail','userLoggedIn','userId','userBalance',
+            'regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus',
+            'totalWagered','userLevel','userRef'];
+  keys.forEach(function(k){ localStorage.removeItem(k); });
+  window.location.href = '/index.php';
+}
+
 // â”€â”€ SIDEBAR â”€â”€
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
