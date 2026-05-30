@@ -1,3 +1,5 @@
+// Strip any hash fragment from URL on load
+if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 // â”€â”€ SIDEBAR â”€â”€
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
@@ -74,7 +76,7 @@ if(name==='diamond'){frame.innerHTML=buildDiamondUI();initDiamond();}
 if(name==='sicbo'){frame.innerHTML=buildSicBoUI();initSicBo();}
 if(name==='tower'){frame.innerHTML=buildTowerUI();initTower();}
 try{sessionStorage.setItem('lastGame',name);}catch(e){}
-if(!skipHistory)history.pushState({section:'games',game:name},'','#game-'+name);
+if(!skipHistory)history.replaceState(null,'',window.location.pathname);
 }
 function closeGame(skipHistory){
 var sec=document.getElementById('sec-games');
