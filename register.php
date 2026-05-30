@@ -147,8 +147,10 @@ function handleReg(e) {
   setTimeout(() => {
     // Give new user 3 bonus rolls
     localStorage.setItem('bonusRolls','3');
-    localStorage.setItem('newUserBonus','0'); // mark as fresh (dashboard will read bonusRolls)
+    localStorage.setItem('newUserBonus','0');
     localStorage.setItem('regUser', u);
+    localStorage.setItem('userName', u);
+    localStorage.setItem('userEmail', em);  // Save REAL email
     // Redirect to login with success flag
     window.location.href='login.php?registered=1&user='+encodeURIComponent(u);
   }, 1500);

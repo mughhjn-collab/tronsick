@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -219,6 +219,14 @@
         <div class="gc-label2">Tower</div>
       </div>
 
+      <div class="gc-wrap2" onclick="openGame('coinflip')" id="gc-coinflip">
+        <div class="gc-art gc-art-coinflip">
+          <div class="cf-coin-3d" id="cfCardCoin">&#x1FA99;</div>
+          <div class="cf-sides-3d"><span>H</span><span>T</span></div>
+        </div>
+        <div class="gc-label2">Coin Flip</div>
+      </div>
+
     </div>
     <!-- GAME PANEL -->
     <div class="game-panel" id="gamePanel" style="display:none">
@@ -233,7 +241,7 @@
         <button class="all-bets-refresh" onclick="renderAllBets()">&#8635; Refresh</button>
       </div>
       <div class="all-bets-tabs">
-        <button class="ab-tab ab-tab-act" id="abTabAll" onclick="abSetTab('all')">All Games</button>
+        <button class="ab-tab" id="abTabAll" onclick="abSetTab('all')">All Games</button>
         <button class="ab-tab" id="abTabDice" onclick="abSetTab('dice')">&#127922; Dice</button>
         <button class="ab-tab" id="abTabLimbo" onclick="abSetTab('limbo')">&#128640; Limbo</button>
         <button class="ab-tab" id="abTabWheel" onclick="abSetTab('wheel')">&#127905; Wheel</button>
@@ -241,6 +249,7 @@
         <button class="ab-tab" id="abTabSicbo" onclick="abSetTab('sicbo')">&#127922; Sic Bo</button>
         <button class="ab-tab" id="abTabDiamond" onclick="abSetTab('diamond')">&#9670; Diamond</button>
         <button class="ab-tab" id="abTabTower" onclick="abSetTab('tower')">&#127959; Tower</button>
+        <button class="ab-tab" id="abTabCoinflip" onclick="abSetTab('coinflip')">&#x1FA99; Coin Flip</button>
       </div>
       <div class="all-bets-body" id="allBetsBody">
         <div class="dg-no-bets">No bets yet. Play a game to see your history here!</div>
@@ -701,8 +710,8 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
 var _abTab='all';
 function abSetTab(t){_abTab=t;['all','dice','limbo','wheel','mines','sicbo','diamond','tower'].forEach(function(k){var el=document.getElementById('abTab'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('ab-tab-act',k===t);});renderAllBets();}
 function renderAllBets(){
-  var keys={dice:'diceHistory',limbo:'limboHistory',wheel:'wheelHistory',mines:'mnHistory',sicbo:'sbHistory',diamond:'dmHistory',tower:'twHistory'};
-  var gameNames={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#127922; Sic Bo',diamond:'&#9670; Diamond',tower:'&#127959; Tower'};
+  var keys={dice:'diceHistory',limbo:'limboHistory',wheel:'wheelHistory',mines:'mnHistory',sicbo:'sbHistory',diamond:'dmHistory',tower:'twHistory',coinflip:'cfHistory'};
+  var gameNames={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#127922; Sic Bo',diamond:'&#9670; Diamond',tower:'&#127959; Tower',coinflip:'&#x1FA99; Coin Flip'};
   var all=[];
   var filter=_abTab==='all'?Object.keys(keys):[_abTab];
   filter.forEach(function(g){

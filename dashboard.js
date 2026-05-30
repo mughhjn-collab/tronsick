@@ -218,6 +218,7 @@ else if(name==='mines'){frame.innerHTML=buildMinesUI();initMines();}
 else if(name==='diamond'){frame.innerHTML=buildDiamondUI();initDiamond();}
 else if(name==='sicbo'){frame.innerHTML=buildSicBoUI();initSicBo();}
 else if(name==='tower'){frame.innerHTML=buildTowerUI();initTower();}
+else if(name==='coinflip'){frame.innerHTML=buildCoinFlipUI();initCoinFlip();}
 else{closeGame();return;}
 window.scrollTo(0,0);
 }
@@ -1315,4 +1316,225 @@ function showImgFull(src, name) {
   }, 500);
 })();
 // ── END TICKET SYSTEM ──
+
+// ══════════════════════════════════════════════════════
+// 🪙 COIN FLIP GAME
+// ══════════════════════════════════════════════════════
+var cfNonce = 0;
+var cfBetHistory = [];
+var cfFlipping = false;
+var cfChoice = null; // 'heads' or 'tails'
+var CF_MULT = 1.94;
+
+function buildCoinFlipUI(){
+  return '<div class="cf-wrap">'+
+    // Top info bar
+    '<div class="cf-info-bar">'+
+      '<div class="cf-info-item"><span class="cf-info-lbl">Payout</span><span class="cf-info-val">'+CF_MULT+'x</span></div>'+
+      '<div class="cf-info-item"><span class="cf-info-lbl">Win Chance</span><span class="cf-info-val">48.5%</span></div>'+
+      '<div class="cf-info-item"><span class="cf-info-lbl">Edge</span><span class="cf-info-val">3%</span></div>'+
+    '</div>'+
+    // Coin display
+    '<div class="cf-stage">'+
+      '<div class="cf-coin-wrap" id="cfCoinWrap">'+
+        '<div class="cf-coin" id="cfCoin">'+
+          '<div class="cf-face cf-heads">'+
+            '<svg viewBox="0 0 100 100" width="120" height="120">'+
+              '<circle cx="50" cy="50" r="48" fill="url(#hg)" stroke="#b8860b" stroke-width="2"/>'+
+              '<defs><radialGradient id="hg" cx="35%" cy="35%"><stop offset="0%" stop-color="#ffe066"/><stop offset="60%" stop-color="#f5a623"/><stop offset="100%" stop-color="#c67c00"/></radialGradient></defs>'+
+              '<circle cx="50" cy="50" r="38" fill="none" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+              '<text x="50" y="58" text-anchor="middle" font-size="28" font-weight="900" fill="#7a4800" font-family="Georgia,serif">H</text>'+
+            '</svg>'+
+          '</div>'+
+          '<div class="cf-face cf-tails">'+
+            '<svg viewBox="0 0 100 100" width="120" height="120">'+
+              '<circle cx="50" cy="50" r="48" fill="url(#tg)" stroke="#8a7a00" stroke-width="2"/>'+
+              '<defs><radialGradient id="tg" cx="35%" cy="35%"><stop offset="0%" stop-color="#e8e8b0"/><stop offset="60%" stop-color="#c8c040"/><stop offset="100%" stop-color="#908800"/></radialGradient></defs>'+
+              '<circle cx="50" cy="50" r="38" fill="none" stroke="#8a7a00" stroke-width="1.5" stroke-dasharray="4 3"/>'+
+              '<text x="50" y="58" text-anchor="middle" font-size="28" font-weight="900" fill="#4a4000" font-family="Georgia,serif">T</text>'+
+            '</svg>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="cf-result-msg" id="cfResultMsg"></div>'+
+    '</div>'+
+    // Choice buttons
+    '<div class="cf-choice-row">'+
+      '<button class="cf-choice-btn" id="cfBtnHeads" onclick="cfSelect(\'heads\')">'+
+        '<span class="cf-choice-icon">H</span>'+
+        '<span class="cf-choice-lbl">HEADS</span>'+
+      '</button>'+
+      '<span class="cf-vs">VS</span>'+
+      '<button class="cf-choice-btn" id="cfBtnTails" onclick="cfSelect(\'tails\')">'+
+        '<span class="cf-choice-icon">T</span>'+
+        '<span class="cf-choice-lbl">TAILS</span>'+
+      '</button>'+
+    '</div>'+
+    // Bet controls
+    '<div class="cf-bet-area">'+
+      '<div class="cf-bet-row">'+
+        '<label class="cf-bet-lbl">Bet Amount (TRX)</label>'+
+        '<div class="cf-bet-inp-row">'+
+          '<input class="cf-bet-inp" id="cfBet" type="number" value="0.00010" min="0.000001" step="0.00001"/>'+
+          '<button class="cf-half-btn" onclick="cfHalf()">½</button>'+
+          '<button class="cf-dbl-btn" onclick="cfDouble()">2x</button>'+
+          '<button class="cf-max-btn" onclick="cfMax()">MAX</button>'+
+        '</div>'+
+      '</div>'+
+      '<button class="cf-flip-btn" id="cfFlipBtn" onclick="cfFlip()">'+
+        '🪙 FLIP COIN'+
+      '</button>'+
+    '</div>'+
+    // Bet history
+    '<div class="cf-hist-wrap">'+
+      '<div class="cf-hist-hd">🎯 Bet History</div>'+
+      '<table class="dg-hist-tbl"><thead><tr><th>Bet</th><th>Choice</th><th>Result</th><th>Profit</th><th>Info</th></tr></thead>'+
+      '<tbody id="cfHistBody"></tbody></table>'+
+    '</div>'+
+  '</div>';
+}
+
+function initCoinFlip(){
+  cfNonce = parseInt(localStorage.getItem('cfNonce')||'0');
+  cfBetHistory = JSON.parse(localStorage.getItem('cfHistory')||'[]');
+  cfChoice = null;
+  cfFlipping = false;
+  cfRenderHist();
+}
+
+function cfSelect(side){
+  if(cfFlipping) return;
+  cfChoice = side;
+  var hBtn = document.getElementById('cfBtnHeads');
+  var tBtn = document.getElementById('cfBtnTails');
+  if(hBtn) hBtn.classList.toggle('cf-choice-act', side==='heads');
+  if(tBtn) tBtn.classList.toggle('cf-choice-act', side==='tails');
+  var msg = document.getElementById('cfResultMsg');
+  if(msg){ msg.style.color='rgba(255,255,255,.5)'; msg.textContent = 'You chose: '+(side==='heads'?'HEADS ⬛':'TAILS ⬜'); }
+}
+
+function cfFlip(){
+  if(cfFlipping){ showToast('Wait for flip to finish'); return; }
+  if(!cfChoice){ showToast('Choose Heads or Tails first!'); return; }
+  var betEl = document.getElementById('cfBet');
+  var bet = parseFloat(betEl ? betEl.value : '0');
+  if(isNaN(bet)||bet<=0){ showToast('Enter a valid bet amount'); return; }
+  var bal = parseFloat(localStorage.getItem('userBalance')||'0');
+  if(bet>bal){ showToast('Insufficient balance'); return; }
+
+  cfFlipping = true;
+  var flipBtn = document.getElementById('cfFlipBtn');
+  if(flipBtn){ flipBtn.disabled=true; flipBtn.textContent='Flipping...'; }
+
+  // Deduct bet
+  addBal(-bet);
+  updateWager(bet);
+
+  // Determine result
+  var rand = Math.random();
+  var won = (cfChoice==='heads' && rand<0.485) || (cfChoice==='tails' && rand>=0.515);
+  var result = won ? cfChoice : (cfChoice==='heads'?'tails':'heads');
+
+  // Animate coin
+  var coin = document.getElementById('cfCoin');
+  if(coin){
+    coin.classList.remove('cf-spin-heads','cf-spin-tails','cf-spin-done');
+    void coin.offsetWidth; // reflow
+    coin.classList.add(result==='heads'?'cf-spin-heads':'cf-spin-tails');
+  }
+
+  setTimeout(function(){
+    if(coin){ coin.classList.add('cf-spin-done'); }
+    var profit = won ? parseFloat((bet*CF_MULT - bet).toFixed(6)) : -bet;
+    if(won) addBal(bet*CF_MULT);
+
+    var msg = document.getElementById('cfResultMsg');
+    if(msg){
+      msg.style.color = won ? '#3ecf8e' : '#ef4444';
+      msg.innerHTML = (result==='heads'?'<span style="font-size:1.3em">H</span>':'<span style="font-size:1.3em">T</span>')+
+        ' &nbsp; <strong style="font-size:1.1em">'+(won?'WIN! +'+Math.abs(profit).toFixed(6)+' TRX':'LOSE -'+bet.toFixed(6)+' TRX')+'</strong>';
+    }
+
+    // Save to history
+    cfNonce++;
+    var serverSeed = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+    var clientSeed = localStorage.getItem('dgClientSeed')||'tronsick';
+    var rec = {
+      id: cfNonce,
+      game: 'Coin Flip',
+      bet: bet,
+      choice: cfChoice,
+      result: result,
+      win: won,
+      mult: won?CF_MULT:0,
+      profit: profit,
+      ts: new Date().toLocaleTimeString(),
+      serverSeed: serverSeed,
+      clientSeed: clientSeed,
+      nonce: cfNonce
+    };
+    cfBetHistory.unshift(rec);
+    if(cfBetHistory.length>50) cfBetHistory.length=50;
+    localStorage.setItem('cfHistory', JSON.stringify(cfBetHistory));
+    localStorage.setItem('cfNonce', cfNonce.toString());
+    cfRenderHist();
+    syncBal();
+    cfFlipping = false;
+    if(flipBtn){ flipBtn.disabled=false; flipBtn.textContent='🪙 FLIP COIN'; }
+  }, 1600);
+}
+
+function cfRenderHist(){
+  var body = document.getElementById('cfHistBody');
+  if(!body) return;
+  if(!cfBetHistory.length){
+    body.innerHTML='<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.3);padding:16px">No bets yet</td></tr>';
+    return;
+  }
+  body.innerHTML = cfBetHistory.slice(0,20).map(function(b,i){
+    return '<tr class="dg-hist-row" style="cursor:pointer" onclick="cfOpenBetInfo('+i+')">'+
+      '<td>'+parseFloat(b.bet).toFixed(6)+'</td>'+
+      '<td style="text-transform:capitalize">'+b.choice+'</td>'+
+      '<td style="text-transform:capitalize;color:'+(b.result===b.choice?'#3ecf8e':'#ef4444')+'">'+b.result+'</td>'+
+      '<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+parseFloat(b.profit).toFixed(6)+'</td>'+
+      '<td><button class="dg-info-btn" onclick="event.stopPropagation();cfOpenBetInfo('+i+')">ℹ</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function cfOpenBetInfo(idx){
+  var b = cfBetHistory[idx];
+  if(!b) return;
+  var modal = document.getElementById('betModal');
+  var bmResult = document.getElementById('bmResult');
+  var bmSeeds = document.getElementById('bmSeeds');
+  if(!modal||!bmResult||!bmSeeds) return;
+  bmResult.innerHTML =
+    '<div class="bm-game-row"><span class="bm-game-lbl">Game</span><span class="bm-game-val">🪙 Coin Flip</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Your Choice</span><span class="bm-game-val" style="text-transform:capitalize">'+b.choice+'</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Result</span><span class="bm-game-val '+(b.win?'bm-win':'bm-lose')+'" style="text-transform:capitalize">'+b.result+'</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Bet</span><span class="bm-game-val">'+parseFloat(b.bet).toFixed(6)+' TRX</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Payout</span><span class="bm-game-val">'+(b.win?CF_MULT+'x':'0x')+'</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Profit</span><span class="bm-game-val '+(b.profit>=0?'bm-win':'bm-lose')+'">'+(b.profit>=0?'+':'')+parseFloat(b.profit).toFixed(6)+' TRX</span></div>'+
+    '<div class="bm-game-row"><span class="bm-game-lbl">Time</span><span class="bm-game-val">'+b.ts+'</span></div>';
+  bmSeeds.innerHTML =
+    '<div class="bm-sf-row"><span class="bm-sf-lbl">Server Seed</span><span class="bm-sf-val">'+b.serverSeed+'</span></div>'+
+    '<div class="bm-sf-row"><span class="bm-sf-lbl">Client Seed</span><span class="bm-sf-val">'+b.clientSeed+'</span></div>'+
+    '<div class="bm-sf-row"><span class="bm-sf-lbl">Nonce</span><span class="bm-sf-val">#'+b.nonce+'</span></div>';
+  modal.style.display='flex';
+}
+
+function cfHalf(){
+  var el=document.getElementById('cfBet');
+  if(el) el.value=(parseFloat(el.value||'0')/2).toFixed(6);
+}
+function cfDouble(){
+  var el=document.getElementById('cfBet');
+  if(el){ var v=parseFloat(el.value||'0')*2; var bal=parseFloat(localStorage.getItem('userBalance')||'0'); el.value=Math.min(v,bal).toFixed(6); }
+}
+function cfMax(){
+  var el=document.getElementById('cfBet');
+  if(el) el.value=parseFloat(localStorage.getItem('userBalance')||'0').toFixed(6);
+}
+// ── END COIN FLIP ──
 
