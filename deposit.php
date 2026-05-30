@@ -24,7 +24,7 @@
   </div>
   <!-- Nav items -->
   <nav class="sb-nav">
-    <a class="sb-item active" id="nav-home"       href="/faucet.php">      <i>&#x1F3E0;</i><s>Home</s></a>
+    <a class="sb-item" id="nav-home"       href="/faucet.php">      <i>&#x1F3E0;</i><s>Home</s></a>
     <a class="sb-item"        id="nav-games"       href="/games.php">     <i>&#x1F3AE;</i><s>Games</s></a>
     <a class="sb-item"        id="nav-deposit"     href="/deposit.php">   <i>&#x1F4B0;</i><s>Deposit</s></a>
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
@@ -53,7 +53,7 @@
 <main class="main">
 
   <!-- HOME -->
-  <div class="pg active" id="sec-home">
+  <div class="pg" id="sec-home">
     <div class="hw">
       <div class="earn-hd">
         <h1>EARN FREE TRX</h1>
@@ -228,7 +228,7 @@
   </div>
 
   <!-- DEPOSIT -->
-  <div class="pg" id="sec-deposit">
+  <div class="pg active" id="sec-deposit">
     <div class="pg-hd"><h2>Deposit TRX</h2><p>Send TRX to your account address</p></div>
     <div class="card"><label class="fl">TRC-20 Deposit Address</label><div class="addr" id="depAddr">Generating...</div><button class="gbtn" onclick="copyDep()">Copy Address</button><p class="sn">Send only TRX (TRC-20). Reflects within 1&ndash;3 minutes.</p></div>
   </div>
