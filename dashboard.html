@@ -24,17 +24,17 @@
   </div>
   <!-- Nav items -->
   <nav class="sb-nav">
-    <a class="sb-item active" id="nav-home"       onclick="go('home')">      <i>&#x1F3E0;</i><s>Home</s></a>
-    <a class="sb-item"        id="nav-games"       onclick="go('games')">     <i>&#x1F3AE;</i><s>Games</s></a>
-    <a class="sb-item"        id="nav-deposit"     onclick="go('deposit')">   <i>&#x1F4B0;</i><s>Deposit</s></a>
-    <a class="sb-item"        id="nav-withdraw"    onclick="go('withdraw')">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
-    <a class="sb-item"        id="nav-cashback"    onclick="go('cashback')">  <i>&#x1F4B5;</i><s>Cashback</s></a>
-    <a class="sb-item"        id="nav-contest"     onclick="go('contest')">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item"        id="nav-surveys"     onclick="go('surveys')">   <i>&#x1F4CB;</i><s>Surveys</s></a>
-    <a class="sb-item"        id="nav-affiliates"  onclick="go('affiliates')"><i>&#x1F91D;</i><s>Affiliates</s></a>
-    <a class="sb-item"        id="nav-gifts"       onclick="go('gifts')">     <i>&#x1F381;</i><s>Gifts</s></a>
-    <a class="sb-item"        id="nav-settings"    onclick="go('settings')">  <i>&#9881;</i><s>Settings</s></a>
-    <a class="sb-item"        id="nav-contact"     onclick="go('contact')">   <i>&#9993;</i><s>Contact</s></a>
+    <a class="sb-item active" id="nav-home"       href="/faucet.php">      <i>&#x1F3E0;</i><s>Home</s></a>
+    <a class="sb-item"        id="nav-games"       href="/games.php">     <i>&#x1F3AE;</i><s>Games</s></a>
+    <a class="sb-item"        id="nav-deposit"     href="/deposit.php">   <i>&#x1F4B0;</i><s>Deposit</s></a>
+    <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
+    <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
+    <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
+    <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
+    <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
+    <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
+    <a class="sb-item"        id="nav-settings"    href="/settings.php">  <i>&#9881;</i><s>Settings</s></a>
+    <a class="sb-item"        id="nav-contact"     href="/contact.php">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
     <a class="sb-item sb-out" href="index.html">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
@@ -46,7 +46,7 @@
     <img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="trx-hdr-logo" alt="TRX">
     <span class="tb-val" id="userBalance">0.000000</span>
   </div>
-  <button class="tb-wallet" onclick="go('withdraw')">WALLET</button>
+  <button class="tb-wallet" href="/withdraw.php">WALLET</button>
 </header>
 
 <!-- MAIN -->
@@ -647,9 +647,9 @@
   <footer class="foot">
     <div class="foot-in">
       <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 30 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
-      <div class="fc"><h4>Account</h4><a onclick="go('settings')">Settings</a><a onclick="go('withdraw')">Withdraw</a><a onclick="go('deposit')">Deposit</a></div>
-      <div class="fc"><h4>Earn TRX</h4><a onclick="go('home')">Faucet</a><a onclick="go('games')">Games</a><a onclick="go('affiliates')">Referrals</a></div>
-      <div class="fc"><h4>Help</h4><a onclick="go('contact')">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <div class="fc"><h4>Account</h4><a href="/settings.php">Settings</a><a href="/withdraw.php">Withdraw</a><a href="/deposit.php">Deposit</a></div>
+      <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
+      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
     <div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
   </footer>
