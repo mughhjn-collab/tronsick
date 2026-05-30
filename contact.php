@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -615,9 +615,11 @@
   <!-- CONTACT -->
   <div class="pg active" id="sec-contact">
     <div class="contact-wrap">
-      <div class="card contact-card">
+
+      <!-- ── NEW TICKET FORM ── -->
+      <div class="card contact-card" id="newTicketCard">
         <div class="contact-hd">&#128231; CONTACT US</div>
-        <p class="contact-desc">Please read through the questions/answers section on the <a class="contact-faq-lnk" href="#">FAQ</a> page before sending us an email. We will not reply to emails asking questions that have already been answered there. We will endeavour to reply to emails within 48 hours.</p>
+        <p class="contact-desc">Submit a support ticket below. We reply within 48 hours. You can view admin replies in <strong>My Tickets</strong> section below.</p>
 
         <label class="fl contact-lbl">Email <span class="contact-req">*</span></label>
         <input class="fi" type="email" id="contactEmail" value="user@tronsick.io" readonly style="background:rgba(0,0,0,.08);color:rgba(232,240,235,.6)"/>
@@ -633,13 +635,60 @@
         <div class="contact-upload-area" id="contactUploadArea" onclick="document.getElementById('contactImgInp').click()">
           <div class="contact-upload-icon">&#128444;</div>
           <div class="contact-upload-txt">Click to upload images or drag &amp; drop here</div>
-          <div class="contact-upload-hint">JPG, PNG, GIF &bull; Max 5MB each</div>
+          <div class="contact-upload-hint">JPG, PNG, GIF &bull; Max 10MB each</div>
           <input type="file" id="contactImgInp" accept="image/*" multiple style="display:none" onchange="previewContactImages(this)"/>
         </div>
         <div class="contact-img-previews" id="contactImgPreviews"></div>
 
         <button class="contact-send-btn" onclick="sendContact()">SEND MESSAGE</button>
       </div>
+
+      <!-- ── MY TICKETS ── -->
+      <div class="card" id="myTicketsCard" style="margin-top:24px;padding:24px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <div style="font-size:15px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px">
+            &#127916; My Support Tickets
+            <span id="unreadTicketBadge" style="display:none;background:#f59e0b;color:#000;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px"></span>
+          </div>
+          <button onclick="loadMyTickets()" style="background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">&#8635; Refresh</button>
+        </div>
+        <div id="myTicketsList"></div>
+      </div>
+
+      <!-- ── TICKET CONVERSATION MODAL ── -->
+      <div id="ticketModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:16px;overflow-y:auto" onclick="if(event.target===this)closeTicketModal()">
+        <div style="background:#0f1a14;border:1px solid rgba(62,207,142,.2);border-radius:18px;width:100%;max-width:640px;margin:auto;max-height:90vh;display:flex;flex-direction:column">
+          <!-- Header -->
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0">
+            <div style="font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px">
+              <span style="color:#3ecf8e">&#128231;</span>
+              <span id="tmSubject">Ticket</span>
+            </div>
+            <button onclick="closeTicketModal()" style="background:rgba(255,255,255,.08);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:18px">&#215;</button>
+          </div>
+          <!-- Conversation -->
+          <div id="tmConversation" style="flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:12px"></div>
+          <!-- User Reply Box -->
+          <div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0">
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:8px">&#128172; Your Reply</div>
+            <textarea id="tmReplyText" placeholder="Type your reply..." style="width:100%;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;color:#fff;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='rgba(62,207,142,.4)'" onblur="this.style.borderColor='rgba(255,255,255,.08)'"></textarea>
+            <!-- Image attach -->
+            <div style="margin-top:10px">
+              <div id="tmImgPreviews" style="margin-bottom:8px"></div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <label style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+                  &#128247; Attach Images
+                  <input type="file" id="tmImgInp" accept="image/*" multiple style="display:none" onchange="previewTicketImages(this)"/>
+                </label>
+                <button id="tmSendBtn" onclick="sendTicketReply()" style="background:linear-gradient(135deg,#3ecf8e,#22c55e);border:none;color:#000;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;flex:1;min-width:120px">
+                  &#9992; Send Reply
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 

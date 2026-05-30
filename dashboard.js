@@ -969,7 +969,276 @@ function sendContact() {
       setTimeout(function(){ ok.remove(); }, 5000);
     }
     showToast('Message sent successfully!');
+    // Refresh tickets list
+    setTimeout(loadMyTickets, 900);
   }, 800);
 }
 // ── END CONTACT FORM FUNCTIONS ──
+
+// ══════════════════════════════════════════
+// ── SUPPORT TICKET SYSTEM (USER SIDE) ──
+// ══════════════════════════════════════════
+var _currentTicketId = null;
+var _ticketReplyImages = [];
+
+// Load user's own tickets from localStorage
+function loadMyTickets() {
+  var list = document.getElementById('myTicketsList');
+  var badge = document.getElementById('unreadTicketBadge');
+  if (!list) return;
+
+  var currentUser = localStorage.getItem('userName') || 'User';
+  var allMsgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
+  // Filter only this user's messages
+  var myMsgs = allMsgs.filter(function(m) {
+    return m.user === currentUser || m.email === localStorage.getItem('userEmail');
+  });
+
+  // Count unread admin replies
+  var unreadReplies = 0;
+  myMsgs.forEach(function(m) {
+    if (m.replies && m.replies.length > 0) {
+      var seen = JSON.parse(localStorage.getItem('seen_replies_' + m.id) || '[]');
+      var newReplies = m.replies.filter(function(r) { return r.admin && seen.indexOf(r.date) === -1; });
+      unreadReplies += newReplies.length;
+    }
+  });
+
+  if (badge) {
+    if (unreadReplies > 0) { badge.style.display = 'inline-block'; badge.textContent = unreadReplies + ' New'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  if (!myMsgs.length) {
+    list.innerHTML = '<div style="text-align:center;padding:32px;color:rgba(255,255,255,.3)">' +
+      '<div style="font-size:32px;margin-bottom:10px">&#128233;</div>' +
+      '<div style="font-size:14px">No tickets yet. Send a message above!</div></div>';
+    return;
+  }
+
+  list.innerHTML = myMsgs.map(function(m) {
+    var replies = m.replies || [];
+    var adminReplies = replies.filter(function(r) { return r.admin; });
+    var seen = JSON.parse(localStorage.getItem('seen_replies_' + m.id) || '[]');
+    var hasNew = adminReplies.some(function(r) { return seen.indexOf(r.date) === -1; });
+    var lastReply = replies.length > 0 ? replies[replies.length - 1] : null;
+    var statusColor = m.status === 'replied' ? '#3ecf8e' : m.status === 'read' ? '#60a5fa' : '#f59e0b';
+    var statusTxt   = m.status === 'replied' ? 'Replied' : m.status === 'read' ? 'Under Review' : 'Open';
+
+    return '<div onclick="openTicket(\'' + m.id + '\')" style="background:rgba(255,255,255,.03);border:1px solid ' +
+      (hasNew ? 'rgba(62,207,142,.3)' : 'rgba(255,255,255,.07)') +
+      ';border-radius:12px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:border-color .2s" ' +
+      'onmouseover="this.style.borderColor=\'rgba(62,207,142,.4)\'" onmouseout="this.style.borderColor=\'' +
+      (hasNew ? 'rgba(62,207,142,.3)' : 'rgba(255,255,255,.07)') + '\'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
+      '<div style="flex:1">' +
+      '<div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">' + m.subject + (hasNew ? ' <span style="background:#3ecf8e;color:#000;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;vertical-align:middle">NEW REPLY</span>' : '') + '</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px">' + new Date(m.date).toLocaleString() + '</div>' +
+      '<div style="font-size:13px;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:380px">' + (lastReply ? (lastReply.admin ? '&#128737; Admin: ' : '&#128100; You: ') + lastReply.text : m.message) + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+      '<div style="font-size:11px;font-weight:700;color:' + statusColor + ';background:' + statusColor + '18;border:1px solid ' + statusColor + '40;padding:3px 10px;border-radius:20px;margin-bottom:6px">' + statusTxt + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.3)">' + replies.length + ' message' + (replies.length !== 1 ? 's' : '') + '</div>' +
+      '</div></div></div>';
+  }).join('');
+}
+
+// Open conversation modal for a ticket
+function openTicket(id) {
+  var allMsgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
+  var m = allMsgs.find(function(x) { return x.id === id; });
+  if (!m) return;
+  _currentTicketId = id;
+
+  // Mark admin replies as seen
+  var seen = JSON.parse(localStorage.getItem('seen_replies_' + id) || '[]');
+  (m.replies || []).forEach(function(r) { if (r.admin && seen.indexOf(r.date) === -1) seen.push(r.date); });
+  localStorage.setItem('seen_replies_' + id, JSON.stringify(seen));
+
+  // Set subject
+  document.getElementById('tmSubject').textContent = m.subject;
+  document.getElementById('tmReplyText').value = '';
+  _ticketReplyImages = [];
+  _renderTicketImgPreviews();
+
+  // Build conversation
+  var conv = document.getElementById('tmConversation');
+  var html = '';
+
+  // Original message (user)
+  html += _buildMsgBubble({
+    text: m.message,
+    date: m.date,
+    isAdmin: false,
+    imageData: m.imageData || []
+  });
+
+  // All replies in order
+  (m.replies || []).forEach(function(r) {
+    html += _buildMsgBubble({
+      text: r.text,
+      date: r.date,
+      isAdmin: r.admin === true,
+      imageData: r.imageData || []
+    });
+  });
+
+  conv.innerHTML = html;
+  conv.scrollTop = conv.scrollHeight;
+
+  // Show modal
+  var modal = document.getElementById('ticketModal');
+  if (modal) modal.style.display = 'flex';
+
+  // Refresh badge
+  setTimeout(loadMyTickets, 100);
+}
+
+function _buildMsgBubble(opts) {
+  var isAdmin = opts.isAdmin;
+  var imgs = opts.imageData || [];
+  var imgHtml = imgs.map(function(img) {
+    if (!img.data) return '<span style="font-size:11px;color:rgba(255,255,255,.4)">&#128247; ' + img.name + '</span>';
+    return '<img src="' + img.data + '" alt="' + (img.name || 'image') + '" ' +
+      'onclick="showImgFull(this.src,\'' + (img.name || '') + '\')" ' +
+      'style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:zoom-in;border:2px solid rgba(255,255,255,.15);transition:transform .15s" ' +
+      'onmouseover="this.style.transform=\'scale(1.06)\'" onmouseout="this.style.transform=\'scale(1)\'" title="Click to view"/>';
+  }).join('');
+
+  var bgColor   = isAdmin ? 'rgba(62,207,142,.08)' : 'rgba(255,255,255,.04)';
+  var border    = isAdmin ? 'rgba(62,207,142,.2)' : 'rgba(255,255,255,.07)';
+  var nameColor = isAdmin ? '#3ecf8e' : '#60a5fa';
+  var label     = isAdmin ? '&#128737; Support Team' : '&#128100; You';
+
+  return '<div style="background:' + bgColor + ';border:1px solid ' + border + ';border-radius:12px;padding:14px 16px">' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+    '<span style="font-size:12px;font-weight:700;color:' + nameColor + '">' + label + '</span>' +
+    '<span style="font-size:11px;color:rgba(255,255,255,.3)">' + new Date(opts.date).toLocaleString() + '</span>' +
+    '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.85);line-height:1.6;white-space:pre-wrap">' + (opts.text || '') + '</div>' +
+    (imgHtml ? '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">' + imgHtml + '</div>' : '') +
+    '</div>';
+}
+
+// Image preview in reply modal
+var _ticketImgInputEl = null;
+function previewTicketImages(input) {
+  _ticketImgInputEl = input;
+  var files = Array.from(input.files).slice(0, 3 - _ticketReplyImages.length);
+  files.forEach(function(file) {
+    if (!file.type.startsWith('image/')) return;
+    var name = file.name;
+    _compressImage(file, function(data) {
+      _ticketReplyImages.push({ name: name, data: data });
+      _renderTicketImgPreviews();
+    });
+  });
+  input.value = '';
+}
+
+function _renderTicketImgPreviews() {
+  var el = document.getElementById('tmImgPreviews');
+  if (!el) return;
+  el.innerHTML = '';
+  _ticketReplyImages.forEach(function(img, i) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block;margin:0 6px 6px 0';
+    var im = document.createElement('img');
+    im.src = img.data;
+    im.style.cssText = 'width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid rgba(62,207,142,.3)';
+    var rm = document.createElement('button');
+    rm.innerHTML = '&times;';
+    rm.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:12px;font-weight:700;line-height:1';
+    (function(idx){ rm.onclick = function(){ _ticketReplyImages.splice(idx,1); _renderTicketImgPreviews(); }; })(i);
+    wrap.appendChild(im); wrap.appendChild(rm); el.appendChild(wrap);
+  });
+}
+
+// Send user reply to ticket
+function sendTicketReply() {
+  var text = (document.getElementById('tmReplyText') || {}).value;
+  if (!text || !text.trim()) { showToast('Reply khaali nahi ho sakta'); return; }
+  if (!_currentTicketId) return;
+  var btn = document.getElementById('tmSendBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '&#9203; Sending...'; }
+
+  var imgs = _ticketReplyImages.slice();
+  setTimeout(function() {
+    var allMsgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
+    var m = allMsgs.find(function(x) { return x.id === _currentTicketId; });
+    if (!m) { showToast('Ticket not found'); return; }
+    if (!m.replies) m.replies = [];
+    var reply = {
+      text: text.trim(),
+      date: new Date().toISOString(),
+      admin: false,
+      imageData: imgs
+    };
+    m.replies.push(reply);
+    m.status = 'open'; // re-open for admin attention
+
+    try { localStorage.setItem('adm_msgs', JSON.stringify(allMsgs)); }
+    catch(e) {
+      reply.imageData = [];
+      try { localStorage.setItem('adm_msgs', JSON.stringify(allMsgs)); } catch(e2) {}
+    }
+
+    if (btn) { btn.disabled = false; btn.innerHTML = '&#9992; Send Reply'; }
+    document.getElementById('tmReplyText').value = '';
+    _ticketReplyImages = []; _renderTicketImgPreviews();
+
+    // Update conversation view
+    var conv = document.getElementById('tmConversation');
+    if (conv) {
+      conv.innerHTML += _buildMsgBubble({ text: reply.text, date: reply.date, isAdmin: false, imageData: imgs });
+      conv.scrollTop = conv.scrollHeight;
+    }
+    showToast('Reply sent!');
+    loadMyTickets();
+  }, 600);
+}
+
+function closeTicketModal() {
+  var modal = document.getElementById('ticketModal');
+  if (modal) modal.style.display = 'none';
+  _currentTicketId = null;
+}
+
+// Full-size image viewer (reused from admin panel concept)
+function showImgFull(src, name) {
+  var lb = document.getElementById('_imgLb');
+  if (!lb) { lb = document.createElement('div'); lb.id = '_imgLb'; document.body.appendChild(lb); }
+  lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out';
+  lb.onclick = function() { lb.style.display='none'; };
+  lb.innerHTML = '';
+  var cls = document.createElement('button');
+  cls.innerHTML = '&times;';
+  cls.style.cssText = 'position:absolute;top:16px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;width:38px;height:38px;border-radius:9px;cursor:pointer;font-size:22px;font-weight:700;line-height:1;z-index:2';
+  cls.onclick = function(e){ e.stopPropagation(); lb.style.display='none'; };
+  lb.appendChild(cls);
+  var img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:92vw;max-height:82vh;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,.8);object-fit:contain;cursor:default';
+  img.onclick = function(e){ e.stopPropagation(); };
+  lb.appendChild(img);
+  if (name) {
+    var cap = document.createElement('div');
+    cap.textContent = name;
+    cap.style.cssText = 'margin-top:12px;color:rgba(255,255,255,.5);font-size:13px;text-align:center;max-width:90vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    lb.appendChild(cap);
+  }
+  var esc = function(e){ if(e.key==='Escape'){ lb.style.display='none'; document.removeEventListener('keydown',esc); } };
+  document.addEventListener('keydown', esc);
+}
+
+// Auto-load tickets when contact page is active
+(function() {
+  var init = setInterval(function() {
+    if (document.getElementById('myTicketsList')) {
+      loadMyTickets();
+      clearInterval(init);
+    }
+  }, 500);
+})();
+// ── END TICKET SYSTEM ──
 

@@ -676,14 +676,25 @@ function _renderReplies(m){
   if(!container) return;
   var replies=m.replies||[];
   if(!replies.length){container.innerHTML='';return;}
-  container.innerHTML='<div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:8px">Previous Replies ('+replies.length+')</div>'+
+  container.innerHTML='<div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;margin-bottom:8px">Conversation ('+replies.length+')</div>'+
   replies.map(function(r){
-    return '<div style="background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:10px;padding:12px 16px;margin-bottom:8px">'+
+    var isAdmin=r.admin===true;
+    var bg=isAdmin?'rgba(62,207,142,.06)':'rgba(96,165,250,.06)';
+    var border=isAdmin?'rgba(62,207,142,.15)':'rgba(96,165,250,.15)';
+    var labelColor=isAdmin?'#3ecf8e':'#60a5fa';
+    var label=isAdmin?'<i class="fas fa-shield-halved"></i> Admin Reply':'<i class="fas fa-user"></i> User Reply';
+    var imgs=(r.imageData||[]).map(function(img){
+      if(!img||!img.data) return '';
+      return '<img src="'+img.data+'" onclick="openImgLightbox(this.src,\''+( img.name||'')+'\''+')" '+
+        'style="width:70px;height:70px;object-fit:cover;border-radius:8px;cursor:zoom-in;border:2px solid rgba(255,255,255,.15);margin-right:6px;margin-top:6px" title="Click to view"/>';
+    }).join('');
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:10px;padding:12px 16px;margin-bottom:8px">'+
     '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
-    '<span style="font-size:12px;font-weight:700;color:#3ecf8e"><i class="fas fa-shield-halved"></i> Admin Reply</span>'+
+    '<span style="font-size:12px;font-weight:700;color:'+labelColor+'">'+label+'</span>'+
     '<span style="font-size:11px;color:rgba(255,255,255,.3)">'+new Date(r.date).toLocaleString()+'</span>'+
     '</div>'+
     '<div style="font-size:13px;color:rgba(255,255,255,.8);line-height:1.6;white-space:pre-wrap">'+r.text+'</div>'+
+    (imgs?'<div style="margin-top:8px">'+imgs+'</div>':'')+
     '</div>';
   }).join('');
 }
