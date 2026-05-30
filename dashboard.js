@@ -862,3 +862,82 @@ if(seeds)seeds.innerHTML=
 '<div style="text-align:center;margin-top:16px"><a class="bm-verify-btn" href="'+vUrl+'" target="_blank">&#128270; Verify This Bet</a></div>';
 modal.style.display='flex';
 }
+
+// ── CONTACT FORM FUNCTIONS ──
+var _contactImages = [];
+
+function previewContactImages(input) {
+  var files = Array.from(input.files);
+  files = files.slice(0, 3 - _contactImages.length);
+  files.forEach(function(file) {
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('Image too large (max 5MB)'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      _contactImages.push({ name: file.name, data: e.target.result });
+      _renderContactPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function _renderContactPreviews() {
+  var previews = document.getElementById('contactImgPreviews');
+  if (!previews) return;
+  previews.innerHTML = '';
+  _contactImages.forEach(function(img, i) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block;margin:6px 6px 0 0';
+    var im = document.createElement('img');
+    im.src = img.data;
+    im.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid rgba(62,207,142,.3)';
+    var rm = document.createElement('button');
+    rm.innerHTML = '&times;';
+    rm.style.cssText = 'position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:14px;font-weight:700;line-height:1';
+    (function(idx){ rm.onclick = function() { _contactImages.splice(idx, 1); _renderContactPreviews(); }; })(i);
+    wrap.appendChild(im); wrap.appendChild(rm); previews.appendChild(wrap);
+  });
+  var hint = document.querySelector('.contact-upload-hint');
+  if (hint) hint.textContent = _contactImages.length + '/3 images' + (_contactImages.length >= 3 ? ' (max)' : ' selected');
+}
+
+function sendContact() {
+  var subj = document.getElementById('contactSubj');
+  var msg  = document.getElementById('contactMsg');
+  var btn  = document.querySelector('.contact-send-btn');
+  if (!subj || !msg) return;
+  var subjVal = subj.value.trim();
+  var msgVal  = msg.value.trim();
+  if (!subjVal) { showToast('Please enter a subject'); subj.focus(); return; }
+  if (msgVal.length < 5) { showToast('Please write your message (min 5 chars)'); msg.focus(); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  setTimeout(function() {
+    var msgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
+    msgs.unshift({
+      id: 'msg' + Date.now(),
+      user: localStorage.getItem('userName') || 'User',
+      email: (document.getElementById('contactEmail') || {}).value || 'user@tronsick.io',
+      subject: subjVal,
+      message: msgVal,
+      images: _contactImages.map(function(i) { return i.name; }),
+      status: 'unread',
+      date: new Date().toISOString()
+    });
+    localStorage.setItem('adm_msgs', JSON.stringify(msgs));
+    subj.value = ''; msg.value = '';
+    _contactImages = []; _renderContactPreviews();
+    if (btn) { btn.disabled = false; btn.textContent = 'SEND MESSAGE'; }
+    // Show inline success banner
+    var card = document.querySelector('.contact-card');
+    if (card) {
+      var ok = document.createElement('div');
+      ok.style.cssText = 'background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.3);color:#34d399;padding:16px;border-radius:12px;font-size:14px;font-weight:600;margin-top:16px;text-align:center';
+      ok.innerHTML = '&#x2705; Message sent! We will reply within 48 hours.';
+      card.appendChild(ok);
+      setTimeout(function(){ ok.remove(); }, 5000);
+    }
+    showToast('Message sent successfully!');
+  }, 800);
+}
+// ── END CONTACT FORM FUNCTIONS ──
