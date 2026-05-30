@@ -60,20 +60,50 @@ medium:[
   {m:3,c:'#2563eb'},{m:0,c:'#1a1025'},{m:10,c:'#d97706'},
   {m:0,c:'#1e1530'},{m:3,c:'#2563eb'},{m:0,c:'#1a1025'},
   {m:5,c:'#7c3aed'},{m:0,c:'#1e1530'},{m:0,c:'#1a1025'}
+function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=LEVEL_PAYOUTS[lvl]||0.005;addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(1800),1500);},1200);}
+let rollsLeft=0;
+function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
+function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
+function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
+var betHistory=[];
+var clientSeed=(Math.random().toString(36).substr(2,16)+Math.random().toString(36).substr(2,16));
+var serverSeedHash='a3f8c2b1d9e4f7a6b2c8d1e5f3a9b7c4d6e2f8a1b5c3d7e9';
+var serverSeed='srv_'+Math.random().toString(36).substr(2,32);
+var nonce=0;
+var dgDir='under';
+var autoRunning=false,autoBasebet=0,autoBetsLeft=0,autoLoss=0,autoProfit=0,autoTimer=null;
+var lbAutoRunning=false,lbAutoBase=0,lbAutoLoss=0,lbAutoProfit=0,lbAutoTimer=null,lbNonce=0;
+var wlRotation=0,wlSpinning=false,wlMode='low',wlNonce=0,wlBetHistory=[];
+var wlAutoRunning=false,wlAutoBase=0,wlAutoLoss=0,wlAutoProfit=0,wlAutoTimer=null;
+var WL_SEGS={
+low:[
+  {m:0,c:'#1e2235'},{m:1.5,c:'#2563eb'},{m:0,c:'#1a1e30'},{m:2,c:'#059669'},
+  {m:0,c:'#1e2235'},{m:1.5,c:'#2563eb'},{m:0,c:'#1a1e30'},{m:3,c:'#d97706'},
+  {m:0,c:'#1e2235'},{m:1.5,c:'#2563eb'},{m:0,c:'#1a1e30'},{m:2,c:'#059669'},
+  {m:0,c:'#1e2235'},{m:1.5,c:'#2563eb'},{m:0,c:'#1a1e30'}
+],
+medium:[
+  {m:0,c:'#1a1025'},{m:3,c:'#2563eb'},{m:0,c:'#1e1530'},
+  {m:0,c:'#1a1025'},{m:5,c:'#7c3aed'},{m:0,c:'#1e1530'},
+  {m:3,c:'#2563eb'},{m:0,c:'#1a1025'},{m:10,c:'#d97706'},
+  {m:0,c:'#1e1530'},{m:3,c:'#2563eb'},{m:0,c:'#1a1025'},
+  {m:5,c:'#7c3aed'},{m:0,c:'#1e1530'},{m:0,c:'#1a1025'}
 ],
 hard:[
   {m:0,c:'#120a1e'},{m:0,c:'#1a0f2e'},{m:10,c:'#0e7490'},
   {m:0,c:'#120a1e'},{m:0,c:'#1a0f2e'},{m:15,c:'#6d28d9'},
   {m:0,c:'#120a1e'},{m:0,c:'#1a0f2e'},{m:20,c:'#b45309'},
   {m:0,c:'#120a1e'},{m:0,c:'#1a0f2e'},{m:10,c:'#0e7490'},
-  {m:0,c:'#120a1e'},{m:0,c:'#1a0f2e'},{m:15,c:'#6d28d9'}
-]
-};
-
-function openGame(name, skipHistory){
+  {m:0,c:'#120a1e'},{m:0,function openGame(name, skipHistory){
 go('games',true);
-var sec=document.getElementById('sec-games');
-if(sec)sec.classList.add('game-open');
+var grid=document.getElementById('gameGrid');
+if(grid)grid.style.display='none';
+var panel=document.getElementById('gamePanel');
+if(panel)panel.style.display='block';
+var allBets=document.getElementById('allBetsSection');
+if(allBets)allBets.style.display='none';
+var lvlBar=document.getElementById('gamesLevelBar');
+if(lvlBar)lvlBar.style.display='none';
 var frame=document.getElementById('gameFrame');
 if(name==='dice'){frame.innerHTML=buildDiceUI();initDice();}
 if(name==='limbo'){frame.innerHTML=buildLimboUI();initLimbo();}
@@ -84,12 +114,23 @@ if(name==='sicbo'){frame.innerHTML=buildSicBoUI();initSicBo();}
 if(name==='tower'){frame.innerHTML=buildTowerUI();initTower();}
 try{sessionStorage.setItem('lastGame',name);}catch(e){}
 if(!skipHistory)history.replaceState(null,'',window.location.pathname);
+window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
-var sec=document.getElementById('sec-games');
-if(sec)sec.classList.remove('game-open');
+var grid=document.getElementById('gameGrid');
+if(grid)grid.style.display='';
+var panel=document.getElementById('gamePanel');
+if(panel)panel.style.display='none';
+var allBets=document.getElementById('allBetsSection');
+if(allBets)allBets.style.display='';
+var lvlBar=document.getElementById('gamesLevelBar');
+if(lvlBar)lvlBar.style.display='';
+var frame=document.getElementById('gameFrame');
+if(frame)frame.innerHTML='';
 stopAutoMode();
 try{sessionStorage.removeItem('lastGame');}catch(e){}
+window.scrollTo(0,0);
+try{if(typeof renderAllBets==='function')renderAllBets();}catch(e){}
 }
 // ==========================================
 // DIAMOND GAME
