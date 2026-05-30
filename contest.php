@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="dashboard.css?v=2"/>
   <link rel="stylesheet" href="games_new.css?v=3"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
-<script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/index.php');}</script></head>
+<script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
 
 <!-- OVERLAY -->

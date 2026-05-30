@@ -7,7 +7,7 @@ function doSiteLogout(){
             'regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus',
             'totalWagered','userLevel','userRef'];
   keys.forEach(function(k){ localStorage.removeItem(k); });
-  window.location.href = '/index.php';
+  window.location.replace('https://tronsick.io/login.php');
 }
 
 // â”€â”€ SIDEBAR â”€â”€
