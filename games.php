@@ -154,7 +154,7 @@
       <p class="fdesc" style="margin-bottom:10px">Your level is <span class="hl">Stone</span>, to reach the next level please play our games.</p>
       <div class="prog-info" style="text-align:center;font-size:13px;color:rgba(232,240,235,.58);margin-bottom:8px">Wagered: <strong id="gWagered">0.000000</strong> / Target: <strong>30 TRX</strong></div>
       <div class="prog-row"><span>Stone</span><span>Iron</span></div>
-      <div class="prog-track"><div class="prog-fill" style="width:3%" id="gProgFill"></div></div>
+      <div class="prog-track"><div class="prog-fill" style="width:0%" id="gProgFill"></div></div>
       <div class="prog-pct" id="gProgPct">0%</div>
     </div>
 

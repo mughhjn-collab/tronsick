@@ -34,7 +34,7 @@ body{font-family:'Inter',sans-serif;background:#0f1520;color:#e8f0eb;min-height:
 </head>
 <body>
 <div class="vf-wrap">
-  <a class="vf-back" onclick="history.back()">&#8592; Back</a>
+  <a class="vf-back" href="/games.php">&#8592; Back to Games</a>
   <div class="vf-logo">Tron<span>Sick</span> &mdash; Provably Fair</div>
   <div class="vf-sub">Verify the fairness of your bet using cryptographic seeds</div>
 

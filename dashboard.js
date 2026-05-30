@@ -11,9 +11,74 @@ function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.lo
 
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 // ── BALANCE HELPERS ──
-function syncBal(){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';}catch(e){}}
+function syncBal(){
+try{
+  var bal=parseFloat(localStorage.getItem('userBalance')||'0');
+  var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);
+  var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';
+  // Also restore wager display
+  var w=parseFloat(localStorage.getItem('totalWagered')||'0');
+  if(w>0){
+    var LEVEL_TARGETS=[30,300,3000,30000,300000,3000000,30000000];
+    var LEVEL_NAMES=['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
+    var lvlIdx=0;
+    for(var i=0;i<LEVEL_TARGETS.length;i++){if(w>=LEVEL_TARGETS[i])lvlIdx=i+1;}
+    lvlIdx=Math.min(lvlIdx,7);
+    var prevT=lvlIdx>0?LEVEL_TARGETS[lvlIdx-1]:0;
+    var nextT=lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1];
+    var pct=lvlIdx>=LEVEL_TARGETS.length?100:Math.min(100,((w-prevT)/(nextT-prevT))*100);
+    var pctStr=pct.toFixed(1)+'%';
+    ['wagered','gWagered'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=w.toFixed(6);});
+    var fills=document.querySelectorAll('.prog-fill, #gProgFill');
+    fills.forEach(function(e){e.style.width=pctStr;});
+    var pcts=document.querySelectorAll('.prog-pct, #gProgPct');
+    pcts.forEach(function(e){e.textContent=pct.toFixed(0)+'%';});
+  }
+}catch(e){}}
 function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());syncBal();}catch(e){}}
-function updateWager(amt){try{var w=parseFloat(localStorage.getItem('totalWagered')||'0');w+=Math.abs(amt);localStorage.setItem('totalWagered',w.toString());var el=document.getElementById('wagered');if(el)el.textContent=w.toFixed(6);var gel=document.getElementById('gWagered');if(gel)gel.textContent=w.toFixed(6);}catch(e){}}
+function updateWager(amt){
+try{
+  var LEVEL_TARGETS=[30,300,3000,30000,300000,3000000,30000000];
+  var LEVEL_NAMES=['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
+  var w=parseFloat(localStorage.getItem('totalWagered')||'0')+Math.abs(amt);
+  localStorage.setItem('totalWagered',w.toString());
+  // Calculate level
+  var lvlIdx=0;
+  for(var i=0;i<LEVEL_TARGETS.length;i++){if(w>=LEVEL_TARGETS[i])lvlIdx=i+1;}
+  lvlIdx=Math.min(lvlIdx,7);
+  var curLvl=LEVEL_NAMES[lvlIdx];
+  var nextLvl=LEVEL_NAMES[Math.min(lvlIdx+1,7)];
+  var prevT=lvlIdx>0?LEVEL_TARGETS[lvlIdx-1]:0;
+  var nextT=lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1];
+  var pct=lvlIdx>=LEVEL_TARGETS.length?100:Math.min(100,((w-prevT)/(nextT-prevT))*100);
+  var pctStr=pct.toFixed(1)+'%';
+  // Update all wager display elements
+  ['wagered','gWagered'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=w.toFixed(6);});
+  // Update progress bars
+  var fills=document.querySelectorAll('.prog-fill, #gProgFill');
+  fills.forEach(function(el){el.style.width=pctStr;});
+  var pcts=document.querySelectorAll('.prog-pct, #gProgPct');
+  pcts.forEach(function(el){el.textContent=pct.toFixed(0)+'%';});
+  // Update level labels in prog-row spans
+  var rows=document.querySelectorAll('.prog-row');
+  rows.forEach(function(row){
+    var spans=row.querySelectorAll('span');
+    if(spans[0])spans[0].textContent=curLvl;
+    if(spans[1])spans[1].textContent=nextLvl;
+  });
+  // Store level
+  localStorage.setItem('userLevel',curLvl.toLowerCase());
+}catch(e){}}
+
+// ── GLOBAL BET MODAL HELPERS ──
+function closeBetModal(){
+  var m=document.getElementById('betModal');if(m)m.style.display='none';
+  // Also close game-specific modals
+  ['dmModal','dgBetModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+}
+function showBetModal(){var m=document.getElementById('betModal');if(m)m.style.display='flex';}
+// ── END MODAL HELPERS ──
+
 function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
 // ── END BALANCE HELPERS ──
 document.addEventListener('DOMContentLoaded',()=>{
