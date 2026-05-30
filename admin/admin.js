@@ -1,4 +1,4 @@
-﻿
+
 // Auth guard â€” localStorage so it persists across tabs and refreshes
 if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
 
@@ -645,12 +645,26 @@ function openMsgModal(id){
   document.getElementById('mmDate').textContent=new Date(m.date).toLocaleString();
   document.getElementById('mmBody').textContent=m.message||'(no message body)';
   document.getElementById('mmReplyText').value='';
-  var imgs=m.images||[];
+  var imgs = m.imageData || (m.images||[]).map(function(n){return {name:n,data:null};});
   var imgDiv=document.getElementById('mmImages');
   var imgList=document.getElementById('mmImgList');
   if(imgs.length>0){
     imgDiv.style.display='block';
-    imgList.innerHTML=imgs.map(function(n){return '<span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;font-size:12px;color:rgba(255,255,255,.6);margin-right:6px"><i class="fas fa-image" style="margin-right:4px"></i>'+n+'</span>';}).join('');
+    imgList.innerHTML=imgs.map(function(img,i){
+      if(img.data){
+        return '<div style="display:inline-block;margin:0 8px 8px 0;vertical-align:top">'+
+        '<img src="'+img.data+'" alt="'+img.name+'" '+
+        'onclick="openImgLightbox(this.src,\''+img.name+'\')" '+
+        'style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:2px solid rgba(62,207,142,.35);cursor:zoom-in;transition:transform .15s,border-color .15s" '+
+        'onmouseover="this.style.transform=\'scale(1.08)\';this.style.borderColor=\'#3ecf8e\'" '+
+        'onmouseout="this.style.transform=\'scale(1)\';this.style.borderColor=\'rgba(62,207,142,.35)\'" '+
+        'title="Click to view full size"/>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:4px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+img.name+'</div>'+
+        '</div>';
+      } else {
+        return '<span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.5);margin-right:6px;display:inline-block"><i class="fas fa-image" style="margin-right:5px;color:#3ecf8e"></i>'+img.name+'</span>';
+      }
+    }).join('');
   } else { imgDiv.style.display='none'; }
   _renderReplies(m);
   var modal=document.getElementById('msgModal');
@@ -704,6 +718,48 @@ function closeMsgModal(){
 }
 
 function viewMsg(id){ openMsgModal(id); }
+
+// Image Lightbox
+function openImgLightbox(src, name){
+  var lb = document.getElementById('_imgLb');
+  if(!lb){
+    lb = document.createElement('div');
+    lb.id = '_imgLb';
+    lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out';
+    lb.onclick = function(){ lb.remove(); };
+    document.body.appendChild(lb);
+  } else {
+    lb.innerHTML = '';
+    lb.style.display = 'flex';
+  }
+  // Close btn
+  var cls = document.createElement('button');
+  cls.innerHTML = '&times;';
+  cls.style.cssText = 'position:absolute;top:18px;right:22px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:22px;font-weight:700;line-height:1;z-index:2';
+  cls.onclick = function(e){ e.stopPropagation(); lb.remove(); };
+  lb.appendChild(cls);
+  // Image
+  var img = document.createElement('img');
+  img.src = src;
+  img.style.cssText = 'max-width:90vw;max-height:80vh;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,.8);object-fit:contain;cursor:default';
+  img.onclick = function(e){ e.stopPropagation(); };
+  lb.appendChild(img);
+  // Caption
+  var cap = document.createElement('div');
+  cap.textContent = name || '';
+  cap.style.cssText = 'margin-top:14px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;text-align:center;max-width:90vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+  lb.appendChild(cap);
+  // Download button
+  var dl = document.createElement('a');
+  dl.href = src; dl.download = name || 'image';
+  dl.innerHTML = '<i class="fas fa-download"></i> Download';
+  dl.style.cssText = 'margin-top:12px;background:rgba(62,207,142,.15);border:1px solid rgba(62,207,142,.3);color:#3ecf8e;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none';
+  dl.onclick = function(e){ e.stopPropagation(); };
+  lb.appendChild(dl);
+  // ESC key to close
+  var esc = function(e){ if(e.key==='Escape'){ lb.remove(); document.removeEventListener('keydown',esc); } };
+  document.addEventListener('keydown', esc);
+}
 
 function deleteMsg(id){
   var msgs=JSON.parse(localStorage.getItem('adm_msgs')||'[]').filter(function(m){return m.id!==id;});

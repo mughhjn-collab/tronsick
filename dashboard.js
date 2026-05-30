@@ -921,6 +921,7 @@ function sendContact() {
       subject: subjVal,
       message: msgVal,
       images: _contactImages.map(function(i) { return i.name; }),
+      imageData: _contactImages.map(function(i) { return { name: i.name, data: i.data }; }),
       status: 'unread',
       date: new Date().toISOString()
     });
