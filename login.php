@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -250,15 +250,9 @@
       <div class="auth-switch">Already have an account? <button type="button" onclick="switchTab('login')">Log In →</button></div>
     </form>
 
-<div class="astat-lbl">Faucet Timer</div></div>
-        <div class="astat"><div class="astat-val">9</div><div class="astat-lbl">Casino Games</div></div>
-        <div class="astat"><div class="astat-val">50%</div><div class="astat-lbl">Referral Cut</div></div>
-        <div class="astat"><div class="astat-val">24h</div><div class="astat-lbl">Cashback</div></div>
-      </div>
-    </div>
-
   </div>
 </div>
+
 
 <script>
 // ── TAB SWITCH ──────────────────────────────
