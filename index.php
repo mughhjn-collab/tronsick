@@ -51,18 +51,21 @@
   <div class="hero-overlay"></div>
   <div class="hero-wrap">
 
-    <!-- LEFT: Features -->
-    <!-- LEFT -->
+    <!-- LEFT: Illustration -->
+    <div class="hero-img-col">
+      <img src="hero-illustration.png" alt="Earn free TRX on TronSick" class="hero-illus" id="heroIllus"/>
+    </div>
+
+    <!-- RIGHT: Content -->
     <div class="hero-left">
       <div class="hero-sitename" id="heroSiteName">TRONSICK</div>
       <h1 id="heroH1">EARN FREE TRX WITH THE FAUCET,<br/>PROVABLY FAIR GAMES &amp; REFERRALS</h1>
-      <p class="hero-desc" id="heroDesc">Sign up for free and claim TRX every 40 minutes. Play 9 provably fair casino games, compete in weekly prize pools, receive daily cashback on losses, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
+      <p class="hero-desc" id="heroDesc">Sign up free and claim TRX every 40 minutes from our faucet. Play 9 provably fair casino games, compete in weekly prize pools, receive daily cashback, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
       <div class="hero-btns" id="heroBtns">
         <a href="login.php?tab=register" class="hbtn hbtn-signup" id="heroSignup">SIGN UP</a>
         <a href="login.php" class="hbtn hbtn-login" id="heroLogin">LOG IN</a>
       </div>
     </div>
-
 
   </div>
 </section>

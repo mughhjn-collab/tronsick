@@ -162,7 +162,7 @@
 
       <div class="ff ff-plain">
         <label>Username or Email</label>
-        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username" onblur="check2FAField()"/></div>
+        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username"/></div>
       </div>
 
       <div class="ff">
