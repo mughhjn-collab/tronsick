@@ -523,7 +523,7 @@
   <div class="pg active" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Live Countdown 6d 10h -->
+      <!-- CONTEST ENDS IN — Live v3 2026-05-31T07:28:07 -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
