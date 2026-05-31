@@ -6,7 +6,7 @@
   <title>Surveys &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=16"/>
+  <link rel="stylesheet" href="dashboard.css?v=17"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
@@ -31,7 +31,7 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item sb-stake" id="nav-stake" onclick="go('stake',true)" href="javascript:void(0)"><i>&#x1F4B0;</i><s>Stake</s></a>
+    <a class="sb-item" id="nav-bonus" href="/bonus.php"><i>&#127873;</i><s>Bonus</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -755,7 +755,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=16"></script>
+<script src="dashboard.js?v=17"></script>
 <script>window._INIT_SECTION='surveys';</script>
 </body>
 </html>

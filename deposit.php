@@ -6,7 +6,7 @@
   <title>Deposit &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=16"/>
+  <link rel="stylesheet" href="dashboard.css?v=17"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
@@ -31,7 +31,7 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item sb-stake" id="nav-stake" onclick="go('stake',true)" href="javascript:void(0)"><i>&#x1F4B0;</i><s>Stake</s></a>
+    <a class="sb-item" id="nav-bonus" href="/bonus.php"><i>&#127873;</i><s>Bonus</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -806,7 +806,91 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=16"></script>
+<script src="dashboard.js?v=17"></script>
 <script>window._INIT_SECTION='deposit';</script>
-</body>
-</html>
+
+<!-- ═══════════════ DEPOSIT BONUS NOTIFICATION ═══════════════ -->
+<div id="depBonusModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px">
+  <div style="background:linear-gradient(135deg,#0d1f38,#0a1628);border:1px solid rgba(200,168,75,.3);border-radius:20px;max-width:480px;width:100%;padding:32px 28px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <button onclick="closeBonusNotif()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;line-height:1">&times;</button>
+    <div style="font-size:48px;margin-bottom:12px">🎁</div>
+    <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:6px">First Deposit Bonus!</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:24px">Deposit TRX and receive an instant bonus — unlock by wagering</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+      <!-- Tier 1 -->
+      <div style="background:rgba(200,168,75,.08);border:1px solid rgba(200,168,75,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🥉</span>
+          <div style="text-align:left">
+            <div style="font-size:13px;font-weight:700;color:#fff">100 TRX Deposit</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4)">Wager 50 TRX to unlock</div>
+          </div>
+        </div>
+        <div style="font-size:22px;font-weight:900;color:#c8a84b">+5%</div>
+      </div>
+      <!-- Tier 2 -->
+      <div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🥈</span>
+          <div style="text-align:left">
+            <div style="font-size:13px;font-weight:700;color:#fff">500 TRX Deposit</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4)">Wager 200 TRX to unlock</div>
+          </div>
+        </div>
+        <div style="font-size:22px;font-weight:900;color:#3ecf8e">+8%</div>
+      </div>
+      <!-- Tier 3 -->
+      <div style="background:rgba(99,179,237,.07);border:1px solid rgba(99,179,237,.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">🥇</span>
+          <div style="text-align:left">
+            <div style="font-size:13px;font-weight:700;color:#fff">2000 TRX Deposit</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4)">Wager 1000 TRX to unlock</div>
+          </div>
+        </div>
+        <div style="font-size:22px;font-weight:900;color:#63b3ed">+20%</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center">
+      <a href="/bonus.php" style="flex:1;padding:12px;background:linear-gradient(135deg,#c8a84b,#f59e0b);border:none;border-radius:10px;color:#000;font-size:13px;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">
+        <i class="fas fa-gift"></i> How to Claim
+      </a>
+      <button onclick="closeBonusNotif()" style="flex:1;padding:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+        Got it, continue
+      </button>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,.25)">This offer applies to your first deposit only</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Show bonus notification only on first visit to deposit page
+  var shown = localStorage.getItem('depBonusShown');
+  var modal = document.getElementById('depBonusModal');
+  if(!shown && modal){
+    modal.style.display = 'flex';
+    localStorage.setItem('depBonusShown','1');
+  }
+
+  // Auto-detect deposit and award bonus via OxaPay credit
+  var origAddBal = window.addBal;
+  if(typeof origAddBal === 'function'){
+    window.addBal = function(amt){
+      origAddBal(amt);
+      // If amt >= 100, check for bonus award
+      if(amt >= 100 && typeof window.checkAndAwardBonus === 'function'){
+        window.checkAndAwardBonus(amt);
+      }
+    };
+  }
+})();
+
+function closeBonusNotif(){
+  var m = document.getElementById('depBonusModal');
+  if(m){ m.style.display='none'; }
+}
+</script>
+</body></html>

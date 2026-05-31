@@ -2065,7 +2065,7 @@ function _depStartPoll(user){
     fetch('/oxapay_check.php?user=' + encodeURIComponent(user))
       .then(function(r){return r.json();})
       .then(function(d){
-        if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); }
+        if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); try{if(typeof window.checkAndAwardBonus==='function')window.checkAndAwardBonus(d.credit);}catch(e){} }
         if(d.transactions) _depRenderTx(d.transactions);
       }).catch(function(){});
   }, 30000);
@@ -2075,7 +2075,7 @@ function _depLoadTx(user, showMsg){
   fetch('/oxapay_check.php?user=' + encodeURIComponent(user))
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); }
+      if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); try{if(typeof window.checkAndAwardBonus==='function')window.checkAndAwardBonus(d.credit);}catch(e){} }
       _depRenderTx(d.transactions || []);
       if(showMsg && (!d.transactions || !d.transactions.length)) showToast('No pending transactions found.');
     }).catch(function(){});
