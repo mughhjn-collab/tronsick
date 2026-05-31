@@ -23,8 +23,9 @@ jobs:
           protocol: ftp
           local-dir: ./
           server-dir: /domains/tronsick.io/public_html/
-          timeout: 60000
+          timeout: 120000
           log-level: verbose
+          dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**
@@ -34,3 +35,5 @@ jobs:
             **/append_*.js
             **/rename_*.js
             **/add_*.js
+            **/verify_*.js
+            **/deploy_*.js
