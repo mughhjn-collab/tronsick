@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -55,7 +55,7 @@
     <div class="hero-left">
       <h1 id="heroH1">CLAIM FREE TRX<br/>EVERY 40 MINUTES!</h1>
       <ul class="feat-list" id="featList">
-        <li><span class="fcheck">✔</span><span>Free faucet — claim <strong>up to 500 TRX every 40 minutes</strong>, no deposit needed</span></li>
+        <li><span class="fcheck">✔</span><span>Free faucet — claim <strong>up to 60 TRX every 40 minutes</strong>, no deposit needed</span></li>
         <li><span class="fcheck">✔</span><span><strong>Weekly Contest</strong> — compete on leaderboard and win massive TRX prize pools</span></li>
         <li><span class="fcheck">✔</span><span><strong>Daily Cashback</strong> — earn back a % of losses every 24 hours, automatically</span></li>
         <li><span class="fcheck">✔</span><span>9 provably fair games — <strong>Dice, Mines, Tower, Limbo & more</strong></span></li>
@@ -66,39 +66,20 @@
       <a href="login.php?tab=register" class="btn-orange" id="heroPlayBtn">CLAIM FREE TRX NOW</a>
     </div>
 
-    <!-- RIGHT: Inline signup form -->
+    <!-- RIGHT: Auth buttons -->
     <div class="hero-right">
-      <div class="signup-box" id="signupBox">
-        <h2 class="sb-title">CREATE A FREE ACCOUNT</h2>
-        <p class="sb-sub">Start claiming free TRX in under 60 seconds</p>
-        <form class="sb-form" id="sbForm" onsubmit="heroSignup(event)">
-          <div class="sb-field">
-            <label for="sbUser">Username</label>
-            <input type="text" id="sbUser" placeholder="Choose a username" autocomplete="username" required minlength="3" maxlength="20"/>
-          </div>
-          <div class="sb-field">
-            <label for="sbEmail">Email Address</label>
-            <input type="email" id="sbEmail" placeholder="your@email.com" autocomplete="email" required/>
-          </div>
-          <div class="sb-field">
-            <label for="sbPass">Password</label>
-            <input type="password" id="sbPass" placeholder="Create a strong password" required minlength="8"/>
-          </div>
-          <div class="sb-field">
-            <label for="sbPass2">Confirm Password</label>
-            <input type="password" id="sbPass2" placeholder="Re-enter your password" required/>
-          </div>
-          <div class="sb-field">
-            <label for="sbRef">Referral Code <span class="optional">(optional)</span></label>
-            <input type="text" id="sbRef" placeholder="Enter referral code if you have one"/>
-          </div>
-          <button type="submit" class="btn-orange w100" id="sbSubmit">
-            SIGN UP FREE — CLAIM NOW
-          </button>
-          <p class="sb-err" id="sbErr" style="display:none;color:#e11d48;font-size:12px;margin-top:8px;text-align:center"></p>
-          <p class="sb-terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
-        </form>
-        <div class="sb-login-row">Already have an account? <a href="login.php" id="sbLoginLink">Log In →</a></div>
+      <div class="hero-auth-box" id="signupBox">
+        <div class="hab-title">Start Earning Free TRX</div>
+        <div class="hab-sub">Join 47,000+ users — 100% free, no deposit needed</div>
+        <div class="hab-stats">
+          <div class="hab-stat"><span class="hab-val">40m</span><span class="hab-lbl">Faucet Timer</span></div>
+          <div class="hab-sep"></div>
+          <div class="hab-stat"><span class="hab-val">9</span><span class="hab-lbl">Casino Games</span></div>
+          <div class="hab-sep"></div>
+          <div class="hab-stat"><span class="hab-val">50%</span><span class="hab-lbl">Referral Cut</span></div>
+        </div>
+        <a href="login.php?tab=register" class="hab-btn-signup" id="heroSignupBtn">SIGN UP FREE — START CLAIMING</a>
+        <a href="login.php" class="hab-btn-login" id="heroLoginBtn">Already have an account? Log In →</a>
       </div>
     </div>
 
@@ -120,7 +101,7 @@
         <div class="how-content">
           <div class="how-icon-box ic-blue">💧</div>
           <h3>40-Minute Free Faucet</h3>
-          <p>Log in and hit Claim every 40 minutes to receive free TRX credited instantly to your balance. No surveys, no tasks, no tricks. Keep a daily streak going to unlock <strong>bonus multipliers up to 3× your base reward</strong>.</p>
+          <p>Log in and click Claim every 40 minutes — up to <strong>60 TRX</strong> credited instantly to your balance. No surveys, no tasks, no deposits. Maintain a daily streak to unlock bonus multipliers that boost your reward automatically.</p>
           <a href="login.php?tab=register" class="how-cta">Start Claiming Free TRX →</a>
         </div>
       </div>
@@ -130,8 +111,8 @@
         <div class="how-num">02</div>
         <div class="how-content">
           <div class="how-icon-box ic-red">🏆</div>
-          <h3>Weekly Contest &amp; Cashback</h3>
-          <p>Every week the top earners and bettors split a <strong>massive TRX prize pool</strong>. Miss the top? Don't worry — our <strong>Daily Cashback system</strong> returns a percentage of your losses straight back to your account every 24 hours, automatically.</p>
+          <h3>Weekly Contest &amp; Daily Cashback</h3>
+          <p>Every week TronSick's top claimers and bettors split a <strong>TRX prize pool</strong>. Didn't top the board? No problem — our <strong>Daily Cashback</strong> system automatically returns a % of your losses back to your balance every 24 hours. Both run on autopilot.</p>
           <a href="login.php?tab=register" class="how-cta">Join the Contest Now →</a>
         </div>
       </div>
@@ -139,10 +120,10 @@
       <div class="how-card" id="hw3">
         <div class="how-num">03</div>
         <div class="how-content">
-          <div class="how-icon-box ic-gold">🎰</div>
-          <h3>9 Provably Fair Games</h3>
-          <p>Multiply your free TRX playing 9 fully cryptographically verifiable casino games — Dice, Mines, Tower, Limbo, Keno, Wheel, Plinko, Sic Bo and more. Every result is provable. <strong>Only 1% house edge</strong>, lowest in the industry.</p>
-          <a href="login.php?tab=register" class="how-cta">Browse All 9 Games →</a>
+          <div class="how-icon-box ic-gold">👑</div>
+          <h3>VIP Levels &amp; Bonus System</h3>
+          <p>Climb VIP ranks by claiming and playing — each level unlocks <strong>higher faucet rewards</strong>, bigger cashback %, deposit bonuses, and exclusive perks. First-time depositors get up to <strong>20% bonus TRX</strong> automatically added to their balance.</p>
+          <a href="login.php?tab=register" class="how-cta">See VIP Benefits →</a>
         </div>
       </div>
 
@@ -152,7 +133,7 @@
           <div class="how-icon-box ic-blue" style="flex-shrink:0">👥</div>
           <div>
             <h3>Lifetime 50% Referral Commission</h3>
-            <p style="max-width:800px">Share your unique referral link with friends. Every time someone you referred claims TRX on TronSick, you automatically receive <strong>50% of their claim value</strong> as commission — deposited directly to your balance. No expiry. No cap. Unlimited referrals.</p>
+            <p style="max-width:800px">Share your unique referral link. Every time a friend you referred claims TRX on TronSick, you automatically receive <strong>50% of their claim value</strong> as commission — deposited instantly to your balance. No cap, no expiry, unlimited referrals forever.</p>
             <a href="login.php?tab=register" class="how-cta">Get My Referral Link →</a>
           </div>
         </div>
@@ -181,35 +162,6 @@
       <div class="game-tile" id="g9"><span class="gt-em">🎯</span><span class="gt-nm">Chuck-a-Luck</span><span class="gt-eg">1% Edge</span></div>
     </div>
     <p class="games-cta">All games require a free account. <a href="login.php?tab=register">Sign up in 30 seconds →</a></p>
-  </div>
-</section>
-
-<!-- ═══ PAYOUTS ═══ -->
-<section class="payouts-sec" id="payouts">
-  <div class="container">
-    <div class="sec-head">
-      <h2>Live Withdrawal Feed</h2>
-      <p>Every withdrawal is processed instantly on the TRON blockchain and permanently recorded on Tronscan. Full transparency — nothing hidden.</p>
-    </div>
-    <div class="ptbl-wrap">
-      <table class="ptbl">
-        <thead><tr><th>Time</th><th>Amount</th><th>Wallet Address</th><th>Status</th></tr></thead>
-        <tbody id="ptbody">
-          <tr><td>2 min ago</td><td class="pa">+18.50 TRX</td><td class="pw">TAbc3F…xK9</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>11 min ago</td><td class="pa">+31.20 TRX</td><td class="pw">TQr7mN…p3W</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>25 min ago</td><td class="pa">+8.75 TRX</td><td class="pw">TLk9xY…h2M</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>40 min ago</td><td class="pa">+45.00 TRX</td><td class="pw">TRv2sB…j6F</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>1 hr ago</td><td class="pa">+22.30 TRX</td><td class="pw">TWq8cD…n4L</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>1 hr ago</td><td class="pa">+67.80 TRX</td><td class="pw">TYf1nH…v7R</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>2 hrs ago</td><td class="pa">+14.60 TRX</td><td class="pw">TSm5pG…u8K</td><td><span class="ps">✔ Confirmed</span></td></tr>
-          <tr><td>2 hrs ago</td><td class="pa">+9.40 TRX</td><td class="pw">TDw4eJ…q2T</td><td><span class="ps">✔ Confirmed</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="ptbl-foot">
-      <span>Verified on TRON blockchain · <a href="#" id="tronscanLink">View on Tronscan →</a></span>
-      <a href="login.php?tab=register" class="btn-red-sm" id="ptCta">Join & Start Earning</a>
-    </div>
   </div>
 </section>
 

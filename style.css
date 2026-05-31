@@ -1,4 +1,4 @@
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+﻿*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:#1a1a2e;color:#e2e8f0;line-height:1.65;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
@@ -185,3 +185,17 @@ a{text-decoration:none;color:inherit}
   .hstat-div{display:none}
   .footer-grid{grid-template-columns:1fr}
 }
+
+/* ── HERO AUTH BOX (replaces signup form) ── */
+.hero-auth-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:36px 32px;text-align:center;backdrop-filter:blur(12px)}
+.hab-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
+.hab-sub{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:28px;line-height:1.5}
+.hab-stats{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;background:rgba(0,0,0,.2);border-radius:12px;padding:16px}
+.hab-stat{flex:1;text-align:center}
+.hab-val{display:block;font-size:26px;font-weight:900;color:#a3e635;font-family:'JetBrains Mono',monospace}
+.hab-lbl{display:block;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+.hab-sep{width:1px;height:40px;background:rgba(255,255,255,.1)}
+.hab-btn-signup{display:block;width:100%;padding:14px;background:#a3e635;border-radius:10px;font-size:15px;font-weight:900;color:#0f1a10;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;transition:background .2s,transform .15s,box-shadow .2s;margin-bottom:14px}
+.hab-btn-signup:hover{background:#b8f24a;transform:translateY(-2px);box-shadow:0 8px 24px rgba(163,230,53,.35)}
+.hab-btn-login{display:block;font-size:13px;color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s}
+.hab-btn-login:hover{color:#a3e635}
