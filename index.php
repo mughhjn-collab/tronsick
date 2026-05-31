@@ -54,47 +54,78 @@
     <div class="hero-img-col" id="heroImgCol">
       <div class="trx-widget" id="trxWidget">
 
-        <!-- Outer glow ring -->
-        <div class="trx-ring trx-ring-3"></div>
-        <div class="trx-ring trx-ring-2"></div>
-        <div class="trx-ring trx-ring-1"></div>
+        <!-- Ambient glow backdrop -->
+        <div class="trx-glow-bg"></div>
 
-        <!-- TRX Core -->
-        <div class="trx-core">
-          <svg class="trx-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="trxGlow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="4" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <linearGradient id="trxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#a3e635"/>
-                <stop offset="100%" style="stop-color:#65a30d"/>
-              </linearGradient>
-            </defs>
-            <!-- Outer triangle -->
-            <polygon points="60,8 108,92 12,92" fill="none" stroke="url(#trxGrad)" stroke-width="4" filter="url(#trxGlow)" stroke-linejoin="round"/>
-            <!-- Inner triangle -->
-            <polygon points="60,30 88,78 32,78" fill="rgba(163,230,53,0.08)" stroke="url(#trxGrad)" stroke-width="2" filter="url(#trxGlow)" stroke-linejoin="round"/>
-            <!-- Center diamond -->
-            <circle cx="60" cy="60" r="8" fill="#a3e635" filter="url(#trxGlow)" opacity="0.9"/>
-            <!-- Lines from center to edges -->
-            <line x1="60" y1="52" x2="60" y2="30" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
-            <line x1="60" y1="68" x2="32" y2="78" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
-            <line x1="60" y1="68" x2="88" y2="78" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
-          </svg>
-          <div class="trx-label">TRX</div>
+        <!-- Orbital rings -->
+        <div class="trx-orbit trx-orbit-out">
+          <div class="trx-orbit-dot"></div>
+        </div>
+        <div class="trx-orbit trx-orbit-mid">
+          <div class="trx-orbit-dot od2"></div>
         </div>
 
-        <!-- Floating stat chips -->
-        <div class="trx-chip trx-chip-1">&#9651; Free Faucet</div>
-        <div class="trx-chip trx-chip-2">&#10003; Provably Fair</div>
-        <div class="trx-chip trx-chip-3">50% Referral</div>
-        <div class="trx-chip trx-chip-4">Daily Cashback</div>
+        <!-- TRX Coin -->
+        <div class="trx-coin" id="trxCoin">
+          <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" class="trx-coin-svg">
+            <defs>
+              <radialGradient id="coinBg" cx="50%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#1a3a1a"/>
+                <stop offset="100%" stop-color="#0a1a0a"/>
+              </radialGradient>
+              <filter id="cGlow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <filter id="cGlowSoft" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <linearGradient id="trnGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+                <stop offset="0%" stop-color="#c8f542"/>
+                <stop offset="50%" stop-color="#a3e635"/>
+                <stop offset="100%" stop-color="#6db800"/>
+              </linearGradient>
+            </defs>
+            <!-- Coin base circle -->
+            <circle cx="80" cy="80" r="72" fill="url(#coinBg)" stroke="rgba(163,230,53,0.3)" stroke-width="1.5"/>
+            <!-- Coin rim highlight -->
+            <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(163,230,53,0.08)" stroke-width="8"/>
+            <!-- TRON logo - outer triangle -->
+            <polygon points="80,22 132,114 28,114" fill="rgba(163,230,53,0.06)" stroke="url(#trnGrad)" stroke-width="3.5" stroke-linejoin="round" filter="url(#cGlow)"/>
+            <!-- TRON logo - inner triangle -->
+            <polygon points="80,46 110,98 50,98" fill="rgba(163,230,53,0.1)" stroke="url(#trnGrad)" stroke-width="2" stroke-linejoin="round" filter="url(#cGlowSoft)"/>
+            <!-- Horizontal line across bottom of inner triangle -->
+            <line x1="50" y1="98" x2="110" y2="98" stroke="url(#trnGrad)" stroke-width="2" filter="url(#cGlowSoft)"/>
+            <!-- Center dot -->
+            <circle cx="80" cy="75" r="7" fill="url(#trnGrad)" filter="url(#cGlow)"/>
+          </svg>
+          <div class="trx-coin-label">TRX</div>
+          <div class="trx-coin-sub">TRON Network</div>
+        </div>
 
-        <!-- Sparkle dots -->
-        <div class="sp sp1"></div><div class="sp sp2"></div><div class="sp sp3"></div>
-        <div class="sp sp4"></div><div class="sp sp5"></div><div class="sp sp6"></div>
+        <!-- Floating stat cards (premium) -->
+        <div class="trx-stat trx-stat-tl">
+          <div class="trx-stat-val">60</div>
+          <div class="trx-stat-key">TRX / Claim</div>
+        </div>
+        <div class="trx-stat trx-stat-tr">
+          <div class="trx-stat-val">40m</div>
+          <div class="trx-stat-key">Faucet Timer</div>
+        </div>
+        <div class="trx-stat trx-stat-bl">
+          <div class="trx-stat-val">50%</div>
+          <div class="trx-stat-key">Referral Cut</div>
+        </div>
+        <div class="trx-stat trx-stat-br">
+          <div class="trx-stat-val">9</div>
+          <div class="trx-stat-key">Games</div>
+        </div>
+
+        <!-- Sparkles -->
+        <div class="sp sp1"></div><div class="sp sp2"></div>
+        <div class="sp sp3"></div><div class="sp sp4"></div>
+        <div class="sp sp5"></div>
 
       </div>
     </div>
