@@ -71,7 +71,10 @@ var SECTIONS={
   deposit: buildDeposit,
   payment: buildPayment,
   contact: buildContact,
-  settings: buildSettings
+  settings: buildSettings,
+  payout_gen: buildPayoutGen,
+  contest_gen: buildContestGen,
+  fake_check: buildFakeCheck
 };
 
 var TITLES={
@@ -1357,25 +1360,4 @@ function fakeCheckSearch(q){
   res.innerHTML = html;
 }
 
-// Add sidebar buttons for new sections
-window.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){
-    var sb = document.querySelector('.sb-nav');
-    if(!sb) return;
-    var sep = document.createElement('div');
-    sep.style.cssText='height:1px;background:rgba(255,255,255,.06);margin:8px 12px';
-    sb.appendChild(sep);
 
-    [{key:'payout_gen',icon:'money-bill-wave',label:'Payout Generate'},
-     {key:'contest_gen',icon:'trophy',label:'Contest Generate'},
-     {key:'fake_check',icon:'robot',label:'Fake Account Check'}
-    ].forEach(function(item){
-      var a = document.createElement('a');
-      a.className='sb-item';
-      a.href='javascript:void(0)';
-      a.innerHTML='<i class="fas fa-'+item.icon+'"></i><s>'+item.label+'</s>';
-      a.onclick=function(){ showSection(a, item.key); };
-      sb.appendChild(a);
-    });
-  }, 100);
-});
