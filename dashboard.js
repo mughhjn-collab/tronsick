@@ -18,7 +18,8 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
 
@@ -173,6 +174,104 @@ let rollsLeft=0;
 function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
 function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
+
+// ═══════════════════════════════════════
+// CONTEST SYSTEM
+// ═══════════════════════════════════════
+var _ctTimer=null;
+var CT_PRIZES=[500,250,100,25,25,25,25,25,25,25];
+var CT_FAKE_USERS=[
+  {u:'burib***',w:787752},{u:'cry***',w:634210},{u:'moon***',w:521088},
+  {u:'tron***',w:498733},{u:'win***',w:412550},{u:'hodl***',w:387241},
+  {u:'bet***',w:312990},{u:'vip***',w:298114},{u:'fast***',w:187432},{u:'gold***',w:134220}
+];
+
+function initContest(){
+  _ctStartCountdown();
+  _ctRenderLeaderboard();
+  _ctUpdateMyStats();
+}
+
+function _ctGetWeekEnd(){
+  // Next Sunday 23:59:59 UTC
+  var now=new Date();
+  var day=now.getUTCDay(); // 0=Sun,1=Mon...6=Sat
+  var daysUntilSun=day===0?7:(7-day);
+  var end=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+daysUntilSun,23,59,59));
+  return end.getTime();
+}
+
+function _ctStartCountdown(){
+  function tick(){
+    var now=Date.now();
+    var end=_ctGetWeekEnd();
+    var rem=Math.max(0,end-now);
+    var days=Math.floor(rem/86400000);
+    var hrs=Math.floor((rem%86400000)/3600000);
+    var mins=Math.floor((rem%3600000)/60000);
+    var secs=Math.floor((rem%60000)/1000);
+    var dEl=document.getElementById('ctCkDays');
+    var hEl=document.getElementById('ctCkHours');
+    var mEl=document.getElementById('ctCkMins');
+    if(dEl)dEl.textContent=(days<10?'0':'')+days;
+    if(hEl)hEl.textContent=(hrs<10?'0':'')+hrs;
+    if(mEl)mEl.textContent=(mins<10?'0':'')+mins;
+    // Also update seconds if element exists
+    var sEl=document.getElementById('ctCkSecs');
+    if(sEl)sEl.textContent=(secs<10?'0':'')+secs;
+  }
+  tick();
+  if(_ctTimer)clearInterval(_ctTimer);
+  _ctTimer=setInterval(tick,1000);
+}
+
+function _ctRenderLeaderboard(){
+  var lb=document.getElementById('ctLeaderboard');
+  if(!lb)return;
+  var myName=localStorage.getItem('userName')||'';
+  var myWager=parseFloat(localStorage.getItem('totalWagered')||'0');
+  // Build list: merge fake users with real user
+  var list=CT_FAKE_USERS.map(function(u){return{u:u.u,w:u.w};});
+  if(myName&&myWager>0){
+    // Insert real user in correct position
+    list.push({u:myName.substring(0,3)+'***',w:myWager,isMe:true});
+    list.sort(function(a,b){return b.w-a.w;});
+  }
+  var html='';
+  list.slice(0,10).forEach(function(item,i){
+    var rank=i+1;
+    var rankStr=rank===1?'&#129351;':rank===2?'&#129352;':rank===3?'&#129353;':'#'+rank;
+    var prize=CT_PRIZES[i]||0;
+    var cls='';
+    if(rank===1)cls=' ct-pos-1';
+    if(rank===2)cls=' ct-pos-2';
+    if(rank===3)cls=' ct-pos-3';
+    if(item.isMe)cls+=' ct-me';
+    html+='<tr class="'+cls.trim()+'">';
+    html+='<td>'+rankStr+'</td>';
+    html+='<td>'+(item.isMe?'<strong style="color:#3ecf8e">'+item.u+' (You)</strong>':item.u)+'</td>';
+    html+='<td class="ct-wager">'+item.w.toLocaleString()+'</td>';
+    html+='<td class="ct-reward-val">'+(prize?prize+' TRX':'—')+'</td>';
+    html+='</tr>';
+  });
+  lb.innerHTML=html;
+}
+
+function _ctUpdateMyStats(){
+  var myWager=parseFloat(localStorage.getItem('totalWagered')||'0');
+  var el=document.getElementById('ctMyWager');
+  if(el)el.textContent=myWager.toFixed(6);
+  // Find my rank
+  var list=CT_FAKE_USERS.map(function(u){return u.w;});
+  list.push(myWager);
+  list.sort(function(a,b){return b-a;});
+  var rank=list.indexOf(myWager)+1;
+  var rankEl=document.getElementById('ctMyRank');
+  if(rankEl)rankEl.textContent='#'+rank;
+  // My prize
+  var prizeEl=document.getElementById('ctMyReward');
+  if(prizeEl)prizeEl.textContent=CT_PRIZES[rank-1]?CT_PRIZES[rank-1]+' TRX':'—';
+}
 
 // ═══════════════════════════════════════
 // STAKING SYSTEM

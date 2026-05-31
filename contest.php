@@ -6,7 +6,7 @@
   <title>Contest &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=9"/>
+  <link rel="stylesheet" href="dashboard.css?v=10"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
@@ -526,30 +526,42 @@
   <div class="pg active" id="sec-contest">
     <div class="ct-wrap">
 
-      <div class="ct-header">
-        <h2 class="ct-title">&#127942; Weekly Contest</h2>
-        <p class="ct-subtitle">Wager the most this week and win big TRX prizes! Leaderboard resets every Monday.</p>
+      <!-- CONTEST ENDS IN — Big Countdown -->
+      <div class="ct-countdown-wrap">
+        <div class="ct-ends-lbl">CONTEST ENDS IN</div>
+        <div class="ct-clock">
+          <div class="ct-clock-seg">
+            <div class="ct-clock-val" id="ctCkDays">00</div>
+            <div class="ct-clock-unit">Days</div>
+          </div>
+          <div class="ct-clock-col">:</div>
+          <div class="ct-clock-seg">
+            <div class="ct-clock-val" id="ctCkHours">00</div>
+            <div class="ct-clock-unit">Hours</div>
+          </div>
+          <div class="ct-clock-col">:</div>
+          <div class="ct-clock-seg">
+            <div class="ct-clock-val" id="ctCkMins">00</div>
+            <div class="ct-clock-unit">Minutes</div>
+          </div>
+        </div>
       </div>
 
-      <!-- My Stats -->
+      <!-- My Stats (no referral wager) -->
       <div class="ct-my-stats">
         <div class="ct-my-hd">&#128100; My Statistics</div>
-        <div class="ct-my-grid">
+        <div class="ct-my-grid" style="grid-template-columns:repeat(3,1fr)">
           <div class="ct-my-card">
             <div class="ct-my-val" id="ctMyRank">#&#8212;</div>
             <div class="ct-my-lbl">My Rank</div>
           </div>
           <div class="ct-my-card">
             <div class="ct-my-val" id="ctMyWager">0.000000</div>
-            <div class="ct-my-lbl">My Wager (TRX)</div>
+            <div class="ct-my-lbl">WAGERED</div>
           </div>
           <div class="ct-my-card">
             <div class="ct-my-val" id="ctMyReward">&#8212;</div>
             <div class="ct-my-lbl">My Prize</div>
-          </div>
-          <div class="ct-my-card">
-            <div class="ct-my-val" id="ctTimeLeft">6d 12h</div>
-            <div class="ct-my-lbl">Time Left</div>
           </div>
         </div>
       </div>
@@ -563,17 +575,17 @@
         <div class="ct-prize-row"><span class="ct-rank">4th &ndash; 10th</span><span class="ct-prize">25 TRX each</span></div>
       </div>
 
-      <!-- Live Leaderboard -->
+      <!-- Live Leaderboard (no date in header) -->
       <div class="ct-board-box">
-        <div class="ct-board-hd">&#128293; Live Leaderboard</div>
-        <div class="ct-board-sub">Updates in real-time &mdash; wager more to climb the ranks!</div>
+        <div class="ct-board-hd">&#128293; WAGERING CONTEST</div>
+        <div class="ct-board-sub">Wager more to climb the ranks and win prizes!</div>
         <table class="ct-tbl">
           <thead>
             <tr>
-              <th>Rank</th>
-              <th>Username</th>
-              <th>Wager (TRX)</th>
-              <th>Prize</th>
+              <th>Place</th>
+              <th>User Name</th>
+              <th>Total Wagered</th>
+              <th>Reward</th>
             </tr>
           </thead>
           <tbody id="ctLeaderboard">
@@ -746,7 +758,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=9"></script>
+<script src="dashboard.js?v=10"></script>
 <script>window._INIT_SECTION='contest';</script>
 </body>
 </html>
