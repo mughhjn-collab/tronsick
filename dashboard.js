@@ -1505,23 +1505,46 @@ function cfRenderHist(){
 function cfOpenBetInfo(idx){
   var b = cfBetHistory[idx];
   if(!b) return;
-  var modal = document.getElementById('betModal');
-  var bmResult = document.getElementById('bmResult');
-  var bmSeeds = document.getElementById('bmSeeds');
-  if(!modal||!bmResult||!bmSeeds) return;
-  bmResult.innerHTML =
-    '<div class="bm-game-row"><span class="bm-game-lbl">Game</span><span class="bm-game-val">🪙 Coin Flip</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Your Choice</span><span class="bm-game-val" style="text-transform:capitalize">'+b.choice+'</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Result</span><span class="bm-game-val '+(b.win?'bm-win':'bm-lose')+'" style="text-transform:capitalize">'+b.result+'</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Bet</span><span class="bm-game-val">'+parseFloat(b.bet).toFixed(6)+' TRX</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Payout</span><span class="bm-game-val">'+(b.win?CF_MULT+'x':'0x')+'</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Profit</span><span class="bm-game-val '+(b.profit>=0?'bm-win':'bm-lose')+'">'+(b.profit>=0?'+':'')+parseFloat(b.profit).toFixed(6)+' TRX</span></div>'+
-    '<div class="bm-game-row"><span class="bm-game-lbl">Time</span><span class="bm-game-val">'+b.ts+'</span></div>';
-  bmSeeds.innerHTML =
-    '<div class="bm-sf-row"><span class="bm-sf-lbl">Server Seed</span><span class="bm-sf-val">'+b.serverSeed+'</span></div>'+
-    '<div class="bm-sf-row"><span class="bm-sf-lbl">Client Seed</span><span class="bm-sf-val">'+b.clientSeed+'</span></div>'+
-    '<div class="bm-sf-row"><span class="bm-sf-lbl">Nonce</span><span class="bm-sf-val">#'+b.nonce+'</span></div>';
-  modal.style.display='flex';
+  // Use _ensureBetModal() — same system as Dice game
+  var modal = _ensureBetModal();
+  // Title
+  var title = document.getElementById('bmTitle');
+  if(title) title.textContent = '\uD83E\uFA99 Coin Flip - Bet Info';
+  // Result banner
+  var res = document.getElementById('bmResult');
+  if(res){
+    res.textContent = (b.win ? 'WIN +' : 'LOSS ') + Math.abs(b.profit).toFixed(6) + ' TRX';
+    res.style.cssText = b.win
+      ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e'
+      : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
+  }
+  // Seed fields — same style as Dice
+  var seeds = document.getElementById('bmSeeds');
+  if(seeds) seeds.innerHTML =
+    '<div style="background:rgba(0,0,0,.15);border-radius:10px;padding:14px;margin-bottom:12px">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'+
+      '<div><div class="bm-sf-lbl" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Your Choice</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:13px;color:#fff;text-transform:capitalize">'+b.choice+'</div></div>'+
+      '<div><div class="bm-sf-lbl" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Result</div>'+
+        '<div style="font-family:JetBrains Mono,monospace;font-size:13px;color:'+(b.result===b.choice?'#22c55e':'#ef4444')+';text-transform:capitalize">'+b.result+'</div></div>'+
+    '</div>'+
+    '<div style="margin-bottom:8px"><div class="bm-sf-lbl" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Server Seed</div>'+
+      '<div class="bm-sf-row" style="display:flex;align-items:center;gap:6px"><span class="bm-sf-ico" style="color:rgba(255,255,255,.4);font-size:13px">=</span>'+
+      '<input class="bm-sf-inp" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:JetBrains Mono,monospace;font-size:11px;border-radius:6px;padding:7px 10px;outline:none;width:100%" readonly value="'+(b.serverSeed||'')+'"></div></div>'+
+    '<div style="margin-bottom:8px"><div class="bm-sf-lbl" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Client Seed</div>'+
+      '<div class="bm-sf-row" style="display:flex;align-items:center;gap:6px"><span class="bm-sf-ico" style="color:rgba(255,255,255,.4);font-size:13px">&#9000;</span>'+
+      '<input class="bm-sf-inp" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:JetBrains Mono,monospace;font-size:11px;border-radius:6px;padding:7px 10px;outline:none;width:100%" readonly value="'+(b.clientSeed||'')+'"></div></div>'+
+    '<div><div class="bm-sf-lbl" style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Nonce</div>'+
+      '<div class="bm-sf-row" style="display:flex;align-items:center;gap:6px"><span class="bm-sf-ico" style="color:rgba(255,255,255,.4);font-size:13px">#</span>'+
+      '<input class="bm-sf-inp" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:JetBrains Mono,monospace;font-size:20px;font-weight:900;border-radius:6px;padding:7px 10px;outline:none;width:100%" readonly value="'+(b.nonce||0)+'"></div></div>'+
+    '</div>';
+  // Verify button — same as Dice
+  var vl = document.getElementById('bmVerifyLink');
+  if(vl){
+    var vUrl = '/verify.php?game=coinflip&seed='+encodeURIComponent(b.serverSeed||'')+'&client='+encodeURIComponent(b.clientSeed||'')+'&nonce='+(b.nonce||0)+'&choice='+b.choice+'&result='+b.result+'&win='+(b.win?1:0)+'&bet='+b.bet;
+    vl.innerHTML = '<a href="'+vUrl+'" class="bm-verify-btn" style="display:inline-block;padding:11px 28px;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;">&#128270; Verify</a>';
+  }
+  modal.style.display = 'flex';
 }
 
 function cfHalf(){
