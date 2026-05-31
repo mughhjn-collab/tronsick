@@ -284,14 +284,42 @@ function buildContest(){
     '</div>'+
     '<button class="btn btn-primary" onclick="saveContest()"><i class="fas fa-save"></i> Save Contest Settings</button>'
   )+
-  card('Current Leaderboard','list-ol',null,
-    '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Rank</th><th>Username</th><th>Wagered (TRX)</th><th>Prize</th><th>Actions</th></tr></thead><tbody>'+
-    (S.users.slice(0,5).map(function(u,i){
-      var prizes=['500','250','100','25','25'];
-      return '<tr><td>#'+(i+1)+'</td><td>'+u.name+'</td><td>'+(Math.random()*100).toFixed(2)+'</td><td>'+prizes[i]+' TRX</td><td><button class="btn btn-sm btn-danger" onclick="alert(\'Disqualify \'+\''+u.name+'\')"><i class="fas fa-ban"></i></button></td></tr>';
-    }).join('')||'<tr><td colspan="5" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No contest data yet</td></tr>')+
-    '</tbody></table></div>'
+  card('Live Leaderboard','list-ol',null,
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">'+
+    '<button class="btn btn-danger" onclick="resetContestLeaderboard()"><i class="fas fa-trash"></i> Reset Leaderboard</button>'+
+    '<button class="btn btn-warning" onclick="showSectionByKey(\'contest_gen\')"><i class="fas fa-trophy"></i> Contest Generator</button>'+
+    '</div>'+
+    '<div id=\"admCtLbWrap\"></div>'
   );
+}
+
+
+function resetContestLeaderboard(){
+  if(!confirm('Clear ALL contest leaderboard entries?')) return;
+  localStorage.removeItem('contest_wagers');
+  toast('Leaderboard reset! All entries cleared.','success');
+  document.getElementById('admContent').innerHTML = buildContest();
+  setTimeout(function(){ buildAdmContestLb(); }, 80);
+}
+
+function buildAdmContestLb(){
+  var wrap = document.getElementById('admCtLbWrap');
+  if(!wrap) return;
+  var cw = {};
+  try{ cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}'); }catch(e){}
+  var entries = Object.keys(cw).map(function(u){ return {name:u,wager:parseFloat(cw[u])||0}; });
+  entries.sort(function(a,b){ return b.wager-a.wager; });
+  if(!entries.length){
+    wrap.innerHTML = '<p style="color:rgba(255,255,255,.3);padding:16px;font-size:13px">Leaderboard is empty.</p>';
+    return;
+  }
+  var medals = [String.fromCodePoint(0x1F947),String.fromCodePoint(0x1F948),String.fromCodePoint(0x1F949)];
+  var rows = entries.map(function(e,i){
+    var medal = medals[i] || ('#'+(i+1));
+    return '<tr><td>'+medal+'</td><td>'+e.name+'</td><td>'+e.wager.toFixed(3)+'</td>'+
+    '<td><button class="btn btn-sm btn-danger" onclick="removeCtEntry(\'' + e.name + '\');buildAdmContestLb()"><i class="fas fa-trash"></i></button></td></tr>';
+  }).join('');
+  wrap.innerHTML = '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Rank</th><th>Username</th><th>Wagered (TRX)</th><th>Remove</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
 }
 
 function saveContest(){
