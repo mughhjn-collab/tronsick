@@ -162,7 +162,7 @@
 
       <div class="ff ff-plain">
         <label>Username or Email</label>
-        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username" onblur="check2FAField()" oninput="check2FAField()"/></div>
+        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username" onblur="check2FAField()"/></div>
       </div>
 
       <div class="ff">
@@ -176,9 +176,9 @@
         </div>
       </div>
 
-      <!-- 2FA field — always visible, required only if 2FA is enabled -->
-      <div class="ff ff-plain" id="twofa-wrap">
-        <label>2FA Code <span class="opt-label">(Optional — only if 2FA is enabled)</span></label>
+      <!-- 2FA field — hidden by default, shows only if user has 2FA enabled -->
+      <div class="ff ff-plain" id="twofa-wrap" style="display:none">
+        <label>2FA Code <span class="opt-label">(Required — your account has 2FA enabled)</span></label>
         <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
       </div>
 

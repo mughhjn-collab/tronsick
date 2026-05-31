@@ -99,10 +99,10 @@
       <div class="how-card" id="hw1">
         <div class="how-num">01</div>
         <div class="how-content">
-          <div class="how-icon-box ic-blue">💧</div>
-          <h3>40-Minute Free Faucet</h3>
-          <p>Log in and click Claim every 40 minutes — up to <strong>60 TRX</strong> credited instantly to your balance. No surveys, no tasks, no deposits. Maintain a daily streak to unlock bonus multipliers that boost your reward automatically.</p>
-          <a href="login.php?tab=register" class="how-cta">Start Claiming Free TRX →</a>
+          <div class="how-icon-box ic-blue">⚡</div>
+          <h3>Free TRX Every 40 Minutes</h3>
+          <p>Hit Claim once every 40 minutes and watch real TRX drop into your account — no tasks, no surveys, no tricks required. Show up daily and your streak multiplier kicks in, quietly stacking bonuses on top of every single claim.</p>
+          <a href="login.php?tab=register" class="how-cta">Start Your First Claim →</a>
         </div>
       </div>
 
@@ -110,32 +110,30 @@
         <div class="how-badge">🏆 Most Popular</div>
         <div class="how-num">02</div>
         <div class="how-content">
-          <div class="how-icon-box ic-red">🏆</div>
-          <h3>Weekly Contest &amp; Daily Cashback</h3>
-          <p>Every week TronSick's top claimers and bettors split a <strong>TRX prize pool</strong>. Didn't top the board? No problem — our <strong>Daily Cashback</strong> system automatically returns a % of your losses back to your balance every 24 hours. Both run on autopilot.</p>
-          <a href="login.php?tab=register" class="how-cta">Join the Contest Now →</a>
+          <div class="how-icon-box ic-red">🎯</div>
+          <h3>Win Weekly. Recover Daily.</h3>
+          <p>Every Monday, TronSick pays out a shared TRX prize pool to the top players on the leaderboard — earned just by playing and claiming. And if the week didn't go your way? Our <strong>Daily Cashback</strong> quietly refunds a portion of your losses, automatically, every night.</p>
+          <a href="login.php?tab=register" class="how-cta">Join This Week's Contest →</a>
         </div>
       </div>
 
       <div class="how-card" id="hw3">
         <div class="how-num">03</div>
         <div class="how-content">
-          <div class="how-icon-box ic-gold">👑</div>
-          <h3>VIP Levels &amp; Bonus System</h3>
-          <p>Climb VIP ranks by claiming and playing — each level unlocks <strong>higher faucet rewards</strong>, bigger cashback %, deposit bonuses, and exclusive perks. First-time depositors get up to <strong>20% bonus TRX</strong> automatically added to their balance.</p>
-          <a href="login.php?tab=register" class="how-cta">See VIP Benefits →</a>
+          <div class="how-icon-box ic-gold">💎</div>
+          <h3>VIP Ranks That Actually Pay</h3>
+          <p>The more you claim and play, the higher your VIP rank climbs — and every rank upgrade means real rewards: bigger faucet amounts, higher cashback rates, deposit bonuses up to <strong>20% bonus TRX</strong>, and early access to new features before anyone else.</p>
+          <a href="login.php?tab=register" class="how-cta">Check VIP Tiers →</a>
         </div>
       </div>
 
-      <div class="how-card" id="hw4" style="grid-column:span 3">
-        <div class="how-num" style="display:inline-block;margin-right:20px">04</div>
-        <div class="how-content" style="flex-direction:row;align-items:center;gap:24px;flex-wrap:wrap">
-          <div class="how-icon-box ic-blue" style="flex-shrink:0">👥</div>
-          <div>
-            <h3>Lifetime 50% Referral Commission</h3>
-            <p style="max-width:800px">Share your unique referral link. Every time a friend you referred claims TRX on TronSick, you automatically receive <strong>50% of their claim value</strong> as commission — deposited instantly to your balance. No cap, no expiry, unlimited referrals forever.</p>
-            <a href="login.php?tab=register" class="how-cta">Get My Referral Link →</a>
-          </div>
+      <div class="how-card" id="hw4">
+        <div class="how-num">04</div>
+        <div class="how-content">
+          <div class="how-icon-box ic-blue">🔗</div>
+          <h3>50% Commission. Forever.</h3>
+          <p>Share one link. Every time someone you referred makes a faucet claim on TronSick, exactly <strong>50% of their reward value</strong> is instantly credited to your balance — no waiting, no caps, no expiry. Refer 10 people and effectively claim 6× per cycle.</p>
+          <a href="login.php?tab=register" class="how-cta">Get My Referral Link →</a>
         </div>
       </div>
 
