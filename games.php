@@ -419,27 +419,23 @@
           <div class="stake-tier-card" onclick="stakeSelect(10)">
             <div class="stake-tier-amount">10 TRX</div>
             <div class="stake-tier-reward">+0.05 TRX/day</div>
-            <div class="stake-tier-apy">APY ≈ 182%</div>
             <button class="stake-tier-btn">Stake 10 TRX</button>
           </div>
           <div class="stake-tier-card stake-tier-popular" onclick="stakeSelect(200)">
             <div class="stake-tier-badge">POPULAR</div>
             <div class="stake-tier-amount">200 TRX</div>
-            <div class="stake-tier-reward">+2 TRX/day</div>
-            <div class="stake-tier-apy">APY ≈ 365%</div>
+            <div class="stake-tier-reward">+0.5 TRX/day</div>
             <button class="stake-tier-btn">Stake 200 TRX</button>
           </div>
           <div class="stake-tier-card" onclick="stakeSelect(2000)">
             <div class="stake-tier-amount">2000 TRX</div>
-            <div class="stake-tier-reward">+10 TRX/day</div>
-            <div class="stake-tier-apy">APY ≈ 182%</div>
+            <div class="stake-tier-reward">+2 TRX/day</div>
             <button class="stake-tier-btn">Stake 2000 TRX</button>
           </div>
           <div class="stake-tier-card stake-tier-vip" onclick="stakeSelect(5000)">
             <div class="stake-tier-badge">VIP</div>
             <div class="stake-tier-amount">5000 TRX</div>
-            <div class="stake-tier-reward">+30 TRX/day</div>
-            <div class="stake-tier-apy">APY ≈ 219%</div>
+            <div class="stake-tier-reward">+10 TRX/day</div>
             <button class="stake-tier-btn">Stake 5000 TRX</button>
           </div>
         </div>
@@ -803,7 +799,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=10"></script>
+<script src="dashboard.js?v=11"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}

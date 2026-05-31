@@ -1,4 +1,4 @@
-// Strip any hash fragment from URL on load
+﻿// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // ── LOGOUT ──
@@ -276,7 +276,7 @@ function _ctUpdateMyStats(){
 // ═══════════════════════════════════════
 // STAKING SYSTEM
 // ═══════════════════════════════════════
-var STAKE_TIERS={10:0.05,200:2,2000:10,5000:30};
+var STAKE_TIERS={10:0.05,200:0.5,2000:2,5000:10};
 var _stakeTimer=null;
 
 function stakeSelect(amount){
