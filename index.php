@@ -273,12 +273,38 @@
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container footer-grid">
+
     <div class="fb">
       <div class="footer-logo">Tron<span>Sick</span></div>
       <p>The fastest TRON faucet. Earn free TRX every 40 minutes through faucet, provably fair games, and a 50% lifetime referral program.</p>
     </div>
 
+    <div class="fc">
+      <h4>Account</h4>
+      <a href="login.php" id="fLogin">Log In</a>
+      <a href="login.php?tab=register" id="fReg">Sign Up Free</a>
+      <a href="dashboard.php#settings">Settings</a>
+      <a href="dashboard.php#withdraw">Withdraw</a>
+      <a href="dashboard.php#deposit">Deposit</a>
+    </div>
 
+    <div class="fc">
+      <h4>Earn TRX</h4>
+      <a href="dashboard.php#faucet">Faucet</a>
+      <a href="dashboard.php#games">Games</a>
+      <a href="dashboard.php#referrals">Referrals</a>
+      <a href="dashboard.php#contest">Weekly Contest</a>
+      <a href="dashboard.php#cashback">Daily Cashback</a>
+    </div>
+
+    <div class="fc">
+      <h4>Help</h4>
+      <a href="dashboard.php#contact">Contact Us</a>
+      <a href="#faq">FAQ</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Provably Fair</a>
+    </div>
 
   </div>
   <div class="footer-bottom">
