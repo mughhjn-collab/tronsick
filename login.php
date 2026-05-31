@@ -20,11 +20,10 @@
     a{text-decoration:none;color:inherit}
 
     /* ── TOPBAR ── */
-    .top-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;position:relative;z-index:10}
-    .tb-logo{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px}
+    .top-bar{display:flex;align-items:center;padding:18px 32px;position:relative;z-index:10}
+    .tb-logo{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px;text-decoration:none;transition:opacity .2s}
+    .tb-logo:hover{opacity:.8}
     .tb-logo span{color:#a3e635}
-    .tb-back{font-size:13px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px;transition:color .2s}
-    .tb-back:hover{color:#a3e635}
 
     /* ── MAIN LAYOUT ── */
     .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px 48px}
@@ -113,7 +112,6 @@
 <!-- TOPBAR -->
 <div class="top-bar">
   <a href="index.php" class="tb-logo">Tron<span>Sick</span></a>
-  <a href="index.php" class="tb-back">← Back to Home</a>
 </div>
 
 <!-- AUTH CARD -->
