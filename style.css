@@ -236,7 +236,7 @@ a{text-decoration:none;color:inherit}
 .hab-row strong{font-size:13px;font-weight:700;color:#fff;line-height:1}
 .hab-row span{font-size:11px;color:rgba(255,255,255,.4);line-height:1}
 
-  .hero-img-col{display:none}
+  .hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}
 }
 /* -- HERO FEATURE LINES (left col) -- */
 .hero-feats-col{display:flex;flex-direction:column;gap:32px;padding-right:32px}
@@ -250,8 +250,8 @@ a{text-decoration:none;color:inherit}
   .hero-wrap{max-width:1100px;margin:0 auto;padding:60px 4% 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;flex:1;position:relative;z-index:1}
 }
 /* -- HERO IMAGE COLUMN -- */
-.hero-img-col{display:flex;align-items:center;justify-content:center}
-.hero-illus{width:100%;max-width:480px;height:auto;animation:floatImg 5s ease-in-out infinite;filter:drop-shadow(0 20px 50px rgba(163,230,53,.15))}
+.hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}
+.hero-illus{width:100%;max-width:460px;height:auto;mix-blend-mode:screen;display:block}
 @keyframes floatImg{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 
 /* -- HERO RIGHT CONTENT -- */
@@ -269,14 +269,14 @@ a{text-decoration:none;color:inherit}
 
 @media(max-width:860px){
   .hero-wrap{grid-template-columns:1fr !important;padding:40px 20px !important}
-  .hero-img-col{display:none}
+  .hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}
   .hero-left{padding-left:0;text-align:center}
   .hero-btns{justify-content:center}
 }
 /* ══════════════════════════════════════
    ISOMETRIC DASHBOARD ILLUSTRATION
    ══════════════════════════════════════ */
-.hero-img-col{display:flex;align-items:center;justify-content:center;position:relative}
+.hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}
 .dash-illus{position:relative;width:420px;height:420px;flex-shrink:0}
 
 /* -- Phone device -- */
@@ -344,4 +344,4 @@ a{text-decoration:none;color:inherit}
 .sp8{width:3px;height:3px;bottom:30%;left:30%;animation-delay:2.8s}
 @keyframes spTwinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
 
-@media(max-width:860px){.hero-img-col{display:none}}
+@media(max-width:860px){.hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}}
