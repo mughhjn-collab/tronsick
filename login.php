@@ -150,10 +150,10 @@
         </div>
       </div>
 
-      <!-- 2FA field (shown only if user has 2FA enabled) -->
-      <div class="ff ff-plain" id="twofa-wrap" style="display:none">
-        <label>2FA Code <span class="opt-label">(Required — check your authenticator app)</span></label>
-        <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
+      <!-- 2FA field — always visible, required only if 2FA is enabled -->
+      <div class="ff ff-plain" id="twofa-wrap">
+        <label>2FA Code <span class="opt-label">(Optional — only if 2FA is enabled)</span></label>
+        <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
       </div>
 
       <button type="submit" class="auth-btn" id="loginBtn">LOG IN TO MY ACCOUNT</button>
