@@ -815,5 +815,139 @@
   };
 })();
 </script>
-</body>
-</html>
+
+<!-- ═══ 2FA SETUP SECTION ═══ -->
+<div class="pg-section" id="sec-2fa-setup" style="margin-top:24px">
+<div style="background:#111b2e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 20px">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+    <div>
+      <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px">🔐 Two-Factor Authentication (2FA)</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.45)" id="twofa-status-txt">Protect your account with Google Authenticator</div>
+    </div>
+    <div id="twofa-badge" style="padding:5px 14px;border-radius:99px;font-size:12px;font-weight:700;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)">DISABLED</div>
+  </div>
+
+  <div id="twofa-disabled-view">
+    <p style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.6">When enabled, you must enter a 6-digit code from your authenticator app each time you log in.</p>
+    <button onclick="setupTwoFA()" style="padding:10px 22px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">Enable 2FA</button>
+  </div>
+
+  <div id="twofa-setup-view" style="display:none">
+    <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;line-height:1.6"><strong style="color:#fff">Step 1:</strong> Install Google Authenticator or Authy on your phone.<br/><strong style="color:#fff">Step 2:</strong> Scan the QR code below.<br/><strong style="color:#fff">Step 3:</strong> Enter the 6-digit code to verify and activate.</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:18px">
+      <div>
+        <div id="twofa-qr" style="background:#fff;padding:10px;border-radius:10px;width:fit-content"></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:8px;max-width:200px;text-align:center">Scan with Google Authenticator</div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Manual entry secret key</div>
+        <div id="twofa-secret-show" style="font-family:monospace;font-size:14px;font-weight:700;color:#a3e635;background:#0a1628;padding:10px 14px;border-radius:8px;word-break:break-all;letter-spacing:2px;cursor:pointer" title="Click to copy" onclick="copySecret()"></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:6px">Click secret to copy</div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px">Verification Code</label>
+      <input type="text" id="twofa-verify-code" placeholder="Enter 6-digit code from app" maxlength="6" inputmode="numeric" style="width:100%;max-width:280px;padding:11px 14px;background:#132920;border:1.5px solid rgba(255,255,255,.1);border-radius:9px;font-size:15px;color:#fff;font-family:monospace;letter-spacing:4px;outline:none"/>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button onclick="verifyAndEnable2FA()" style="padding:10px 22px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:800;cursor:pointer">Verify & Enable</button>
+      <button onclick="cancelTwoFA()" style="padding:10px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer">Cancel</button>
+    </div>
+    <div id="twofa-verify-err" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:8px;font-size:13px;color:#f87171"></div>
+  </div>
+
+  <div id="twofa-enabled-view" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span style="font-size:28px">✅</span>
+      <div><div style="color:#3ecf8e;font-weight:700;font-size:14px">2FA is Active</div><div style="color:rgba(255,255,255,.4);font-size:12px">Your account is protected</div></div>
+    </div>
+    <button onclick="disableTwoFA()" style="padding:10px 20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:9px;color:#f87171;font-size:13px;font-weight:700;cursor:pointer">Disable 2FA</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ── TOTP helpers (same as login.php) ──────────────────────
+var B32C='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function b32decode(s){s=s.toUpperCase().replace(/=+$/,'');var bits=0,val=0,out=[];for(var i=0;i<s.length;i++){val=(val<<5)|B32C.indexOf(s[i]);bits+=5;if(bits>=8){bits-=8;out.push((val>>bits)&0xff);}}return new Uint8Array(out);}
+async function verifyTOTP2(secret,code){if(!code||code.length!==6)return false;var key=b32decode(secret);var t=Math.floor(Date.now()/1000/30);for(var i=-1;i<=1;i++){var c=t+i;var buf=new ArrayBuffer(8);new DataView(buf).setUint32(4,c,false);try{var ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);var sig=await crypto.subtle.sign('HMAC',ck,buf);var h=new Uint8Array(sig);var off=h[h.length-1]&0x0f;var n=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);if(String(n%1000000).padStart(6,'0')===String(code))return true;}catch(ex){}}return false;}
+
+// Generate random base32 secret
+function genSecret(len){var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';var s='';for(var i=0;i<(len||32);i++)s+=chars[Math.floor(Math.random()*32)];return s;}
+
+var _pendingSecret='';
+
+function init2FAStatus(){
+  var uname=localStorage.getItem('userName')||'';
+  var secret=localStorage.getItem('2fa_secret_'+uname.toLowerCase());
+  var badge=document.getElementById('twofa-badge');
+  var statusTxt=document.getElementById('twofa-status-txt');
+  if(secret){
+    document.getElementById('twofa-disabled-view').style.display='none';
+    document.getElementById('twofa-setup-view').style.display='none';
+    document.getElementById('twofa-enabled-view').style.display='block';
+    if(badge){badge.textContent='ENABLED';badge.style.background='rgba(62,207,142,.1)';badge.style.color='#3ecf8e';badge.style.borderColor='rgba(62,207,142,.2)';}
+    if(statusTxt) statusTxt.textContent='Your account is protected with 2FA';
+  } else {
+    document.getElementById('twofa-disabled-view').style.display='block';
+    document.getElementById('twofa-setup-view').style.display='none';
+    document.getElementById('twofa-enabled-view').style.display='none';
+    if(badge){badge.textContent='DISABLED';badge.style.background='rgba(239,68,68,.1)';badge.style.color='#f87171';badge.style.borderColor='rgba(239,68,68,.2)';}
+    if(statusTxt) statusTxt.textContent='Protect your account with Google Authenticator';
+  }
+}
+
+function setupTwoFA(){
+  _pendingSecret=genSecret(32);
+  var uname=localStorage.getItem('userName')||'account';
+  var otpauth='otpauth://totp/TronSick:'+encodeURIComponent(uname)+'?secret='+_pendingSecret+'&issuer=TronSick';
+  var qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(otpauth);
+  document.getElementById('twofa-qr').innerHTML='<img src="'+qrUrl+'" width="160" height="160" style="display:block;border-radius:6px"/>';
+  document.getElementById('twofa-secret-show').textContent=_pendingSecret;
+  document.getElementById('twofa-verify-code').value='';
+  document.getElementById('twofa-verify-err').style.display='none';
+  document.getElementById('twofa-disabled-view').style.display='none';
+  document.getElementById('twofa-setup-view').style.display='block';
+}
+
+function copySecret(){
+  navigator.clipboard.writeText(_pendingSecret).then(function(){
+    var el=document.getElementById('twofa-secret-show');
+    el.textContent='Copied!';
+    setTimeout(function(){el.textContent=_pendingSecret;},1500);
+  });
+}
+
+function cancelTwoFA(){
+  _pendingSecret='';
+  document.getElementById('twofa-setup-view').style.display='none';
+  document.getElementById('twofa-disabled-view').style.display='block';
+}
+
+async function verifyAndEnable2FA(){
+  var code=document.getElementById('twofa-verify-code').value.trim();
+  var errEl=document.getElementById('twofa-verify-err');
+  if(!code||code.length!==6){errEl.style.display='block';errEl.textContent='Please enter the 6-digit code from your app.';return;}
+  var valid=await verifyTOTP2(_pendingSecret,code);
+  if(!valid){errEl.style.display='block';errEl.textContent='Invalid code. Make sure your phone clock is correct and try again.';return;}
+  // Save secret
+  var uname=localStorage.getItem('userName')||'';
+  localStorage.setItem('2fa_secret_'+uname.toLowerCase(),_pendingSecret);
+  _pendingSecret='';
+  init2FAStatus();
+  showToast('🔐 2FA enabled successfully! Your account is now protected.');
+}
+
+function disableTwoFA(){
+  if(!confirm('Are you sure you want to disable 2FA? Your account will be less secure.'))return;
+  var uname=localStorage.getItem('userName')||'';
+  localStorage.removeItem('2fa_secret_'+uname.toLowerCase());
+  init2FAStatus();
+  showToast('2FA has been disabled.');
+}
+
+// Init on page load
+document.addEventListener('DOMContentLoaded',init2FAStatus);
+setTimeout(init2FAStatus,200);
+</script>
+</body></html>

@@ -136,7 +136,7 @@
 
       <div class="ff ff-plain">
         <label>Username or Email</label>
-        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username"/></div>
+        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username" onblur="check2FAField()" oninput="check2FAField()"/></div>
       </div>
 
       <div class="ff">
@@ -148,6 +148,12 @@
           <input type="password" id="lPw" placeholder="Enter password" autocomplete="current-password"/>
           <button type="button" class="ff-eye" onclick="toggleVis('lPw',this)">👁</button>
         </div>
+      </div>
+
+      <!-- 2FA field (shown only if user has 2FA enabled) -->
+      <div class="ff ff-plain" id="twofa-wrap" style="display:none">
+        <label>2FA Code <span class="opt-label">(Required — check your authenticator app)</span></label>
+        <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
       </div>
 
       <button type="submit" class="auth-btn" id="loginBtn">LOG IN TO MY ACCOUNT</button>
@@ -251,6 +257,49 @@ function showForgot(){
   if(p.get('tab')==='register') switchTab('register');
 })();
 
+// ══════════════════════════════════════════════
+// TOTP 2FA VERIFICATION (Google Authenticator)
+// ══════════════════════════════════════════════
+var B32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function base32Decode(s){
+  s = s.toUpperCase().replace(/=+$/,'');
+  var bits=0, val=0, out=[];
+  for(var i=0;i<s.length;i++){
+    val=(val<<5)|B32_CHARS.indexOf(s[i]);
+    bits+=5;
+    if(bits>=8){bits-=8;out.push((val>>bits)&0xff);}
+  }
+  return new Uint8Array(out);
+}
+async function verifyTOTP(secret,code){
+  if(!code||code.length!==6) return false;
+  var key=base32Decode(secret);
+  var t=Math.floor(Date.now()/1000/30);
+  for(var i=-1;i<=1;i++){
+    var c=t+i;
+    var buf=new ArrayBuffer(8);
+    new DataView(buf).setUint32(4,c,false);
+    try{
+      var ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);
+      var sig=await crypto.subtle.sign('HMAC',ck,buf);
+      var h=new Uint8Array(sig);
+      var off=h[h.length-1]&0x0f;
+      var n=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);
+      if(String(n%1000000).padStart(6,'0')===String(code)) return true;
+    }catch(ex){}
+  }
+  return false;
+}
+
+// Check if username has 2FA enabled — show field if so
+function check2FAField(){
+  var id=document.getElementById('lId').value.trim();
+  var uname=id.includes('@')?id.split('@')[0]:id;
+  var has2FA=localStorage.getItem('2fa_secret_'+uname.toLowerCase());
+  var wrap=document.getElementById('twofa-wrap');
+  if(wrap) wrap.style.display=has2FA?'block':'none';
+}
+
 // ── LOGIN ────────────────────────────────────
 function handleLogin(e){
   e.preventDefault();
@@ -265,6 +314,22 @@ function handleLogin(e){
   var btn = document.getElementById('loginBtn');
   btn.textContent='Logging in…'; btn.disabled=true;
 
+  // Check 2FA before proceeding
+  var uname0 = id.includes('@') ? id.split('@')[0] : id;
+  var secret2fa = localStorage.getItem('2fa_secret_'+uname0.toLowerCase());
+  var code2fa = document.getElementById('l2fa') ? document.getElementById('l2fa').value.trim() : '';
+
+  if(secret2fa){
+    if(!code2fa){ err.style.display='block'; err.textContent='Please enter your 2FA code from your authenticator app.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
+    verifyTOTP(secret2fa, code2fa).then(function(valid){
+      if(!valid){ err.style.display='block'; err.textContent='Invalid 2FA code. Please check your authenticator app and try again.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
+      doLoginFinish(id, btn);
+    });
+  } else {
+    setTimeout(function(){ doLoginFinish(id, btn); }, 1200);
+  }
+}
+function doLoginFinish(id, btn){
   setTimeout(function(){
     var uname = id.includes('@') ? id.split('@')[0] : id;
     var uemail = id.includes('@') ? id : '';
@@ -314,7 +379,7 @@ function handleLogin(e){
     }
     localStorage.setItem('newUserBonus','0');
     window.location.href='faucet.php';
-  }, 1200);
+  }, 800);
 }
 
 // ── REGISTER ─────────────────────────────────
