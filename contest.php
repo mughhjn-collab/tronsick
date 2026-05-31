@@ -541,11 +541,7 @@
             <div class="ct-clock-val" id="ctCkMins">00</div>
             <div class="ct-clock-unit">Minutes</div>
           </div>
-          <div class="ct-clock-col">:</div>
-          <div class="ct-clock-seg">
-            <div class="ct-clock-val" id="ctCkSecs">00</div>
-            <div class="ct-clock-unit">Seconds</div>
-          </div>
+
         </div>
       </div>
 
@@ -755,34 +751,41 @@
 <script>
 window._INIT_SECTION='contest';
 
-// LIVE COUNTDOWN — 6d 10h cycle, resets every Monday 10:00 UTC
+// LIVE COUNTDOWN — 6d 10h cycle, updates every 1 minute (Days:Hours:Minutes only)
 (function contestTimer(){
   function pad(n){return n<10?'0'+n:''+n;}
   function getEnd(){
+    // Contest cycle: 6 days 10 hours total
+    // Anchor: Monday 10:00 UTC — each contest is 6d10h, next starts right after
     var now=new Date();
+    var cycle=((6*24)+10)*3600*1000; // 6d10h in ms
+    // Find next Monday 10:00 UTC
     var d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),10,0,0,0));
     var dow=d.getUTCDay();
-    var diff=(dow===1)?7:(8-dow)%7;
-    d.setUTCDate(d.getUTCDate()+diff);
-    if(dow===1&&now.getUTCHours()<10) d.setUTCDate(d.getUTCDate()-7);
-    return d;
+    var daysToMon=(dow===1)?0:(8-dow)%7;
+    d.setUTCDate(d.getUTCDate()+daysToMon);
+    if(d<=now) d.setUTCDate(d.getUTCDate()+7);
+    // Clamp to max 6d10h from now
+    var diff=d-now;
+    if(diff>cycle) diff=cycle;
+    return new Date(now.getTime()+diff);
   }
   function tick(){
     var ms=getEnd()-Date.now();
     if(ms<0)ms=0;
-    var s=Math.floor(ms/1000);
-    var el=document.getElementById;
+    var totalMins=Math.floor(ms/60000);
+    var mins=totalMins%60;
+    var hours=Math.floor(totalMins/60)%24;
+    var days=Math.floor(totalMins/1440);
     var dEl=document.getElementById('ctCkDays');
     var hEl=document.getElementById('ctCkHours');
     var mEl=document.getElementById('ctCkMins');
-    var sEl=document.getElementById('ctCkSecs');
-    if(dEl) dEl.textContent=pad(Math.floor(s/86400));
-    if(hEl) hEl.textContent=pad(Math.floor(s/3600)%24);
-    if(mEl) mEl.textContent=pad(Math.floor(s/60)%60);
-    if(sEl) sEl.textContent=pad(s%60);
+    if(dEl) dEl.textContent=pad(days);
+    if(hEl) hEl.textContent=pad(hours);
+    if(mEl) mEl.textContent=pad(mins);
   }
   tick();
-  setInterval(tick,1000);
+  setInterval(tick,60000);
 })();
 
 // LIVE LEADERBOARD — only real game plays

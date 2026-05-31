@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -83,16 +83,16 @@
         <div class="tbl-box">
           <div class="tbl-hd">LEVEL SYSTEM</div>
           <table class="tbl">
-            <thead><tr><th>Level</th><th>Wager Required</th><th>Payout</th></tr></thead>
+            <thead><tr><th>Level</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr class="tbl-on" id="lvl-stone"><td><strong>Stone &#10003;</strong></td><td>0 TRX</td><td>0.005000 TRX</td></tr>
-              <tr id="lvl-iron"><td>Iron</td><td>30 TRX</td><td>0.010000 TRX</td></tr>
-              <tr id="lvl-bronze"><td>Bronze</td><td>300 TRX</td><td>0.020000 TRX</td></tr>
-              <tr id="lvl-silver"><td>Silver</td><td>1,000 TRX</td><td>0.070000 TRX</td></tr>
-              <tr id="lvl-gold"><td>Gold</td><td>3,000 TRX</td><td>0.500000 TRX</td></tr>
-              <tr id="lvl-platinum"><td>Platinum</td><td>10,000 TRX</td><td>5.000000 TRX</td></tr>
-              <tr id="lvl-diamond"><td>Diamond</td><td>30,000 TRX</td><td>15.000000 TRX</td></tr>
-              <tr id="lvl-master"><td>Master</td><td>100,000 TRX</td><td>60.000000 TRX</td></tr>
+              <tr class="tbl-on" id="lvl-stone"><td><strong>Stone &#10003;</strong></td><td>0.005000 TRX</td></tr>
+              <tr id="lvl-iron"><td>Iron</td><td>0.010000 TRX</td></tr>
+              <tr id="lvl-bronze"><td>Bronze</td><td>0.020000 TRX</td></tr>
+              <tr id="lvl-silver"><td>Silver</td><td>0.070000 TRX</td></tr>
+              <tr id="lvl-gold"><td>Gold</td><td>0.500000 TRX</td></tr>
+              <tr id="lvl-platinum"><td>Platinum</td><td>5.000000 TRX</td></tr>
+              <tr id="lvl-diamond"><td>Diamond</td><td>15.000000 TRX</td></tr>
+              <tr id="lvl-master"><td>Master</td><td>60.000000 TRX</td></tr>
             </tbody>
           </table>
         </div>
