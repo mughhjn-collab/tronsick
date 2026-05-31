@@ -273,3 +273,75 @@ a{text-decoration:none;color:inherit}
   .hero-left{padding-left:0;text-align:center}
   .hero-btns{justify-content:center}
 }
+/* ══════════════════════════════════════
+   ISOMETRIC DASHBOARD ILLUSTRATION
+   ══════════════════════════════════════ */
+.hero-img-col{display:flex;align-items:center;justify-content:center;position:relative}
+.dash-illus{position:relative;width:420px;height:420px;flex-shrink:0}
+
+/* -- Phone device -- */
+.di-phone{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-42%);
+  width:160px;height:260px;
+  background:linear-gradient(160deg,#1a2535,#0d1520);
+  border-radius:22px;
+  border:1.5px solid rgba(163,230,53,.25);
+  box-shadow:0 0 40px rgba(163,230,53,.12),0 20px 60px rgba(0,0,0,.6);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  overflow:visible;
+}
+.di-screen{
+  width:130px;height:190px;
+  background:linear-gradient(160deg,#0a1a12,#061008);
+  border-radius:14px;
+  border:1px solid rgba(163,230,53,.15);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 30px rgba(163,230,53,.08);
+  position:relative;
+}
+.di-tron{width:80px;height:80px;animation:tronPulse 3s ease-in-out infinite}
+@keyframes tronPulse{0%,100%{opacity:.85;filter:drop-shadow(0 0 8px #a3e635)}50%{opacity:1;filter:drop-shadow(0 0 20px #a3e635)}}
+
+/* -- Bottom of phone -- */
+.di-bot{position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px}
+.di-tron-sm{width:36px;height:36px;background:#0d1a10;border:1px solid rgba(163,230,53,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 0 12px rgba(163,230,53,.2)}
+.di-tron-sm svg{width:24px;height:24px}
+.di-disc{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle,#1a2535,#0d1520);border:1.5px solid rgba(163,230,53,.25);box-shadow:0 0 10px rgba(163,230,53,.15)}
+
+/* -- Notification cards -- */
+.di-card{
+  position:absolute;
+  background:rgba(10,22,14,.92);
+  border:1px solid rgba(163,230,53,.2);
+  border-radius:12px;
+  padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 8px 24px rgba(0,0,0,.5),0 0 0 1px rgba(163,230,53,.07);
+  min-width:140px;
+  animation:cardFloat 4s ease-in-out infinite;
+}
+.di-card-tl{top:32px;left:0;animation-delay:0s}
+.di-card-tr{top:44px;right:0;animation-delay:.8s}
+.di-card-br{bottom:60px;right:8px;animation-delay:1.6s}
+@keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.di-card-icon{font-size:18px;width:30px;height:30px;background:rgba(163,230,53,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.di-card-val{font-size:14px;font-weight:800;color:#a3e635;font-family:'JetBrains Mono',monospace;line-height:1}
+.di-card-lbl{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* -- Sparkle dots -- */
+.sp{position:absolute;border-radius:50%;background:#a3e635;animation:spTwinkle 3s ease-in-out infinite}
+.sp1{width:3px;height:3px;top:15%;left:15%;animation-delay:0s}
+.sp2{width:4px;height:4px;top:10%;left:55%;animation-delay:.4s}
+.sp3{width:2px;height:2px;top:25%;right:12%;animation-delay:.8s}
+.sp4{width:3px;height:3px;bottom:20%;left:10%;animation-delay:1.2s}
+.sp5{width:2px;height:2px;bottom:15%;right:20%;animation-delay:1.6s}
+.sp6{width:4px;height:4px;top:60%;left:5%;animation-delay:2s}
+.sp7{width:2px;height:2px;top:40%;right:5%;animation-delay:2.4s}
+.sp8{width:3px;height:3px;bottom:30%;left:30%;animation-delay:2.8s}
+@keyframes spTwinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
+
+@media(max-width:860px){.hero-img-col{display:none}}

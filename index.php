@@ -51,8 +51,65 @@
   <div class="hero-overlay"></div>
   <div class="hero-wrap">
     <!-- LEFT: Dashboard Illustration -->
+    <!-- LEFT: CSS Isometric Dashboard Illustration -->
     <div class="hero-img-col" id="heroImgCol">
-      <img src="hero-illustration.png" alt="TronSick Dashboard" class="hero-illus" id="heroIllus"/>
+      <div class="dash-illus" id="dashIllus">
+
+        <!-- Sparkle dots -->
+        <div class="sp sp1"></div><div class="sp sp2"></div><div class="sp sp3"></div>
+        <div class="sp sp4"></div><div class="sp sp5"></div><div class="sp sp6"></div>
+        <div class="sp sp7"></div><div class="sp sp8"></div>
+
+        <!-- Notification card: Faucet Claim -->
+        <div class="di-card di-card-tl">
+          <div class="di-card-icon" style="color:#a3e635">&#10003;</div>
+          <div>
+            <div class="di-card-val">+60 TRX</div>
+            <div class="di-card-lbl">Faucet Claim</div>
+          </div>
+        </div>
+
+        <!-- Notification card: Daily Bonus -->
+        <div class="di-card di-card-tr">
+          <div class="di-card-icon">&#127873;</div>
+          <div>
+            <div class="di-card-lbl">Daily Bonus</div>
+            <div class="di-card-val">+25 TRX</div>
+          </div>
+        </div>
+
+        <!-- Phone device -->
+        <div class="di-phone">
+          <div class="di-screen">
+            <!-- TRON Logo SVG -->
+            <svg class="di-tron" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <polygon points="40,6 72,62 8,62" fill="none" stroke="#a3e635" stroke-width="3" filter="url(#glow)"/>
+              <polygon points="40,20 60,56 20,56" fill="rgba(163,230,53,0.12)" stroke="#a3e635" stroke-width="1.5" filter="url(#glow)"/>
+              <circle cx="40" cy="42" r="6" fill="#a3e635" filter="url(#glow)"/>
+            </svg>
+          </div>
+          <!-- Bottom elements -->
+          <div class="di-bot">
+            <div class="di-tron-sm">
+              <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><polygon points="15,2 27,24 3,24" fill="none" stroke="#a3e635" stroke-width="2"/></svg>
+            </div>
+            <div class="di-disc"></div>
+          </div>
+        </div>
+
+        <!-- Notification card: Referral Earned -->
+        <div class="di-card di-card-br">
+          <div class="di-card-icon">&#128100;</div>
+          <div>
+            <div class="di-card-lbl">Referral Earned</div>
+            <div class="di-card-val">+120 TRX</div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- RIGHT: Content -->
