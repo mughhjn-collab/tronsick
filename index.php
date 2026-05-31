@@ -52,35 +52,41 @@
   <div class="hero-wrap">
 
     <!-- LEFT: Feature Highlights -->
+    <!-- LEFT: Feature Highlights -->
     <div class="hero-feats-col" id="heroFeatsCol">
+
       <div class="hf-item">
-        <div class="hf-bar"></div>
+        <span class="hf-num">01</span>
         <div class="hf-text">
-          <strong>Free Faucet Every 40 Minutes</strong>
-          <span>Claim real TRX around the clock — no deposit, no surveys, no tricks</span>
+          <strong>Free Faucet &mdash; Every 40 Minutes</strong>
+          <span>Claim up to 60 TRX straight to your balance. No deposit, no surveys. Just show up and collect.</span>
         </div>
       </div>
+
       <div class="hf-item">
-        <div class="hf-bar"></div>
+        <span class="hf-num">02</span>
         <div class="hf-text">
           <strong>Weekly Contest &amp; Daily Cashback</strong>
-          <span>Top earners split a prize pool every Monday, and losers get auto-cashback every night</span>
+          <span>Top earners split a prize pool every Monday. Lose a day? Auto-cashback refunds a % back &mdash; overnight, automatically.</span>
         </div>
       </div>
+
       <div class="hf-item">
-        <div class="hf-bar"></div>
+        <span class="hf-num">03</span>
         <div class="hf-text">
-          <strong>50% Referral Commission — Forever</strong>
-          <span>Every claim your referral makes pays you 50% instantly, no cap, no expiry</span>
+          <strong>50% Referral Income &mdash; For Life</strong>
+          <span>Every claim your referral makes puts 50% straight into your balance. No limits. No expiry. Passive income that never stops.</span>
         </div>
       </div>
+
       <div class="hf-item">
-        <div class="hf-bar"></div>
+        <span class="hf-num">04</span>
         <div class="hf-text">
           <strong>9 Provably Fair Casino Games</strong>
-          <span>Dice, Mines, Tower, Keno, Limbo, Wheel &amp; more — all cryptographically verifiable</span>
+          <span>Dice, Mines, Tower, Limbo, Keno, Wheel &amp; more. Every result is cryptographically verifiable &mdash; we cannot cheat.</span>
         </div>
       </div>
+
     </div>
 
     <!-- RIGHT: Content -->
