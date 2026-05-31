@@ -2013,6 +2013,7 @@ function initDeposit(){
   var user  = localStorage.getItem('userName')  || 'guest';
   var email = localStorage.getItem('userEmail') || 'user@tronsick.io';
   var cached = localStorage.getItem('dep_addr_' + user);
+  // Show cached address immediately (fast UX)
   if(cached) _depShowAddress(cached);
   fetch('/oxapay_deposit.php?user=' + encodeURIComponent(user) + '&email=' + encodeURIComponent(email))
     .then(function(r){return r.json();})
@@ -2021,13 +2022,22 @@ function initDeposit(){
         localStorage.setItem('dep_addr_' + user, d.address);
         _depShowAddress(d.address, d.qr_url);
       } else {
-        var addrEl = document.getElementById('depAddr');
-        var ld = document.getElementById('depQrLoading');
-        if(addrEl) addrEl.value = 'Error: ' + (d.error || 'Failed');
-        if(ld) ld.innerHTML = '<span style="color:#ef4444;font-size:12px">' + (d.error || 'Error loading address') + '</span>';
+        // If we already have a cached address, keep showing it — don't override with error
+        if(cached){
+          _depShowAddress(cached);
+        } else {
+          var addrEl = document.getElementById('depAddr');
+          var ld = document.getElementById('depQrLoading');
+          if(addrEl) addrEl.value = 'Unable to load address. Contact support.';
+          if(ld) ld.innerHTML = '<span style="color:#f59e0b;font-size:12px">⚠ ' + (d.error || 'Please try again') + '</span>';
+        }
       }
     })
-    .catch(function(e){ var a=document.getElementById('depAddr'); if(a) a.value='Connection error. Refresh and try again.'; });
+    .catch(function(e){
+      // On network error, keep cached address visible
+      if(cached){ _depShowAddress(cached); }
+      else { var a=document.getElementById('depAddr'); if(a) a.value='Connection error. Please refresh.'; }
+    });
   _depStartPoll(user);
   _depLoadTx(user);
 }

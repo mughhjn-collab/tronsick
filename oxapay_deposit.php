@@ -1,110 +1,91 @@
-﻿<?php
+<?php
 /**
- * OxaPay Deposit Backend
- * Creates a static TRX wallet address per user via OxaPay API
- * Returns JSON: {success, address, qr_url, error}
+ * OxaPay Deposit Backend — Fixed response parser
+ * OxaPay returns: {"data":{"address":"T...","qr_code":"...","track_id":"..."},"message":"Operation completed successfully!","status":200}
  */
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-// ── CONFIG ────────────────────────────────────────────
-define('OXAPAY_MERCHANT_KEY', 'B5CXIY-CK6Z0Y-NKKTI7-JR6C1N');
-define('OXAPAY_API_URL', 'https://api.oxapay.com/v1/payment/static-address');
-define('SITE_URL', 'https://tronsick.io');
+define('OXAPAY_KEY',   'B5CXIY-CK6Z0Y-NKKTI7-JR6C1N');
+define('OXAPAY_API',   'https://api.oxapay.com/v1/payment/static-address');
+define('SITE_URL',     'https://tronsick.io');
 define('DEPOSIT_FILE', __DIR__ . '/deposits.json');
-// ──────────────────────────────────────────────────────
 
-// Read merchant key from admin settings file
-$adminKey = '';
+// Key from admin_keys.json or hardcoded fallback
+$apiKey = OXAPAY_KEY;
 $keysFile = __DIR__ . '/admin_keys.json';
 if(file_exists($keysFile)){
-    $keys = json_decode(file_get_contents($keysFile), true);
-    $adminKey = $keys['oxa_key'] ?? OXAPAY_MERCHANT_KEY;
-}
-// Fallback: check POST param (for testing)
-if(!$adminKey && isset($_POST['key'])) $adminKey = trim($_POST['key']);
-
-if(empty($adminKey)){
-    echo json_encode(['success'=>false,'error'=>'OxaPay API key not configured. Set it in Admin → Payment Gateway.']);
-    exit;
+    $k = json_decode(file_get_contents($keysFile), true) ?: [];
+    if(!empty($k['oxa_key'])) $apiKey = $k['oxa_key'];
 }
 
-$user   = trim($_GET['user']  ?? $_POST['user']  ?? 'guest');
-$email  = trim($_GET['email'] ?? $_POST['email'] ?? 'user@tronsick.io');
-$userId = preg_replace('/[^a-zA-Z0-9_-]/', '', $user);
+$user  = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['user'] ?? $_POST['user'] ?? 'guest');
+$email = trim($_GET['email'] ?? $_POST['email'] ?? 'user@tronsick.io');
+if(!$user) $user = 'guest';
 
-// Check if this user already has a saved address
-$depositData = [];
+// ── Return cached address if already generated ──────────
+$deps = [];
 if(file_exists(DEPOSIT_FILE)){
-    $depositData = json_decode(file_get_contents(DEPOSIT_FILE), true) ?: [];
+    $deps = json_decode(file_get_contents(DEPOSIT_FILE), true) ?: [];
 }
-if(isset($depositData[$userId]['address'])){
-    $addr = $depositData[$userId]['address'];
+if(!empty($deps[$user]['address'])){
+    $a = $deps[$user]['address'];
     echo json_encode([
-        'success'  => true,
-        'address'  => $addr,
-        'qr_url'   => 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='.urlencode($addr),
-        'cached'   => true
+        'success' => true,
+        'address' => $a,
+        'qr_url'  => 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='.urlencode($a),
+        'cached'  => true
     ]);
     exit;
 }
 
-// Create new static address via OxaPay
+// ── Call OxaPay API ─────────────────────────────────────
 $payload = json_encode([
     'currency'    => 'TRX',
     'network'     => 'TRX',
     'callbackUrl' => SITE_URL . '/oxapay_webhook.php',
     'email'       => $email,
-    'orderId'     => 'TSK_' . $userId . '_' . time()
+    'orderId'     => 'TSK_' . $user
 ]);
 
-$ch = curl_init(OXAPAY_API_URL);
+$ch = curl_init(OXAPAY_API);
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST           => true,
     CURLOPT_POSTFIELDS     => $payload,
-    CURLOPT_HTTPHEADER     => [
-        'Content-Type: application/json',
-        'merchant_api_key: ' . $adminKey
-    ],
-    CURLOPT_TIMEOUT        => 15,
-    CURLOPT_SSL_VERIFYPEER => true
+    CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'merchant_api_key: '.$apiKey],
+    CURLOPT_TIMEOUT        => 20,
+    CURLOPT_SSL_VERIFYPEER => false
 ]);
-$resp = curl_exec($ch);
-$err  = curl_error($ch);
+$resp    = curl_exec($ch);
+$curlErr = curl_error($ch);
 curl_close($ch);
 
-if($err){
-    echo json_encode(['success'=>false,'error'=>'cURL error: '.$err]);
+if($curlErr){
+    echo json_encode(['success'=>false,'error'=>'Connection error: '.$curlErr]);
     exit;
 }
 
-$data = json_decode($resp, true);
-if(!$data){
-    echo json_encode(['success'=>false,'error'=>'Invalid API response','raw'=>substr($resp,0,200)]);
-    exit;
-}
+$r = json_decode($resp, true);
+if(!$r){ echo json_encode(['success'=>false,'error'=>'Invalid response from OxaPay']); exit; }
 
-if(isset($data['result']) && $data['result'] === 'ok' && isset($data['data']['address'])){
-    $addr = $data['data']['address'];
-    // Save to deposits file
-    $depositData[$userId] = [
-        'address'  => $addr,
-        'email'    => $email,
-        'created'  => time(),
-        'balance'  => 0
-    ];
-    file_put_contents(DEPOSIT_FILE, json_encode($depositData, JSON_PRETTY_PRINT));
+// ── ACTUAL OxaPay format: {"data":{"address":"T..."},"message":"...","status":200} ──
+$addr   = $r['data']['address'] ?? null;
+$qrCode = $r['data']['qr_code'] ?? null;
+
+// Fallbacks for other possible formats
+if(!$addr) $addr = $r['address'] ?? $r['wallet'] ?? $r['data']['wallet'] ?? null;
+
+if($addr){
+    // Save to deposits.json
+    $deps[$user] = ['address'=>$addr, 'email'=>$email, 'created'=>time(), 'balance'=>0];
+    file_put_contents(DEPOSIT_FILE, json_encode($deps, JSON_PRETTY_PRINT));
 
     echo json_encode([
         'success' => true,
         'address' => $addr,
-        'qr_url'  => 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='.urlencode($addr)
+        'qr_url'  => $qrCode ?: 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='.urlencode($addr)
     ]);
 } else {
-    echo json_encode([
-        'success' => false,
-        'error'   => $data['message'] ?? 'OxaPay error',
-        'data'    => $data
-    ]);
+    echo json_encode(['success'=>false,'error'=>$r['message'] ?? 'Could not generate address']);
 }
