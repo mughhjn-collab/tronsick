@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -61,7 +61,7 @@
 <body>
 
 <div class="top-bar">
-  <a href="index.php" class="tb-logo">Tron<span>Sick</span></a>
+  <a href="index.php?landing=1" class="tb-logo">Tron<span>Sick</span></a>
 </div>
 
 <div class="auth-wrap">

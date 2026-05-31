@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -132,9 +132,9 @@
 
 <!-- TOPBAR -->
 <div class="top-bar">
-  <a href="index.php" class="tb-logo">Tron<span>Sick</span></a>
+  <a href="index.php?landing=1" class="tb-logo">Tron<span>Sick</span></a>
   <nav class="tb-nav">
-    <a href="index.php" class="tb-home">Home</a>
+    <a href="index.php?landing=1" class="tb-home">Home</a>
     <a href="login.php" class="tb-active" id="navLoginLink">Log In</a>
     <a href="login.php?tab=register" class="tb-signup" id="navSignupLink">Sign Up</a>
   </nav>
@@ -560,11 +560,11 @@ function handleReg(e){
 <!-- FOOTER -->
 <footer class="auth-footer">
   <div class="auth-footer-links">
-    <a href="index.php">Home</a>
-    <a href="index.php#features">Features</a>
-    <a href="index.php#games">Games</a>
-    <a href="index.php#faq">FAQ</a>
-    <a href="index.php#payouts">Payouts</a>
+    <a href="index.php?landing=1">Home</a>
+    <a href="index.php?landing=1#features">Features</a>
+    <a href="index.php?landing=1#games">Games</a>
+    <a href="index.php?landing=1#faq">FAQ</a>
+    <a href="index.php?landing=1#payouts">Payouts</a>
   </div>
   <div class="auth-footer-copy">&copy; 2026 TronSick.io &mdash; Free TRX Faucet &amp; Casino</div>
 </footer>
