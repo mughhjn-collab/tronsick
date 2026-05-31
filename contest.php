@@ -751,26 +751,30 @@
 <script>
 window._INIT_SECTION='contest';
 
-// LIVE COUNTDOWN — fixed 6d10h repeating cycle, updates every 1 minute
+// LIVE COUNTDOWN — 6d10h cycle from most recent Monday 10:00 UTC
 (function contestTimer(){
   function pad(n){return n<10?'0'+n:''+n;}
-  // Anchor: Mon 2026-06-02 10:00 UTC (known past Monday)
-  var ANCHOR = 1748340000000; // Mon May 26 2025 10:00:00 UTC
-  var CYCLE  = ((6*24)+10)*3600*1000; // 6d10h in ms = 554400000
   function getEnd(){
-    var now = Date.now();
-    var elapsed = now - ANCHOR;
-    var cycleNum = Math.ceil(elapsed / CYCLE);
-    if(cycleNum < 1) cycleNum = 1;
-    return ANCHOR + cycleNum * CYCLE;
+    var now = new Date();
+    // Get today at 10:00 UTC
+    var d = new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),10,0,0,0));
+    // Go back to most recent Monday
+    var dow = d.getUTCDay(); // 0=Sun,1=Mon,...,6=Sat
+    var daysBack = dow === 0 ? 6 : dow - 1;
+    d.setUTCDate(d.getUTCDate() - daysBack);
+    // If that Monday 10:00 is in the future, go back one more week
+    if(d > now) d.setUTCDate(d.getUTCDate() - 7);
+    // Contest ends 6 days 10 hours after that Monday
+    return new Date(d.getTime() + 554400000);
   }
   function tick(){
-    var ms = getEnd() - Date.now();
+    var end = getEnd();
+    var ms = end - Date.now();
     if(ms < 0) ms = 0;
     var totalMins = Math.floor(ms / 60000);
-    var mins  = totalMins % 60;
-    var hours = Math.floor(totalMins / 60) % 24;
     var days  = Math.floor(totalMins / 1440);
+    var hours = Math.floor(totalMins / 60) % 24;
+    var mins  = totalMins % 60;
     var dEl=document.getElementById('ctCkDays');
     var hEl=document.getElementById('ctCkHours');
     var mEl=document.getElementById('ctCkMins');
