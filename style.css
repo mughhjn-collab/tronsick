@@ -237,7 +237,7 @@ a{text-decoration:none;color:inherit}
 .hab-row span{font-size:11px;color:rgba(255,255,255,.4);line-height:1}
 /* -- HERO IMAGE COL -- */
 .hero-img-col{display:flex;align-items:center;justify-content:center}
-.hero-illus{width:100%;max-width:460px;height:auto;animation:floatImg 4s ease-in-out infinite;filter:drop-shadow(0 20px 40px rgba(0,0,0,.4))}
+.hero-illus{width:80%;max-width:340px;height:auto;animation:floatImg 4s ease-in-out infinite;filter:drop-shadow(0 12px 28px rgba(0,0,0,.3))}
 @keyframes floatImg{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
 @media(max-width:768px){
   .hero-wrap{grid-template-columns:1fr}
