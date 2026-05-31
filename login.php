@@ -3,194 +3,380 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Log In – TronSick</title>
+  <title>Login / Sign Up – TronSick | Free TRX Faucet & Casino</title>
+  <meta name="description" content="Log in or create your free TronSick account. Claim free TRX every 40 minutes, compete in weekly contests, earn daily cashback, and play 9 provably fair games."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="auth.css"/>
+  <script>
+    // If already logged in, go to dashboard
+    if(localStorage.getItem('userLoggedIn')==='1' && localStorage.getItem('userName')){
+      window.location.replace('faucet.php');
+    }
+  </script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:'Inter',sans-serif}
+    body{background:#2a3f36;min-height:100vh;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+
+    /* ── TOPBAR ── */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;position:relative;z-index:10}
+    .tb-logo{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px}
+    .tb-logo span{color:#a3e635}
+    .tb-back{font-size:13px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px;transition:color .2s}
+    .tb-back:hover{color:#a3e635}
+
+    /* ── MAIN LAYOUT ── */
+    .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px 48px}
+
+    /* ── CARD ── */
+    .auth-card{background:#1e3530;border-radius:16px;padding:38px 40px 40px;width:100%;max-width:448px;box-shadow:0 32px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06)}
+
+    /* ── LOGO ROW ── */
+    .al-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+    .al-icon{width:36px;height:36px;border-radius:9px;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:5px;background:#132920;flex-shrink:0}
+    .al-icon span{border-radius:3px;display:block}
+    .al-icon .c1{background:#e11d48}
+    .al-icon .c2{background:#f59e0b}
+    .al-icon .c3{background:#22c55e}
+    .al-icon .c4{background:#3b82f6}
+    .al-logo-txt{font-size:20px;font-weight:900;color:#fff;letter-spacing:-.3px}
+    .al-logo-txt span{color:#a3e635}
+
+    /* ── TABS ── */
+    .auth-tabs{display:flex;gap:0;margin-bottom:26px;background:#132920;border-radius:10px;padding:4px}
+    .auth-tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;border-radius:8px;transition:all .2s;border:none;background:none;font-family:inherit}
+    .auth-tab.active{background:#2a4a3e;color:#a3e635;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+
+    /* ── FORM ── */
+    .auth-form{display:none}
+    .auth-form.active{display:block}
+
+    .ff{margin-bottom:14px}
+    .ff label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+    .ff-iw{position:relative}
+    .ff-iw input{width:100%;padding:12px 40px 12px 14px;background:#132920;border:1.5px solid rgba(255,255,255,.08);border-radius:9px;font-size:14px;color:#fff;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+    .ff-iw input:focus{border-color:#a3e635;box-shadow:0 0 0 3px rgba(163,230,53,.1)}
+    .ff-iw input::placeholder{color:rgba(255,255,255,.2)}
+    .ff-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,.3);font-size:16px;line-height:1;padding:0;transition:color .2s}
+    .ff-eye:hover{color:rgba(255,255,255,.6)}
+    .ff-plain input{padding:12px 14px}
+
+    /* ── ERROR ── */
+    .auth-err{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:14px}
+
+    /* ── SUB ROW ── */
+    .ff-subrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .ff-subrow label{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.3px}
+    .ff-link{font-size:12px;color:#a3e635;font-weight:600;cursor:pointer}
+    .ff-link:hover{text-decoration:underline}
+
+    /* ── SUBMIT BTN ── */
+    .auth-btn{width:100%;padding:13px;background:#a3e635;border:none;border-radius:9px;font-size:15px;font-weight:800;color:#0f1a10;cursor:pointer;font-family:inherit;letter-spacing:.5px;text-transform:uppercase;transition:background .2s,transform .15s,box-shadow .2s;margin-top:6px}
+    .auth-btn:hover{background:#b8f24a;transform:translateY(-1px);box-shadow:0 6px 20px rgba(163,230,53,.3)}
+    .auth-btn:active{transform:translateY(0)}
+    .auth-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+    /* ── SWITCH TEXT ── */
+    .auth-switch{text-align:center;margin-top:18px;font-size:13px;color:rgba(255,255,255,.4)}
+    .auth-switch a,.auth-switch button{color:#a3e635;font-weight:700;background:none;border:none;cursor:pointer;font-size:13px;font-family:inherit}
+    .auth-switch a:hover,.auth-switch button:hover{text-decoration:underline}
+
+    /* ── DIVIDER ── */
+    .auth-divider{height:1px;background:rgba(255,255,255,.07);margin:18px 0}
+
+    /* ── BENEFITS STRIP ── */
+    .auth-benefits{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+    .benefit-chip{display:flex;align-items:center;gap:5px;background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.15);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:600;color:rgba(255,255,255,.6)}
+    .benefit-chip i{color:#a3e635;font-size:10px}
+
+    /* ── OPTIONAL LABEL ── */
+    .opt-label{font-size:11px;color:rgba(255,255,255,.25);margin-left:6px;font-weight:400;text-transform:none;letter-spacing:0}
+
+    /* ── SIDE INFO ── */
+    .auth-info{text-align:center;margin-top:22px;padding-top:22px;border-top:1px solid rgba(255,255,255,.06)}
+    .auth-info-title{font-size:12px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+    .auth-stats{display:flex;justify-content:center;gap:24px}
+    .astat{text-align:center}
+    .astat-val{font-size:18px;font-weight:900;color:#a3e635}
+    .astat-lbl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:480px){
+      .auth-card{padding:28px 22px 32px}
+      .top-bar{padding:14px 20px}
+    }
+  </style>
 </head>
 <body>
-<div class="auth-page">
 
-  <!-- LEFT PANEL -->
-  <div class="auth-left">
-    <a href="index.php" class="al-logo">Tron<span>Sick</span></a>
-    <h2 class="al-h">Welcome Back.</h2>
-    <p class="al-p">Your faucet timer is running. Log in now and claim your free TRX before the next reset.</p>
-    <div class="al-perks">
-      <div class="al-perk"><span class="al-ck">✓</span><span>Claim free TRX every <strong>30 minutes</strong></span></div>
-      <div class="al-perk"><span class="al-ck">✓</span><span>Earn <strong>50% referral commission</strong> for life</span></div>
-      <div class="al-perk"><span class="al-ck">✓</span><span>9 provably fair games — <strong>1% house edge</strong></span></div>
-      <div class="al-perk"><span class="al-ck">✓</span><span>Instant withdrawals — <strong>no delays or fees</strong></span></div>
+<!-- TOPBAR -->
+<div class="top-bar">
+  <a href="index.php" class="tb-logo">Tron<span>Sick</span></a>
+  <a href="index.php" class="tb-back">← Back to Home</a>
+</div>
+
+<!-- AUTH CARD -->
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <!-- Logo -->
+    <div class="al-logo-row">
+      <div class="al-icon"><span class="c1"></span><span class="c2"></span><span class="c3"></span><span class="c4"></span></div>
+      <div class="al-logo-txt">Tron<span>Sick</span></div>
     </div>
-    <div class="al-stats">
-      <div class="al-stat"><strong>47K+</strong><span>Active Users</span></div>
-      <div class="al-stat"><strong>1.28M</strong><span>TRX Paid Out</span></div>
-      <div class="al-stat"><strong>40 Min</strong><span>Faucet Timer</span></div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">LOG IN</button>
+      <button class="auth-tab" id="tabReg" onclick="switchTab('register')">SIGN UP</button>
     </div>
-  </div>
 
-  <!-- RIGHT PANEL -->
-  <div class="auth-right">
-    <div class="ar-topbar">
-      <span>New to TronSick?</span>
-      <a href="register.php">Create free account →</a>
-    </div>
-    <div class="ar-body">
-      <div class="ar-card">
-        <h2>Log In to Your Account</h2>
-        <p class="ar-switch">No account yet? <a href="register.php">Sign up free →</a></p>
+    <!-- ══════════ LOGIN FORM ══════════ -->
+    <form class="auth-form active" id="formLogin" onsubmit="handleLogin(event)">
+      <div class="auth-err" id="loginErr"></div>
 
-        <form onsubmit="handleLogin(event)">
+      <div class="ff ff-plain">
+        <label>Username or Email</label>
+        <div class="ff-iw"><input type="text" id="lId" placeholder="Enter username or email" autocomplete="username"/></div>
+      </div>
 
-          <div class="ff">
-            <label for="lId">Email Address or Username</label>
-            <div class="ff-iw">
-              <input type="text" id="lId" placeholder="email@example.com or @username" required autocomplete="username"/>
-            </div>
-          </div>
+      <div class="ff">
+        <div class="ff-subrow">
+          <label>Password</label>
+          <span class="ff-link" onclick="showForgot()">Forgot password?</span>
+        </div>
+        <div class="ff-iw">
+          <input type="password" id="lPw" placeholder="Enter password" autocomplete="current-password"/>
+          <button type="button" class="ff-eye" onclick="toggleVis('lPw',this)">👁</button>
+        </div>
+      </div>
 
-          <div class="ff">
-            <div class="ff-lrow">
-              <label for="lPw">Password</label>
-              <a href="forgot.html" class="ff-forgot">Forgot password?</a>
-            </div>
-            <div class="ff-iw">
-              <input type="password" id="lPw" placeholder="Enter your password" required autocomplete="current-password"/>
-              <button type="button" class="ff-eye" onclick="toggleVis('lPw',this)">👁</button>
-            </div>
-          </div>
+      <button type="submit" class="auth-btn" id="loginBtn">LOG IN TO MY ACCOUNT</button>
 
-          <div class="twofa-box">
-            <span class="tfl">Two-Factor Authentication (2FA)</span>
-            <input type="text" id="l2fa" placeholder="Enter 6-digit code — leave blank if 2FA not enabled" maxlength="6" inputmode="numeric" autocomplete="one-time-code"/>
-            <p class="tfd">Only required if you have 2FA enabled in your account settings.</p>
-          </div>
+      <div class="auth-switch">Not a member? <button type="button" onclick="switchTab('register')">Sign Up Free →</button></div>
+    </form>
 
-          <div class="ff-remrow">
-            <label class="ff-rem">
-              <input type="checkbox" id="lRem"/> Keep me logged in for 30 days
-            </label>
-          </div>
+    <!-- ══════════ REGISTER FORM ══════════ -->
+    <form class="auth-form" id="formReg" onsubmit="handleReg(event)">
+      <div class="auth-err" id="regErr"></div>
 
-          <div class="ff-err" id="loginErr"></div>
+      <!-- Benefits -->
+      <div class="auth-benefits">
+        <div class="benefit-chip"><i>✓</i> Free TRX every 40 min</div>
+        <div class="benefit-chip"><i>✓</i> Weekly contest</div>
+        <div class="benefit-chip"><i>✓</i> Daily cashback</div>
+        <div class="benefit-chip"><i>✓</i> 50% referral bonus</div>
+      </div>
 
-          <button type="submit" class="auth-btn" id="loginBtn">LOG IN TO MY ACCOUNT</button>
+      <div class="ff ff-plain">
+        <label>Username</label>
+        <div class="ff-iw"><input type="text" id="rUser" placeholder="Choose a username" autocomplete="username"/></div>
+      </div>
 
-          <div class="ff-div"><span>or continue with</span></div>
-          <button type="button" class="google-btn" onclick="alert('Google login coming soon')">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google
-          </button>
+      <div class="ff ff-plain">
+        <label>Email</label>
+        <div class="ff-iw"><input type="email" id="rEmail" placeholder="Your email address" autocomplete="email"/></div>
+      </div>
 
-          <p class="auth-note">Protected by encryption · <a href="#">Privacy Policy</a> · <a href="#">Terms</a></p>
-        </form>
+      <div class="ff">
+        <label>Password</label>
+        <div class="ff-iw">
+          <input type="password" id="rPw" placeholder="Create a password (min. 8 chars)" autocomplete="new-password"/>
+          <button type="button" class="ff-eye" onclick="toggleVis('rPw',this)">👁</button>
+        </div>
+      </div>
+
+      <div class="ff">
+        <label>Repeat Password</label>
+        <div class="ff-iw">
+          <input type="password" id="rPw2" placeholder="Repeat password" autocomplete="new-password"/>
+          <button type="button" class="ff-eye" onclick="toggleVis('rPw2',this)">👁</button>
+        </div>
+      </div>
+
+      <div class="ff ff-plain">
+        <label>Referrer <span class="opt-label">(Optional)</span></label>
+        <div class="ff-iw"><input type="text" id="rRef" placeholder="Referrer username"/></div>
+      </div>
+
+      <button type="submit" class="auth-btn" id="regBtn">CREATE FREE ACCOUNT</button>
+      <div class="auth-switch">Already have an account? <button type="button" onclick="switchTab('login')">Log In →</button></div>
+    </form>
+
+    <!-- Stats strip -->
+    <div class="auth-info">
+      <div class="auth-info-title">Join 47,000+ earners</div>
+      <div class="auth-stats">
+        <div class="astat"><div class="astat-val">40m</div><div class="astat-lbl">Faucet Timer</div></div>
+        <div class="astat"><div class="astat-val">9</div><div class="astat-lbl">Casino Games</div></div>
+        <div class="astat"><div class="astat-val">50%</div><div class="astat-lbl">Referral Cut</div></div>
+        <div class="astat"><div class="astat-val">24h</div><div class="astat-lbl">Cashback</div></div>
       </div>
     </div>
+
   </div>
-
 </div>
+
 <script>
-function toggleVis(id, btn) {
-  const i = document.getElementById(id);
-  i.type = i.type === 'password' ? 'text' : 'password';
-  btn.textContent = i.type === 'password' ? '👁' : '🙈';
+// ── TAB SWITCH ──────────────────────────────
+function switchTab(tab){
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabReg').classList.toggle('active', tab==='register');
+  document.getElementById('formLogin').classList.toggle('active', tab==='login');
+  document.getElementById('formReg').classList.toggle('active', tab==='register');
+  // Clear errors
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('regErr').style.display='none';
 }
-function handleLogin(e) {
+
+// ── PASSWORD TOGGLE ──────────────────────────
+function toggleVis(id, btn){
+  const i = document.getElementById(id);
+  i.type = i.type==='password' ? 'text' : 'password';
+  btn.textContent = i.type==='password' ? '👁' : '🙈';
+}
+
+// ── FORGOT PASSWORD ──────────────────────────
+function showForgot(){
+  var err = document.getElementById('loginErr');
+  err.style.display='block';
+  err.style.background='rgba(163,230,53,.08)';
+  err.style.borderColor='rgba(163,230,53,.2)';
+  err.style.color='#a3e635';
+  err.textContent='Password recovery: Please contact support at support@tronsick.io with your username.';
+}
+
+// ── CHECK URL PARAM (auto show register tab) ──
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  if(p.get('tab')==='register') switchTab('register');
+})();
+
+// ── LOGIN ────────────────────────────────────
+function handleLogin(e){
   e.preventDefault();
-  const err = document.getElementById('loginErr');
-  const id = document.getElementById('lId').value.trim();
-  const pw = document.getElementById('lPw').value;
-  if (!id || !pw) { err.style.display='block'; err.textContent='Please enter your email/username and password.'; return; }
+  var err = document.getElementById('loginErr');
+  var id  = document.getElementById('lId').value.trim();
+  var pw  = document.getElementById('lPw').value;
+  err.style.background='rgba(239,68,68,.1)';
+  err.style.borderColor='rgba(239,68,68,.25)';
+  err.style.color='#f87171';
+  if(!id||!pw){ err.style.display='block'; err.textContent='Please enter your username/email and password.'; return; }
   err.style.display='none';
-  const btn = document.getElementById('loginBtn');
+  var btn = document.getElementById('loginBtn');
   btn.textContent='Logging in…'; btn.disabled=true;
-  setTimeout(() => {
-    // Determine username from input
-    const uname = id.includes('@') ? (id.split('@')[0]) : id;
-    // If user typed full email use it, else start empty
-    let uemail = id.includes('@') ? id : '';
 
-    // ── Priority 1: Check dedicated real-email key (saved at registration) ──
-    const realEmailKey = localStorage.getItem('userRealEmail_' + uname.toLowerCase());
-    if(realEmailKey && !realEmailKey.endsWith('@tronsick.io')) {
-      uemail = realEmailKey;
+  setTimeout(function(){
+    var uname = id.includes('@') ? id.split('@')[0] : id;
+    var uemail = id.includes('@') ? id : '';
+
+    // Priority 1: dedicated real-email key
+    var realKey = localStorage.getItem('userRealEmail_'+uname.toLowerCase());
+    if(realKey && !realKey.endsWith('@tronsick.io')) uemail = realKey;
+
+    // Priority 2: site_registered_users
+    if(!uemail || uemail.endsWith('@tronsick.io')){
+      try{
+        var ru = JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+        var rMatch = ru.find(function(u){ return u.name.toLowerCase()===uname.toLowerCase() || (id.includes('@') && u.email.toLowerCase()===id.toLowerCase()); });
+        if(rMatch && rMatch.email && !rMatch.email.endsWith('@tronsick.io')) uemail = rMatch.email;
+      }catch(ex){}
     }
 
-    // ── Priority 2: Check site_registered_users (set by register.php) ──
-    if(!uemail || uemail.endsWith('@tronsick.io')) {
-      try {
-        const regUsers = JSON.parse(localStorage.getItem('site_registered_users') || '[]');
-        const regUser = regUsers.find(u => u.name.toLowerCase() === uname.toLowerCase() ||
-          (id.includes('@') && u.email.toLowerCase() === id.toLowerCase()));
-        if(regUser && regUser.email && !regUser.email.endsWith('@tronsick.io')) {
-          uemail = regUser.email;
-        }
-      } catch(e) {}
-    }
-
-    // ── Priority 3: Check adm_users ──
-    try {
-      const admUsers = JSON.parse(localStorage.getItem('adm_users') || '[]');
-      const exists = admUsers.find(u => u.name.toLowerCase() === uname.toLowerCase() ||
-        (id.includes('@') && u.email.toLowerCase() === id.toLowerCase()));
-      if(exists) {
-        if((!uemail || uemail.endsWith('@tronsick.io')) && exists.email && !exists.email.endsWith('@tronsick.io')) {
-          uemail = exists.email;
-        }
-        // Restore admin-set balance
-        const admBal = parseFloat(exists.balance || 0);
-        if(admBal > 0) localStorage.setItem('userBalance', admBal.toFixed(6));
-        // Update email in adm_users if we have a better one
-        if(uemail && !uemail.endsWith('@tronsick.io') && exists.email.endsWith('@tronsick.io')) {
-          exists.email = uemail;
-          localStorage.setItem('adm_users', JSON.stringify(admUsers));
+    // Priority 3: adm_users
+    try{
+      var au = JSON.parse(localStorage.getItem('adm_users')||'[]');
+      var aMatch = au.find(function(u){ return u.name.toLowerCase()===uname.toLowerCase() || (id.includes('@') && u.email.toLowerCase()===id.toLowerCase()); });
+      if(aMatch){
+        if((!uemail||uemail.endsWith('@tronsick.io')) && aMatch.email && !aMatch.email.endsWith('@tronsick.io')) uemail=aMatch.email;
+        var admBal=parseFloat(aMatch.balance||0);
+        if(admBal>0) localStorage.setItem('userBalance',admBal.toFixed(6));
+        if(uemail && !uemail.endsWith('@tronsick.io') && aMatch.email.endsWith('@tronsick.io')){
+          aMatch.email=uemail; localStorage.setItem('adm_users',JSON.stringify(au));
         }
       } else {
-        // New user — fallback to @tronsick.io only if nothing else found
-        if(!uemail) uemail = uname + '@tronsick.io';
-        const uid2 = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'');
-        admUsers.push({ id: uid2, name: uname, email: uemail, balance: '0.000000', banned: false, joined: new Date().toISOString() });
-        localStorage.setItem('adm_users', JSON.stringify(admUsers));
+        if(!uemail) uemail=uname+'@tronsick.io';
+        var uid2='u_'+uname.toLowerCase().replace(/[^a-z0-9]/g,'');
+        au.push({id:uid2,name:uname,email:uemail,balance:'0.000000',banned:false,joined:new Date().toISOString()});
+        localStorage.setItem('adm_users',JSON.stringify(au));
       }
-    } catch(e) { if(!uemail) uemail = uname + '@tronsick.io'; }
+    }catch(ex){ if(!uemail) uemail=uname+'@tronsick.io'; }
 
-    // Final fallback
-    if(!uemail) uemail = uname + '@tronsick.io';
+    if(!uemail) uemail=uname+'@tronsick.io';
+    if(uemail && !uemail.endsWith('@tronsick.io')) localStorage.setItem('userRealEmail_'+uname.toLowerCase(), uemail);
 
-    const uid = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'');
     localStorage.setItem('userName', uname);
     localStorage.setItem('userEmail', uemail);
-    localStorage.setItem('userLoggedIn', '1');
-    localStorage.setItem('userId', uid);
-    // Save real email key for future logins
-    if(uemail && !uemail.endsWith('@tronsick.io')) {
-      localStorage.setItem('userRealEmail_' + uname.toLowerCase(), uemail);
-    }
-    if(!localStorage.getItem('bonusRollsGiven_' + uname)){
+    localStorage.setItem('userLoggedIn','1');
+    localStorage.setItem('userId','u_'+uname.toLowerCase().replace(/[^a-z0-9]/g,''));
+    if(!localStorage.getItem('bonusRollsGiven_'+uname)){
       localStorage.setItem('bonusRolls','3');
-      localStorage.setItem('bonusRollsGiven_' + uname, '1');
+      localStorage.setItem('bonusRollsGiven_'+uname,'1');
     }
     localStorage.setItem('newUserBonus','0');
     window.location.href='faucet.php';
-  }, 1500);
-
+  }, 1200);
 }
 
-// Show registration success banner
-(function(){
-  const p=new URLSearchParams(window.location.search);
-  if(p.get('registered')==='1'){
-    const name=decodeURIComponent(p.get('user')||'');
-    const banner=document.createElement('div');
-    banner.style.cssText='position:fixed;top:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#052e16,#065f46);border:1px solid #10b981;color:#34d399;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);text-align:center;';
-    banner.innerHTML='&#127881; Welcome'+(name?' <strong>'+name+'</strong>':'')+' ! Account created.<br><span style="font-size:12px;opacity:.8">&#127922; You received <strong>3 FREE bonus rolls</strong> — login to use them!</span>';
-    document.body.appendChild(banner);
-    setTimeout(()=>banner.remove(),5000);
-    // Clean URL
-    history.replaceState(null,'',window.location.pathname);
-  }
-})();
+// ── REGISTER ─────────────────────────────────
+function handleReg(e){
+  e.preventDefault();
+  var err  = document.getElementById('regErr');
+  var show = function(m){ err.style.display='block'; err.textContent=m; };
+  var u    = document.getElementById('rUser').value.trim();
+  var em   = document.getElementById('rEmail').value.trim();
+  var pw   = document.getElementById('rPw').value;
+  var pw2  = document.getElementById('rPw2').value;
+  var ref  = document.getElementById('rRef').value.trim();
+
+  if(!u||u.length<3) return show('Username must be at least 3 characters.');
+  if(!/^[a-zA-Z0-9_]+$/.test(u)) return show('Username: letters, numbers, and underscores only.');
+  if(!em||!em.includes('@')||!em.includes('.')) return show('Please enter a valid email address.');
+  if(pw.length<8) return show('Password must be at least 8 characters.');
+  if(pw!==pw2) return show('Passwords do not match — please re-enter.');
+  err.style.display='none';
+
+  var btn=document.getElementById('regBtn');
+  btn.textContent='Creating Account…'; btn.disabled=true;
+
+  setTimeout(function(){
+    var uid='u_'+u.toLowerCase().replace(/[^a-z0-9]/g,'');
+
+    // Save ALL session data
+    localStorage.setItem('bonusRolls','3');
+    localStorage.setItem('bonusRollsGiven_'+u,'1');
+    localStorage.setItem('newUserBonus','0');
+    localStorage.setItem('regUser',u);
+    localStorage.setItem('userName',u);
+    localStorage.setItem('userEmail',em);
+    localStorage.setItem('userLoggedIn','1');
+    localStorage.setItem('userId',uid);
+    // Permanent email key — survives logout
+    localStorage.setItem('userRealEmail_'+u.toLowerCase(), em);
+    if(ref) localStorage.setItem('userRef',ref);
+
+    // site_registered_users
+    try{
+      var ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+      if(!ru.find(function(x){return x.name===u;})){
+        ru.push({name:u,email:em,joined:new Date().toISOString(),balance:'0'});
+        localStorage.setItem('site_registered_users',JSON.stringify(ru));
+      }
+    }catch(ex){}
+
+    // adm_users
+    try{
+      var au=JSON.parse(localStorage.getItem('adm_users')||'[]');
+      if(!au.find(function(x){return x.name===u||x.email===em;})){
+        au.push({id:uid,name:u,email:em,balance:'0.000000',banned:false,joined:new Date().toISOString()});
+        localStorage.setItem('adm_users',JSON.stringify(au));
+      }
+    }catch(ex){}
+
+    window.location.href='faucet.php';
+  }, 1200);
+}
 </script>
 </body>
 </html>
-
