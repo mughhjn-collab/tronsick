@@ -44,7 +44,7 @@ a{text-decoration:none;color:inherit}
 
 /* Hero Left */
 .hero-left{padding-right:40px}
-.hero-sitename{font-size:clamp(28px,4vw,52px);font-weight:900;color:#a3e635;letter-spacing:1px;margin-bottom:14px;font-family:'JetBrains Mono',monospace,inherit;text-shadow:0 0 30px rgba(163,230,53,.3)}
+.hero-sitename{font-size:clamp(28px,4vw,52px);font-weight:900;color:#fff;letter-spacing:1px;margin-bottom:14px;font-family:'JetBrains Mono',monospace,inherit;text-shadow:0 2px 16px rgba(0,0,0,.4)}
 .hero-left h1{font-size:clamp(16px,2.2vw,26px);font-weight:800;line-height:1.35;letter-spacing:.2px;color:#fff;margin-bottom:18px;text-transform:uppercase}
 .hero-desc{font-size:15px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:32px;max-width:520px}
 .hero-desc strong{color:#a3e635}
@@ -214,3 +214,12 @@ a{text-decoration:none;color:inherit}
 .hab-btn-signup:hover{background:linear-gradient(135deg,#b8f24a,#a3e635);transform:translateY(-2px);box-shadow:0 8px 28px rgba(163,230,53,.45)}
 .hab-btn-login{display:block;width:100%;padding:12px;background:rgba(163,230,53,.08);border:1px solid rgba(163,230,53,.2);border-radius:11px;font-size:14px;font-weight:700;color:#a3e635;letter-spacing:.3px;text-decoration:none;transition:all .2s}
 .hab-btn-login:hover{background:rgba(163,230,53,.15);border-color:rgba(163,230,53,.4)}
+/* -- Why TronSick card -- */
+.hab-live{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:rgba(163,230,53,.8);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px}
+.hab-dot{width:7px;height:7px;background:#a3e635;border-radius:50%;animation:ldot 2s infinite}
+.hab-reasons{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.hab-row{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.2);border:1px solid rgba(163,230,53,.07);border-radius:10px;padding:10px 14px}
+.hab-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
+.hab-row div{display:flex;flex-direction:column;gap:2px}
+.hab-row strong{font-size:13px;font-weight:700;color:#fff;line-height:1}
+.hab-row span{font-size:11px;color:rgba(255,255,255,.4);line-height:1}

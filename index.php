@@ -54,7 +54,7 @@
     <!-- LEFT: Features -->
     <!-- LEFT -->
     <div class="hero-left">
-      <div class="hero-sitename" id="heroSiteName">TRONSICK.IO</div>
+      <div class="hero-sitename" id="heroSiteName">TRONSICK</div>
       <h1 id="heroH1">EARN FREE TRX WITH THE FAUCET,<br/>PROVABLY FAIR GAMES &amp; REFERRALS</h1>
       <p class="hero-desc" id="heroDesc">Sign up for free and claim TRX every 40 minutes. Play 9 provably fair casino games, compete in weekly prize pools, receive daily cashback on losses, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
       <div class="hero-btns" id="heroBtns">
@@ -66,17 +66,18 @@
     <!-- RIGHT: Auth buttons -->
     <div class="hero-right">
       <div class="hero-auth-box" id="signupBox">
-        <div class="hab-title">Start Earning Free TRX</div>
-        <div class="hab-sub">Join 47,000+ users — 100% free, no deposit needed</div>
-        <div class="hab-stats">
-          <div class="hab-stat"><span class="hab-val">40m</span><span class="hab-lbl">Faucet Timer</span></div>
-          <div class="hab-sep"></div>
-          <div class="hab-stat"><span class="hab-val">9</span><span class="hab-lbl">Casino Games</span></div>
-          <div class="hab-sep"></div>
-          <div class="hab-stat"><span class="hab-val">50%</span><span class="hab-lbl">Referral Cut</span></div>
+      <div class="hero-auth-box" id="signupBox">
+        <div class="hab-live"><span class="hab-dot"></span> Live on TRON Blockchain</div>
+        <div class="hab-title">Why TronSick?</div>
+        <div class="hab-reasons">
+          <div class="hab-row"><span class="hab-icon">⏱</span><div><strong>Claim every 40 minutes</strong><span>Up to 60 TRX, zero deposit</span></div></div>
+          <div class="hab-row"><span class="hab-icon">🏆</span><div><strong>Weekly prize pool</strong><span>Top earners split TRX rewards</span></div></div>
+          <div class="hab-row"><span class="hab-icon">💰</span><div><strong>Daily cashback</strong><span>Auto-credited every night</span></div></div>
+          <div class="hab-row"><span class="hab-icon">🎮</span><div><strong>9 provably fair games</strong><span>Dice, Mines, Tower & more</span></div></div>
+          <div class="hab-row"><span class="hab-icon">👥</span><div><strong>50% referral income</strong><span>Paid forever, no cap</span></div></div>
         </div>
-        <a href="login.php?tab=register" class="hab-btn-signup" id="heroSignupBtn">SIGN UP FREE — START CLAIMING</a>
-        <a href="login.php" class="hab-btn-login" id="heroLoginBtn">Already have an account? Log In →</a>
+        <a href="login.php?tab=register" class="hab-btn-signup" id="heroSignupBtn">CREATE FREE ACCOUNT</a>
+        <a href="login.php" class="hab-btn-login" id="heroLoginBtn">Already a member? Log In →</a>
       </div>
     </div>
 
