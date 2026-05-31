@@ -523,23 +523,28 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN — Live Countdown 6d 10h cycle -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
           <div class="ct-clock-seg">
-            <div class="ct-clock-val" id="ctCkDays">00</div>
+            <div class="ct-clock-val" id="ctCkDays">06</div>
             <div class="ct-clock-unit">Days</div>
           </div>
           <div class="ct-clock-col">:</div>
           <div class="ct-clock-seg">
-            <div class="ct-clock-val" id="ctCkHours">00</div>
+            <div class="ct-clock-val" id="ctCkHours">10</div>
             <div class="ct-clock-unit">Hours</div>
           </div>
           <div class="ct-clock-col">:</div>
           <div class="ct-clock-seg">
             <div class="ct-clock-val" id="ctCkMins">00</div>
             <div class="ct-clock-unit">Minutes</div>
+          </div>
+          <div class="ct-clock-col">:</div>
+          <div class="ct-clock-seg">
+            <div class="ct-clock-val" id="ctCkSecs">00</div>
+            <div class="ct-clock-unit">Seconds</div>
           </div>
         </div>
       </div>
@@ -561,11 +566,6 @@
             <div class="ct-my-lbl">My Prize</div>
           </div>
         </div>
-      </div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-1">&#129351; 1st</span><span class="ct-prize">500 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-2">&#129352; 2nd</span><span class="ct-prize">250 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-3">&#129353; 3rd</span><span class="ct-prize">100 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank">4th &ndash; 10th</span><span class="ct-prize">25 TRX each</span></div>
       </div>
 
       <!-- Live Leaderboard (no date in header) -->
