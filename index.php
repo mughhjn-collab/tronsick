@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
   <script>
+    // Clear logout flag if present
+    localStorage.removeItem('_justLoggedOut');
     // If user is already logged in, go to faucet (not landing page)
     if(localStorage.getItem('userLoggedIn')==='1' && localStorage.getItem('userName')){
       window.location.replace('faucet.php');
