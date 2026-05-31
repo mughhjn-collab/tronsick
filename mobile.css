@@ -1,0 +1,258 @@
+/* =====================================================
+   TRONSICK — GLOBAL MOBILE RESPONSIVE STYLESHEET
+   Covers: Landing, Login, Dashboard, Games, Deposit, Withdraw
+   ===================================================== */
+
+/* ── BASE ── */
+*, *::before, *::after { box-sizing: border-box; }
+img, video { max-width: 100%; height: auto; }
+table { width: 100%; }
+
+/* ── UTILITY ── */
+.mob-hidden { display: none !important; }
+.mob-full   { width: 100% !important; }
+
+/* ============================================================
+   LANDING PAGE — style.css overrides
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Hero */
+  .hero-wrap {
+    grid-template-columns: 1fr !important;
+    padding: 48px 20px 40px !important;
+    gap: 32px !important;
+  }
+  .hero-feats-col { display: none !important; }
+  .hero-left { padding-left: 0 !important; text-align: center; }
+  .hero-sitename { font-size: clamp(32px, 8vw, 52px) !important; }
+  .hero-left h1  { font-size: clamp(18px, 5vw, 26px) !important; }
+  .hero-btns { justify-content: center; }
+
+  /* Nav */
+  .nav-menu, .nav-right { display: none !important; }
+  .burger { display: flex !important; }
+
+  /* How It Works */
+  .how-grid { grid-template-columns: 1fr !important; }
+  .how-card { padding: 26px 20px !important; }
+
+  /* Games grid */
+  .games-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+
+  /* FAQ */
+  .faq-layout { grid-template-columns: 1fr !important; gap: 30px !important; }
+
+  /* Footer */
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px !important; padding: 40px 0 28px !important; }
+}
+
+@media (max-width: 480px) {
+  .games-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .game-tile   { padding: 20px 10px 14px !important; }
+  .gt-icon     { font-size: 38px !important; }
+  .footer-grid { grid-template-columns: 1fr !important; }
+  .hero-btns   { flex-direction: column; gap: 10px; }
+  .hbtn        { width: 100%; justify-content: center; padding: 13px !important; }
+}
+
+/* ============================================================
+   LOGIN / SIGNUP PAGE
+   ============================================================ */
+@media (max-width: 560px) {
+  .auth-card  { padding: 24px 18px 28px !important; margin: 0 10px; }
+  .top-bar    { padding: 12px 16px !important; }
+  .tb-nav a:not(.tb-signup) { display: none !important; }
+  .auth-tabs  { margin-bottom: 18px !important; }
+  .auth-btn   { font-size: 14px !important; padding: 12px !important; }
+  .ff-iw input { font-size: 15px !important; } /* prevent zoom on iOS */
+  .auth-footer-links { gap: 12px !important; flex-wrap: wrap; }
+}
+
+/* ============================================================
+   DASHBOARD — dashboard.css overrides
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Sidebar collapse */
+  .sidebar {
+    position: fixed !important;
+    left: -260px !important;
+    top: 0; bottom: 0;
+    width: 260px !important;
+    z-index: 1000;
+    transition: left .3s ease !important;
+    overflow-y: auto;
+  }
+  .sidebar.mob-open { left: 0 !important; }
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 999;
+  }
+  .sidebar-overlay.mob-open { display: block; }
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 16px !important;
+  }
+  .topbar { padding: 12px 16px !important; }
+  .mob-menu-btn { display: flex !important; }
+
+  /* Stat cards */
+  .stats-grid,
+  .dash-stats,
+  .stat-cards,
+  [class*="stats-row"],
+  [class*="grid-4"],
+  [class*="grid-3"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-grid,
+  .dash-stats,
+  .stat-cards,
+  [class*="stats-row"],
+  [class*="grid-4"],
+  [class*="grid-3"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Tables scroll */
+  .table-wrap, .history-table, [class*="tbl-wrap"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  table { min-width: 500px; }
+}
+
+/* ============================================================
+   GAMES PAGE — games.css / games2.css overrides
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Game layout: controls + canvas stack */
+  .game-layout,
+  .game-wrap,
+  [class*="game-container"],
+  [class*="game-inner"] {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  .bet-panel,
+  .game-controls,
+  [class*="bet-side"],
+  [class*="ctrl-panel"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    order: 2;
+  }
+  .game-canvas,
+  .game-area,
+  [class*="game-display"] {
+    width: 100% !important;
+    order: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Bet controls */
+  .bet-row,
+  [class*="bet-inputs"],
+  [class*="input-row"] {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .bet-input,
+  [class*="bet-field"],
+  [class*="input-field"] {
+    width: 100% !important;
+  }
+  /* Games grid on games list page */
+  .games-grid-list,
+  [class*="games-list"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Bet history table */
+  .bet-history, [class*="history-wrap"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================================
+   DEPOSIT / WITHDRAW PAGE
+   ============================================================ */
+@media (max-width: 700px) {
+  .deposit-wrap,
+  .withdraw-wrap,
+  [class*="payment-wrap"],
+  [class*="deposit-inner"],
+  [class*="withdraw-inner"] {
+    flex-direction: column !important;
+    gap: 20px !important;
+    padding: 16px !important;
+  }
+  .deposit-card,
+  .withdraw-card,
+  [class*="payment-card"],
+  [class*="method-card"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .dep-methods,
+  [class*="method-list"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .dep-input,
+  [class*="amount-input"],
+  [class*="address-input"] {
+    width: 100% !important;
+    font-size: 15px !important;
+  }
+  .dep-btn,
+  [class*="submit-btn"],
+  .btn-orange, .btn-red {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   GLOBAL TOUCH IMPROVEMENTS
+   ============================================================ */
+@media (max-width: 900px) {
+  /* Bigger tap targets */
+  button, a, input, select {
+    min-height: 42px;
+  }
+  /* Prevent horizontal scroll */
+  body { overflow-x: hidden !important; }
+  /* Font size floor to prevent iOS zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Mobile hamburger button (shown only on mobile) */
+.mob-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  gap: 5px;
+  flex-direction: column;
+}
+.mob-menu-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all .25s;
+}
