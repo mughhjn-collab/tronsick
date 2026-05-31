@@ -26,6 +26,17 @@ function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.lo
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 // ── BALANCE HELPERS ──
 function syncBal(){
+// ── Admin balance sync from adm_users ──
+try{
+  var _un2=localStorage.getItem('userName')||'';
+  if(_un2){
+    var _admU=JSON.parse(localStorage.getItem('adm_users')||'[]');
+    var _me=_admU.find(function(u){return u.name.toLowerCase()===_un2.toLowerCase();});
+    if(_me && parseFloat(_me.balance||0) > parseFloat(localStorage.getItem('userBalance')||'0')){
+      localStorage.setItem('userBalance', parseFloat(_me.balance).toFixed(6));
+    }
+  }
+}catch(e){}
 // Admin balance override check
 try{var _un=localStorage.getItem('userName')||'';if(_un){var _abk='adm_bal_'+_un.toLowerCase();var _ab=localStorage.getItem(_abk);if(_ab!==null){localStorage.setItem('userBalance',_ab);localStorage.removeItem(_abk);}}}catch(e){}
 try{
@@ -102,7 +113,7 @@ function changePassword(){
 
 // ── USER INFO INIT (runs on every page load) ──
 document.addEventListener('DOMContentLoaded', function(){
-  var uname  = localStorage.getItem('userName')  || 'User';
+  var uname  = localStorage.getItem('userName')  || '';
   var uemail = localStorage.getItem('userEmail') || '';
   // Welcome username
   var unEl = document.getElementById('userName');
@@ -1439,7 +1450,7 @@ function sendContact() {
     var msgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
     var newMsg = {
       id: 'msg' + Date.now(),
-      user: localStorage.getItem('userName') || 'User',
+      user: localStorage.getItem('userName') || '',
       email: (document.getElementById('contactEmail') || {}).value || 'user@tronsick.io',
       subject: subjVal,
       message: msgVal,
@@ -1489,7 +1500,7 @@ function loadMyTickets() {
   var badge = document.getElementById('unreadTicketBadge');
   if (!list) return;
 
-  var currentUser = localStorage.getItem('userName') || 'User';
+  var currentUser = localStorage.getItem('userName') || '';
   var allMsgs = JSON.parse(localStorage.getItem('adm_msgs') || '[]');
   // Filter only this user's messages
   var myMsgs = allMsgs.filter(function(m) {

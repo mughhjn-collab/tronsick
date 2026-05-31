@@ -6,7 +6,7 @@
   <title>Dashboard "� TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=14"/>
+  <link rel="stylesheet" href="dashboard.css?v=15"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/');}</script></head>
@@ -754,6 +754,6 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=14"></script>
+<script src="dashboard.js?v=15"></script>
 </body>
 </html>

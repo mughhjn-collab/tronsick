@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -107,37 +107,55 @@ function handleLogin(e) {
   setTimeout(() => {
     // Determine username from input
     const uname = id.includes('@') ? (id.split('@')[0]) : id;
-    const uemail = id.includes('@') ? id : (id + '@tronsick.io');
-    const uid = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'') + '_' + Date.now();
+    // ── Email: use typed email if has @, else try to restore real email from registered users ──
+    let uemail = id.includes('@') ? id : '';
+
+    // Check adm_users for real registered email
+    try {
+      const admUsers = JSON.parse(localStorage.getItem('adm_users') || '[]');
+      const exists = admUsers.find(u => u.name.toLowerCase() === uname.toLowerCase() ||
+        (id.includes('@') && u.email.toLowerCase() === id.toLowerCase()));
+      if (exists) {
+        // Restore real email from registration record
+        if(exists.email && !exists.email.endsWith('@tronsick.io')) {
+          uemail = exists.email;
+        } else if(!uemail) {
+          uemail = exists.email || (uname + '@tronsick.io');
+        }
+        // Restore balance if admin set it
+        const admBal = parseFloat(exists.balance || 0);
+        if(admBal > 0) {
+          localStorage.setItem('userBalance', admBal.toFixed(6));
+        }
+      } else {
+        // New user — only create @tronsick.io if no real email
+        if(!uemail) uemail = uname + '@tronsick.io';
+        // Add to adm_users
+        const uid2 = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'') + '_' + Date.now();
+        admUsers.push({
+          id: uid2, name: uname, email: uemail,
+          balance: '0.000000', banned: false,
+          joined: new Date().toISOString()
+        });
+        localStorage.setItem('adm_users', JSON.stringify(admUsers));
+      }
+    } catch(e) { if(!uemail) uemail = uname + '@tronsick.io'; }
+
+    const uid = 'u_' + uname.toLowerCase().replace(/[^a-z0-9]/g,'');
     // Save session to localStorage
     localStorage.setItem('userName', uname);
     localStorage.setItem('userEmail', uemail);
     localStorage.setItem('userLoggedIn', '1');
     localStorage.setItem('userId', uid);
-    // Bonus rolls only on registration - check if already given
+    // Bonus rolls only on first registration
     if(!localStorage.getItem('bonusRollsGiven_' + uname)){
       localStorage.setItem('bonusRolls','3');
       localStorage.setItem('bonusRollsGiven_' + uname, '1');
     }
     localStorage.setItem('newUserBonus','0');
-    // Register user in admin panel user list (if not already there)
-    try {
-      const admUsers = JSON.parse(localStorage.getItem('adm_users') || '[]');
-      const exists = admUsers.find(u => u.name === uname || u.email === uemail);
-      if (!exists) {
-        admUsers.push({
-          id: uid,
-          name: uname,
-          email: uemail,
-          balance: '0.000000',
-          banned: false,
-          joined: new Date().toISOString()
-        });
-        localStorage.setItem('adm_users', JSON.stringify(admUsers));
-      }
-    } catch(e) {}
     window.location.href='faucet.php';
   }, 1500);
+
 }
 // Show registration success banner
 (function(){
