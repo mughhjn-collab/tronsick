@@ -523,23 +523,28 @@
   <div class="pg active" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN — Live Countdown 6d 10h -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
           <div class="ct-clock-seg">
-            <div class="ct-clock-val" id="ctCkDays">00</div>
+            <div class="ct-clock-val" id="ctCkDays">06</div>
             <div class="ct-clock-unit">Days</div>
           </div>
           <div class="ct-clock-col">:</div>
           <div class="ct-clock-seg">
-            <div class="ct-clock-val" id="ctCkHours">00</div>
+            <div class="ct-clock-val" id="ctCkHours">10</div>
             <div class="ct-clock-unit">Hours</div>
           </div>
           <div class="ct-clock-col">:</div>
           <div class="ct-clock-seg">
             <div class="ct-clock-val" id="ctCkMins">00</div>
             <div class="ct-clock-unit">Minutes</div>
+          </div>
+          <div class="ct-clock-col">:</div>
+          <div class="ct-clock-seg">
+            <div class="ct-clock-val" id="ctCkSecs">00</div>
+            <div class="ct-clock-unit">Seconds</div>
           </div>
         </div>
       </div>
@@ -563,14 +568,6 @@
         </div>
       </div>
 
-      <!-- Prize Pool -->
-      <div class="ct-prizes">
-        <div class="ct-prizes-hd">&#127881; Prize Pool</div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-1">&#129351; 1st</span><span class="ct-prize">500 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-2">&#129352; 2nd</span><span class="ct-prize">250 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank ct-rank-3">&#129353; 3rd</span><span class="ct-prize">100 TRX</span></div>
-        <div class="ct-prize-row"><span class="ct-rank">4th &ndash; 10th</span><span class="ct-prize">25 TRX each</span></div>
-      </div>
 
       <!-- Live Leaderboard (no date in header) -->
       <div class="ct-board-box">
@@ -582,8 +579,7 @@
               <th>Place</th>
               <th>User Name</th>
               <th>Total Wagered</th>
-              <th>Reward</th>
-            </tr>
+              </tr>
           </thead>
           <tbody id="ctLeaderboard">
             <!-- Populated by JS -->
@@ -756,6 +752,78 @@
 </div>
 
 <script src="dashboard.js?v=17"></script>
-<script>window._INIT_SECTION='contest';</script>
+<script>
+window._INIT_SECTION='contest';
+
+// LIVE COUNTDOWN — 6d 10h cycle, resets every Monday 10:00 UTC
+(function contestTimer(){
+  function pad(n){return n<10?'0'+n:''+n;}
+  function getEnd(){
+    var now=new Date();
+    var d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),10,0,0,0));
+    var dow=d.getUTCDay();
+    var diff=(dow===1)?7:(8-dow)%7;
+    d.setUTCDate(d.getUTCDate()+diff);
+    if(dow===1&&now.getUTCHours()<10) d.setUTCDate(d.getUTCDate()-7);
+    return d;
+  }
+  function tick(){
+    var ms=getEnd()-Date.now();
+    if(ms<0)ms=0;
+    var s=Math.floor(ms/1000);
+    var el=document.getElementById;
+    var dEl=document.getElementById('ctCkDays');
+    var hEl=document.getElementById('ctCkHours');
+    var mEl=document.getElementById('ctCkMins');
+    var sEl=document.getElementById('ctCkSecs');
+    if(dEl) dEl.textContent=pad(Math.floor(s/86400));
+    if(hEl) hEl.textContent=pad(Math.floor(s/3600)%24);
+    if(mEl) mEl.textContent=pad(Math.floor(s/60)%60);
+    if(sEl) sEl.textContent=pad(s%60);
+  }
+  tick();
+  setInterval(tick,1000);
+})();
+
+// LIVE LEADERBOARD — only real game plays
+function renderContest(){
+  var tbody=document.getElementById('ctLeaderboard');
+  if(!tbody) return;
+  var cw={};
+  try{cw=JSON.parse(localStorage.getItem('contest_wagers')||'{}');}catch(e){}
+  var entries=[];
+  for(var u in cw){if(cw.hasOwnProperty(u)) entries.push({name:u,wager:parseFloat(cw[u])||0});}
+  entries.sort(function(a,b){return b.wager-a.wager;});
+
+  var myName=localStorage.getItem('userName')||'';
+  var myWager=parseFloat(localStorage.getItem('totalWagered')||'0');
+
+  // update my stats
+  var mrEl=document.getElementById('ctMyRank');
+  var mwEl=document.getElementById('ctMyWager');
+  if(mwEl) mwEl.textContent=myWager.toFixed(6);
+  var myRank='—';
+  for(var i=0;i<entries.length;i++){if(entries[i].name===myName){myRank='#'+(i+1);break;}}
+  if(mrEl) mrEl.textContent=myRank;
+
+  if(!entries.length){
+    tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
+    return;
+  }
+  var medals=['&#129351;','&#129352;','&#129353;'];
+  var html='';
+  for(var j=0;j<entries.length;j++){
+    var isMe=entries[j].name===myName;
+    html+='<tr'+(isMe?' style="background:rgba(163,230,53,.06);font-weight:700"':'')+'>'+
+      '<td>'+(medals[j]||'')+(j+1)+'</td>'+
+      '<td>'+(isMe?'<strong>'+entries[j].name+'</strong>':entries[j].name)+'</td>'+
+      '<td>'+entries[j].wager.toFixed(6)+' TRX</td>'+
+      '</tr>';
+  }
+  tbody.innerHTML=html;
+}
+renderContest();
+setInterval(renderContest,10000);
+</script>
 </body>
 </html>
