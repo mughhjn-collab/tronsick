@@ -6,8 +6,8 @@
   <title>Settings &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=7"/>
-  <link rel="stylesheet" href="games_new.css?v=7"/>
+  <link rel="stylesheet" href="dashboard.css?v=8"/>
+  <link rel="stylesheet" href="games_new.css?v=8"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -678,7 +678,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=7"></script>
+<script src="dashboard.js?v=8"></script>
 <script>window._INIT_SECTION='settings';</script>
 <script>
 // ── SETTINGS GUARANTEED INLINE INIT ──

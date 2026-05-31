@@ -11,9 +11,12 @@ body{font-family:'Inter',sans-serif;background:#0f1520;color:#e8f0eb;min-height:
 .vf-wrap{max-width:720px;margin:0 auto}
 .vf-back{display:inline-flex;align-items:center;gap:8px;color:#3ecf8e;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:20px;padding:8px 16px;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:8px;text-decoration:none}
 .vf-back:hover{background:rgba(62,207,142,.15)}
-.vf-logo{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px}
-.vf-logo span{color:#3ecf8e}
-.vf-sub{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:24px}
+.vf-logo{display:none}
+.vf-sub{display:none}
+.vf-pf-hero{text-align:center;margin-bottom:28px;padding:28px 20px 20px}
+.vf-pf-title{font-size:32px;font-weight:900;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.vf-pf-desc{font-size:14px;color:rgba(255,255,255,.55);line-height:1.85;max-width:620px;margin:0 auto}
+
 .vf-card{background:#1a1f2e;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:24px;margin-bottom:20px}
 .vf-hd{font-size:13px;font-weight:800;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:10px}
 .vf-row{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
@@ -34,9 +37,10 @@ body{font-family:'Inter',sans-serif;background:#0f1520;color:#e8f0eb;min-height:
 </head>
 <body>
 <div class="vf-wrap">
-  <a class="vf-back" href="/games.php">&#8592; Back to Games</a>
-  <div class="vf-logo">Tron<span>Sick</span> &mdash; Provably Fair</div>
-  <div class="vf-sub">Verify the fairness of your bet using cryptographic seeds</div>
+  <div class="vf-pf-hero">
+    <div class="vf-pf-title">PROVABLY FAIR</div>
+    <div class="vf-pf-desc">Provable fairness is a transparent way for us to guarantee as the operator that we are providing true randomness without manipulation. This roll verifier is entirely coded in javascript so you can view the source to see how the roll is calculated and we will not be able to manipulate this script in any way because the calculations are done right here in your browser and the source is open for everyone to see.</div>
+  </div>
 
   <div class="vf-card" id="resultCard"></div>
   <div class="vf-card" id="seedCard"></div>
@@ -51,7 +55,8 @@ var seed=p.get('seed')||'';
 var hash=p.get('hash')||'';
 var client=p.get('client')||'';
 var nonce=p.get('nonce')||'0';
-var gameLabels={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#9861; Sic Bo',diamond:'&#9830; Diamond',tower:'&#127959; Tower'};
+var gameLabels={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#9861; Sic Bo',diamond:'&#9830; Diamond',tower:'Tower',coinflip:'Coin Flip'};
+
 var gameName=gameLabels[game]||game||'Game';
 
 // Extra params per game

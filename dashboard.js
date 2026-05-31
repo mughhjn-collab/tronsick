@@ -233,6 +233,69 @@ try{sessionStorage.removeItem('lastGame');}catch(e){}
 window.scrollTo(0,0);
 try{if(typeof renderAllBets==='function')setTimeout(renderAllBets,50);}catch(e){}
 }
+
+// ── MY BETS / ALL BETS TWO-TAB SYSTEM ──
+var _abMainMode = 'my'; // 'my' or 'all'
+function abMainSwitch(mode){
+  _abMainMode = mode;
+  var myBtn = document.getElementById('abMainMy');
+  var allBtn = document.getElementById('abMainAll');
+  var myPanel = document.getElementById('abMyPanel');
+  var allPanel = document.getElementById('abAllPanel');
+  if(!myBtn||!allBtn||!myPanel||!allPanel) return;
+  if(mode==='my'){
+    myBtn.classList.add('ab-main-act'); allBtn.classList.remove('ab-main-act');
+    myPanel.style.display='block'; allPanel.style.display='none';
+    renderAllBets();
+  } else {
+    allBtn.classList.add('ab-main-act'); myBtn.classList.remove('ab-main-act');
+    myPanel.style.display='none'; allPanel.style.display='block';
+    renderLiveBets();
+  }
+}
+function abRefresh(){
+  if(_abMainMode==='my') renderAllBets();
+  else renderLiveBets();
+}
+
+// Simulated live bets feed
+var _liveNames=['crypto_king','tr0n_whale','betmaster99','lucky_star','moonboy','hodl_queen','satoshi_jr','tx_player','fast_bet','coin_lord','rekt_noob','wagmi_guy','degen_ape','bet365x','win_wizard'];
+var _liveGames=['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'];
+var _liveBets=[];
+function _genLiveBet(){
+  var g=_liveGames[Math.floor(Math.random()*_liveGames.length)];
+  var bet=parseFloat((Math.random()*5+0.001).toFixed(6));
+  var won=Math.random()>0.45;
+  var mult=won?(1.2+Math.random()*8).toFixed(2):'0.00';
+  var profit=won?parseFloat((bet*(parseFloat(mult)-1)).toFixed(6)):-bet;
+  var now=new Date();
+  return {
+    user:_liveNames[Math.floor(Math.random()*_liveNames.length)],
+    game:g, bet:bet, mult:mult, win:won, profit:profit,
+    ts:(now.getHours()<10?'0':'')+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes()+':'+(now.getSeconds()<10?'0':'')+now.getSeconds()
+  };
+}
+function renderLiveBets(){
+  var body=document.getElementById('allBetsLiveBody');
+  if(!body) return;
+  // Generate 20 random bets
+  _liveBets=[];
+  for(var i=0;i<25;i++) _liveBets.push(_genLiveBet());
+  var html='<div class="dg-bet-list"><table class="dg-hist-tbl"><thead><tr><th>Time</th><th>User</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
+  _liveBets.forEach(function(b){
+    html+='<tr class="dg-hist-row">';
+    html+='<td class="dg-tc-time">'+b.ts+'</td>';
+    html+='<td style="color:#3ecf8e;font-weight:700">'+b.user+'</td>';
+    html+='<td>'+b.game+'</td>';
+    html+='<td>'+b.bet.toFixed(6)+'</td>';
+    html+='<td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+b.mult+'x</td>';
+    html+='<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(6)+'</td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  body.innerHTML=html;
+}
+
 // ==========================================
 // DIAMOND GAME
 // ==========================================
@@ -917,7 +980,7 @@ html+='</tbody></table>';list.innerHTML=html;}
 
 function showTwBetModal(i){
 var modal=_ensureBetModal();
-var title=document.getElementById('bmTitle');if(title)title.textContent='\u{1F3D7} Tower - Bet Info';
+var title=document.getElementById('bmTitle');if(title)title.textContent='Tower - Bet Info';
 var b=twBetHistory[i];if(!b)return;
 
 var res=document.getElementById('bmResult');
@@ -1327,7 +1390,6 @@ function buildCoinFlipUI(){
     '<div class="cf-info-bar">'+
       '<div class="cf-info-item"><span class="cf-info-lbl">Payout</span><span class="cf-info-val">'+CF_MULT+'x</span></div>'+
       '<div class="cf-info-item"><span class="cf-info-lbl">Win Chance</span><span class="cf-info-val">48.5%</span></div>'+
-      '<div class="cf-info-item"><span class="cf-info-lbl">Edge</span><span class="cf-info-val">3%</span></div>'+
     '</div>'+
     // Coin display
     '<div class="cf-stage">'+

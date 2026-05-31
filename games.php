@@ -6,8 +6,8 @@
   <title>Games &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=7"/>
-  <link rel="stylesheet" href="games_new.css?v=7"/>
+  <link rel="stylesheet" href="dashboard.css?v=8"/>
+  <link rel="stylesheet" href="games_new.css?v=8"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -244,25 +244,40 @@
     <!-- MY ALL BETS -->
     <div class="all-bets-section" id="allBetsSection">
       <div class="all-bets-hd">
-        <span>&#127922; My All Bets</span>
-        <button class="all-bets-refresh" onclick="renderAllBets()">&#8635; Refresh</button>
+        <span>&#127922; Bets</span>
+        <button class="all-bets-refresh" onclick="abRefresh()">&#8635; Refresh</button>
       </div>
-      <div class="all-bets-tabs">
-        <button class="ab-tab" id="abTabAll" onclick="abSetTab('all')">All Games</button>
-        <button class="ab-tab" id="abTabDice" onclick="abSetTab('dice')">&#127922; Dice</button>
-        <button class="ab-tab" id="abTabLimbo" onclick="abSetTab('limbo')">&#128640; Limbo</button>
-        <button class="ab-tab" id="abTabWheel" onclick="abSetTab('wheel')">&#127905; Wheel</button>
-        <button class="ab-tab" id="abTabMines" onclick="abSetTab('mines')">&#128163; Mines</button>
-        <button class="ab-tab" id="abTabSicbo" onclick="abSetTab('sicbo')">&#127922; Sic Bo</button>
-        <button class="ab-tab" id="abTabDiamond" onclick="abSetTab('diamond')">&#9670; Diamond</button>
-        <button class="ab-tab" id="abTabTower" onclick="abSetTab('tower')">&#127959; Tower</button>
-        <button class="ab-tab" id="abTabCoinflip" onclick="abSetTab('coinflip')">&#x1FA99; Coin Flip</button>
+      <!-- Two main tabs: My Bets / All Bets -->
+      <div class="ab-main-tabs">
+        <button class="ab-main-tab ab-main-act" id="abMainMy" onclick="abMainSwitch('my')">My Bets</button>
+        <button class="ab-main-tab" id="abMainAll" onclick="abMainSwitch('all')">All Bets</button>
       </div>
-      <div class="all-bets-body" id="allBetsBody">
-        <div class="dg-no-bets">No bets yet. Play a game to see your history here!</div>
+      <!-- My Bets panel -->
+      <div id="abMyPanel">
+        <div class="all-bets-tabs">
+          <button class="ab-tab ab-tab-act" id="abTabAll" onclick="abSetTab('all')">All Games</button>
+          <button class="ab-tab" id="abTabDice" onclick="abSetTab('dice')">&#127922; Dice</button>
+          <button class="ab-tab" id="abTabLimbo" onclick="abSetTab('limbo')">&#128640; Limbo</button>
+          <button class="ab-tab" id="abTabWheel" onclick="abSetTab('wheel')">&#127905; Wheel</button>
+          <button class="ab-tab" id="abTabMines" onclick="abSetTab('mines')">&#128163; Mines</button>
+          <button class="ab-tab" id="abTabSicbo" onclick="abSetTab('sicbo')">&#127922; Sic Bo</button>
+          <button class="ab-tab" id="abTabDiamond" onclick="abSetTab('diamond')">&#9670; Diamond</button>
+          <button class="ab-tab" id="abTabTower" onclick="abSetTab('tower')">Tower</button>
+          <button class="ab-tab" id="abTabCoinflip" onclick="abSetTab('coinflip')">Coin Flip</button>
+        </div>
+        <div class="all-bets-body" id="allBetsBody">
+          <div class="dg-no-bets">No bets yet. Play a game to see your history here!</div>
+        </div>
+      </div>
+      <!-- All Bets panel (simulated live feed) -->
+      <div id="abAllPanel" style="display:none">
+        <div class="all-bets-body" id="allBetsLiveBody">
+          <div class="dg-no-bets">Loading live bets...</div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- DEPOSIT -->
   <div class="pg" id="sec-deposit">
@@ -707,7 +722,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=7"></script>
+<script src="dashboard.js?v=8"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
