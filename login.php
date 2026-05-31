@@ -142,7 +142,7 @@
       <div class="ff">
         <div class="ff-subrow">
           <label>Password</label>
-          <span class="ff-link" onclick="showForgot()">Forgot password?</span>
+          <span class="ff-link" onclick="switchTab('forgot')">Forgot password?</span>
         </div>
         <div class="ff-iw">
           <input type="password" id="lPw" placeholder="Enter password" autocomplete="current-password"/>
@@ -160,6 +160,22 @@
 
       <div class="auth-switch">Not a member? <button type="button" onclick="switchTab('register')">Sign Up Free →</button></div>
     </form>
+
+    <!-- ══════════ FORGOT PASSWORD PANEL ══════════ -->
+    <div class="auth-form" id="formForgot">
+      <div style="margin-bottom:18px">
+        <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px">🔑 Reset Password</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.45)">Enter your registered email address and we'll send you a password reset link.</div>
+      </div>
+      <div class="auth-err" id="forgotErr"></div>
+      <div id="forgotSuccess" style="display:none;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:8px;padding:12px 14px;font-size:13px;color:#3ecf8e;margin-bottom:14px"></div>
+      <div class="ff ff-plain" id="forgotEmailWrap">
+        <label>Your Email Address</label>
+        <div class="ff-iw"><input type="email" id="forgotEmail" placeholder="Enter your registered email" autocomplete="email"/></div>
+      </div>
+      <button type="button" class="auth-btn" id="forgotBtn" onclick="sendResetLink()" style="margin-bottom:12px">SEND RESET LINK</button>
+      <div class="auth-switch"><button type="button" onclick="switchTab('login')">← Back to Login</button></div>
+    </div>
 
     <!-- ══════════ REGISTER FORM ══════════ -->
     <form class="auth-form" id="formReg" onsubmit="handleReg(event)">
@@ -225,13 +241,18 @@
 <script>
 // ── TAB SWITCH ──────────────────────────────
 function switchTab(tab){
-  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
-  document.getElementById('tabReg').classList.toggle('active', tab==='register');
-  document.getElementById('formLogin').classList.toggle('active', tab==='login');
-  document.getElementById('formReg').classList.toggle('active', tab==='register');
+  var tabs = ['login','register','forgot'];
+  tabs.forEach(function(t){
+    var f = document.getElementById(t==='login'?'formLogin':t==='register'?'formReg':'formForgot');
+    if(f) f.classList.toggle('active', t===tab);
+    var tb = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(tb) tb.classList.toggle('active', t===tab);
+  });
   // Clear errors
-  document.getElementById('loginErr').style.display='none';
-  document.getElementById('regErr').style.display='none';
+  ['loginErr','regErr','forgotErr'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var fs=document.getElementById('forgotSuccess'); if(fs) fs.style.display='none';
+  var fw=document.getElementById('forgotEmailWrap'); if(fw) fw.style.display='block';
+  var fb=document.getElementById('forgotBtn'); if(fb){fb.style.display='block';fb.disabled=false;fb.textContent='SEND RESET LINK';}
 }
 
 // ── PASSWORD TOGGLE ──────────────────────────
@@ -242,13 +263,41 @@ function toggleVis(id, btn){
 }
 
 // ── FORGOT PASSWORD ──────────────────────────
-function showForgot(){
-  var err = document.getElementById('loginErr');
-  err.style.display='block';
-  err.style.background='rgba(163,230,53,.08)';
-  err.style.borderColor='rgba(163,230,53,.2)';
-  err.style.color='#a3e635';
-  err.textContent='Password recovery: Please contact support at support@tronsick.io with your username.';
+function showForgotPanel(){ switchTab('forgot'); }
+
+function sendResetLink(){
+  var email = document.getElementById('forgotEmail').value.trim();
+  var err = document.getElementById('forgotErr');
+  var succ = document.getElementById('forgotSuccess');
+  err.style.display='none'; succ.style.display='none';
+  if(!email||!email.includes('@')||!email.includes('.')){
+    err.style.display='block'; err.textContent='Please enter a valid email address.'; return;
+  }
+  var btn = document.getElementById('forgotBtn');
+  btn.textContent='Sending…'; btn.disabled=true;
+
+  // Generate reset token
+  var token = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+  var expires = Date.now() + 60*60*1000; // 1 hour
+  localStorage.setItem('pwreset_'+token, JSON.stringify({email:email.toLowerCase(), expires:expires}));
+  localStorage.setItem('pwreset_email_'+email.toLowerCase(), token);
+
+  var resetLink = window.location.origin+'/reset_password.php?token='+token;
+
+  // Try server-side email via PHP
+  fetch('forgot_pw.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'email='+encodeURIComponent(email)+'&token='+encodeURIComponent(token)+'&link='+encodeURIComponent(resetLink)
+  }).catch(function(){});
+
+  // Show success (always - server email is best-effort)
+  setTimeout(function(){
+    document.getElementById('forgotEmailWrap').style.display='none';
+    btn.style.display='none';
+    succ.innerHTML = '✅ Reset link sent!<br/><br/>If <strong>'+email+'</strong> is registered, you will receive an email within a few minutes.<br/><br/><span style="font-size:12px;opacity:.7">Didn\'t receive it? Check spam or use this link:</span><br/><a href="'+resetLink+'" style="color:#a3e635;font-size:12px;word-break:break-all">'+resetLink+'</a>';
+    succ.style.display='block';
+  }, 1500);
 }
 
 // ── CHECK URL PARAM (auto show register tab) ──
