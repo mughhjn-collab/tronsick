@@ -562,10 +562,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Prize Pool -->
-      <div class="ct-prizes">
-        <div class="ct-prizes-hd">&#127881; Prize Pool</div>
         <div class="ct-prize-row"><span class="ct-rank ct-rank-1">&#129351; 1st</span><span class="ct-prize">500 TRX</span></div>
         <div class="ct-prize-row"><span class="ct-rank ct-rank-2">&#129352; 2nd</span><span class="ct-prize">250 TRX</span></div>
         <div class="ct-prize-row"><span class="ct-rank ct-rank-3">&#129353; 3rd</span><span class="ct-prize">100 TRX</span></div>
@@ -582,8 +578,7 @@
               <th>Place</th>
               <th>User Name</th>
               <th>Total Wagered</th>
-              <th>Reward</th>
-            </tr>
+              </tr>
           </thead>
           <tbody id="ctLeaderboard">
             <!-- Populated by JS -->
@@ -890,11 +885,129 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
     var newVal = cur + (parseFloat(addedWager) || 0);
     localStorage.setItem('totalWagered', newVal.toString());
     updateLevelUI();
+    // Also update contest wager for current user
+    var uname = localStorage.getItem('userName') || '';
+    if(uname){
+      try{
+        var cw = JSON.parse(localStorage.getItem('contest_wagers') || '{}');
+        cw[uname] = (parseFloat(cw[uname]) || 0) + (parseFloat(addedWager) || 0);
+        localStorage.setItem('contest_wagers', JSON.stringify(cw));
+      }catch(x){}
+    }
+    renderContestLeaderboard();
   };
 
   // Refresh every 5s in case another tab updated wagered
   setInterval(updateLevelUI, 5000);
 })();
+
+// ═══════════════════════════════════════════════════════
+// CONTEST — Live Countdown Timer (6 days 10 hours cycle)
+// Resets every Monday at 10:00 UTC
+// ═══════════════════════════════════════════════════════
+(function contestTimer(){
+  function getNextMonday10UTC(){
+    var now = new Date();
+    var d = new Date(Date.UTC(
+      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+      10, 0, 0, 0
+    ));
+    // day 1 = Monday
+    var dow = d.getUTCDay(); // 0=Sun,1=Mon,...
+    var daysUntilMon = (dow === 1) ? 7 : (8 - dow) % 7;
+    d.setUTCDate(d.getUTCDate() + daysUntilMon);
+    // If today IS Monday and before 10:00 UTC, use today
+    if(dow === 1 && now.getUTCHours() < 10){
+      d.setUTCDate(d.getUTCDate() - 7);
+    }
+    return d;
+  }
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function tick(){
+    var end  = getNextMonday10UTC();
+    var diff = end - Date.now();
+    if(diff < 0) diff = 0;
+
+    var totalSecs = Math.floor(diff / 1000);
+    var secs  = totalSecs % 60;
+    var mins  = Math.floor(totalSecs / 60) % 60;
+    var hours = Math.floor(totalSecs / 3600) % 24;
+    var days  = Math.floor(totalSecs / 86400);
+
+    var dEl = document.getElementById('ctCkDays');
+    var hEl = document.getElementById('ctCkHours');
+    var mEl = document.getElementById('ctCkMins');
+    var sEl = document.getElementById('ctCkSecs');
+
+    if(dEl) dEl.textContent = pad(days);
+    if(hEl) hEl.textContent = pad(hours);
+    if(mEl) mEl.textContent = pad(mins);
+    if(sEl) sEl.textContent = pad(secs);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// ═══════════════════════════════════════════════════════
+// CONTEST LEADERBOARD — Only real live players
+// ═══════════════════════════════════════════════════════
+function renderContestLeaderboard(){
+  var tbody = document.getElementById('ctLeaderboard');
+  if(!tbody) return;
+
+  // Load real contest wagers from localStorage
+  var cw = {};
+  try{ cw = JSON.parse(localStorage.getItem('contest_wagers') || '{}'); }catch(x){}
+
+  // Build sorted array
+  var entries = [];
+  for(var uname in cw){
+    if(cw.hasOwnProperty(uname)){
+      entries.push({ name: uname, wager: parseFloat(cw[uname]) || 0 });
+    }
+  }
+  entries.sort(function(a,b){ return b.wager - a.wager; });
+
+  // Update My Stats
+  var myName = localStorage.getItem('userName') || '';
+  var myWager = parseFloat(localStorage.getItem('totalWagered') || '0');
+  var myRank = '—';
+  for(var i=0;i<entries.length;i++){
+    if(entries[i].name === myName){ myRank = '#'+(i+1); break; }
+  }
+  var mwEl = document.getElementById('ctMyWager');
+  var mrEl = document.getElementById('ctMyRank');
+  if(mwEl) mwEl.textContent = myWager.toFixed(6);
+  if(mrEl) mrEl.textContent = myRank;
+
+  // Render leaderboard
+  if(entries.length === 0){
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px 0;font-size:14px">No wagers recorded yet — play a game to appear here!</td></tr>';
+    return;
+  }
+
+  var medals = ['&#129351;','&#129352;','&#129353;'];
+  var html = '';
+  for(var j=0;j<entries.length;j++){
+    var rank  = j+1;
+    var medal = medals[j] || '';
+    var isMe  = entries[j].name === myName;
+    var cls   = isMe ? ' style="background:rgba(163,230,53,.06);font-weight:700"' : '';
+    html += '<tr'+cls+'>';
+    html += '<td>'+(medal ? medal+' ' : '')+rank+'</td>';
+    html += '<td>'+(isMe ? '<strong>'+entries[j].name+'</strong>' : entries[j].name)+'</td>';
+    html += '<td>'+entries[j].wager.toFixed(6)+' TRX</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+// Run on load and refresh every 10s
+renderContestLeaderboard();
+setInterval(renderContestLeaderboard, 10000);
 </script>
 </body>
 </html>
