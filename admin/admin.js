@@ -1067,3 +1067,314 @@ window.addEventListener('DOMContentLoaded', function(){
     if(el) el.textContent = d.toLocaleTimeString();
   }, 1000);
 });
+// ═══════════════════════════════════════════════════════
+// FIX: User count — merge site_registered_users into adm_users on load
+// ═══════════════════════════════════════════════════════
+(function syncUsers(){
+  try{
+    var au = JSON.parse(localStorage.getItem('adm_users')||'[]');
+    var ru = JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    var changed = false;
+    ru.forEach(function(u){
+      if(!au.find(function(x){return x.name===u.name||x.email===u.email;})){
+        au.push({id:'u_'+u.name.toLowerCase().replace(/[^a-z0-9]/g,''),name:u.name,email:u.email||u.name+'@tronsick.io',balance:'0.000000',banned:false,joined:u.joined||new Date().toISOString()});
+        changed=true;
+      }
+    });
+    if(changed) localStorage.setItem('adm_users',JSON.stringify(au));
+    S.users = au;
+  }catch(e){}
+})();
+
+// ═══════════════════════════════════════════════════════
+// SECTION: PAYOUT GENERATE
+// ═══════════════════════════════════════════════════════
+SECTIONS.payout_gen = buildPayoutGen;
+TITLES.payout_gen = 'Payout Generator';
+
+function buildPayoutGen(){
+  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+  var rows = payouts.slice().reverse().map(function(p){
+    return '<tr><td>'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.5)">'+p.txid.substr(0,16)+'...</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.address.substr(0,14)+'...</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No generated payouts yet</td></tr>';
+
+  return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Generate fake payout records that appear on the site payout page live.</p></div>'+
+  card('Generate Payout','money-bill-wave',null,
+    '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generated payouts appear live on site payout history page for all users to see.</div>'+
+    '<div class="form-row">'+
+    '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Min Amount (TRX)</label><input type="number" id="pgMin" value="10" min="0.000001" step="0.000001"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Max Amount (TRX)</label><input type="number" id="pgMax" value="100" min="0.000001" step="0.000001"/></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
+    '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
+    '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
+    '<button class="btn btn-danger" onclick="if(confirm(\'Clear all generated payouts?\')) {localStorage.removeItem(\'gen_payouts\');document.getElementById(\'admContent\').innerHTML=buildPayoutGen();}"><i class="fas fa-trash"></i> Clear All</button>'+
+    '</div>'
+  )+
+  card('Generated Payout History','history',{cls:'badge-green',txt:payouts.length+' Records'},
+    '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Amount</th><th>TxID</th><th>Address</th><th>Time</th><th>Del</th></tr></thead><tbody id="pgTbody">'+rows+'</tbody></table></div>'
+  );
+}
+
+function _randTxid(){
+  var c='0123456789abcdef';
+  var t='';for(var i=0;i<64;i++)t+=c[Math.floor(Math.random()*16)];
+  return t;
+}
+function _randTronAddr(){
+  var c='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var a='T';for(var i=0;i<33;i++)a+=c[Math.floor(Math.random()*36)];
+  return a;
+}
+function _randBetween(min,max){ return (Math.random()*(max-min)+min); }
+
+function generateOnePayout(){
+  var user = (document.getElementById('pgUser').value||'').trim();
+  var mn = parseFloat(document.getElementById('pgMin').value)||10;
+  var mx = parseFloat(document.getElementById('pgMax').value)||100;
+  if(!user){toast('Enter a username','error');return;}
+  if(mn>mx){toast('Min must be <= Max','error');return;}
+  var amt = _randBetween(mn,mx).toFixed(6);
+  var p = {id:'pg'+Date.now(),username:user,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date().toISOString()};
+  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+  payouts.push(p);
+  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
+  toast('Payout generated: '+user+' +'+amt+' TRX');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
+}
+
+function generateBulkPayouts(){
+  var mn = parseFloat(document.getElementById('pgMin').value)||10;
+  var mx = parseFloat(document.getElementById('pgMax').value)||100;
+  var names=['TronUser','CryptoKing','DiamondHands','MoonWalker','TRXHunter','BlockMaster','DeFiPro','SatoshiFan','CoinFlipper','LimboPlayer'];
+  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+  for(var i=0;i<5;i++){
+    var uname = names[Math.floor(Math.random()*names.length)]+(Math.floor(Math.random()*9000)+1000);
+    var amt = _randBetween(mn,mx).toFixed(6);
+    payouts.push({id:'pg'+Date.now()+i,username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date(Date.now()-Math.random()*3600000).toISOString()});
+  }
+  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
+  toast('5 random payouts generated!');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
+}
+
+function deleteGenPayout(id){
+  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]').filter(function(p){return p.id!==id;});
+  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
+  toast('Payout removed');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
+}
+
+// ═══════════════════════════════════════════════════════
+// SECTION: CONTEST GENERATE (Fake Leaderboard Entries)
+// ═══════════════════════════════════════════════════════
+SECTIONS.contest_gen = buildContestGen;
+TITLES.contest_gen = 'Contest Generator';
+
+var _ctAutoTimers = [];
+
+function buildContestGen(){
+  var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+  var entries = Object.keys(cw).map(function(u){return {name:u,wager:parseFloat(cw[u])||0};}).sort(function(a,b){return b.wager-a.wager;});
+  var lbRows = entries.map(function(e,i){
+    return '<tr><td>#'+(i+1)+'</td><td>'+e.name+'</td><td>'+e.wager.toFixed(3)+' TRX</td><td><button class="btn btn-sm btn-danger" onclick="removeCtEntry(\''+e.name+'\')"><i class="fas fa-trash"></i></button></td></tr>';
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.3);padding:18px">No entries yet</td></tr>';
+
+  var rows10 = '';
+  for(var i=1;i<=10;i++){
+    rows10 += '<div class="form-row" style="align-items:flex-end;gap:8px;margin-bottom:10px">'+
+    '<div class="form-group" style="flex:2;margin-bottom:0"><label>Username '+i+'</label><input type="text" id="cg_user'+i+'" placeholder="e.g. player'+i+'"/></div>'+
+    '<div class="form-group" style="flex:1;margin-bottom:0"><label>Wager (TRX)</label><input type="number" id="cg_wager'+i+'" value="'+(Math.floor(Math.random()*500+50))+'" min="0" step="0.001"/></div>'+
+    '<div class="form-group" style="flex:1;margin-bottom:0"><label>Auto every (sec)</label><input type="number" id="cg_interval'+i+'" value="'+(30+i*5)+'" min="5" max="3600"/></div>'+
+    '<div class="form-group" style="flex:1;margin-bottom:0"><label>Add (TRX/tick)</label><input type="number" id="cg_add'+i+'" value="'+(Math.random()*10+1).toFixed(3)+'" min="0" step="0.001"/></div>'+
+    '</div>';
+  }
+
+  return '<div class="pg-hdr"><h1>Contest Generator</h1><p>Add fake users to the live leaderboard with auto-wagering simulation.</p></div>'+
+  card('Add Contest Entries','trophy',null,
+    '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> These entries appear live on the site contest leaderboard. Auto-wager adds TRX to each user every N seconds.</div>'+
+    rows10+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
+    '<button class="btn btn-primary" onclick="saveCtEntries()"><i class="fas fa-save"></i> Save & Apply to Leaderboard</button>'+
+    '<button class="btn btn-success" onclick="startCtAuto()"><i class="fas fa-play"></i> Start Auto-Wager</button>'+
+    '<button class="btn btn-danger" onclick="stopCtAuto()"><i class="fas fa-stop"></i> Stop Auto</button>'+
+    '<button class="btn btn-warning" onclick="if(confirm(\'Clear all contest entries?\')) {localStorage.removeItem(\'contest_wagers\');document.getElementById(\'admContent\').innerHTML=buildContestGen();}"><i class="fas fa-trash"></i> Clear All</button>'+
+    '</div>'
+  )+
+  card('Live Leaderboard Preview','list-ol',{cls:'badge-green',txt:entries.length+' Players'},
+    '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Rank</th><th>Username</th><th>Wagered</th><th>Remove</th></tr></thead><tbody id="ctGenTbody">'+lbRows+'</tbody></table></div>'+
+    '<div style="margin-top:12px"><button class="btn btn-secondary" onclick="document.getElementById(\'admContent\').innerHTML=buildContestGen()"><i class="fas fa-refresh"></i> Refresh Preview</button></div>'
+  );
+}
+
+function saveCtEntries(){
+  var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+  for(var i=1;i<=10;i++){
+    var uEl = document.getElementById('cg_user'+i);
+    var wEl = document.getElementById('cg_wager'+i);
+    if(uEl && uEl.value.trim() && wEl){
+      var uname = uEl.value.trim();
+      var wager = parseFloat(wEl.value)||0;
+      if(uname && wager>0) cw[uname] = wager;
+    }
+  }
+  localStorage.setItem('contest_wagers',JSON.stringify(cw));
+  toast('Contest entries saved to live leaderboard!');
+  document.getElementById('admContent').innerHTML=buildContestGen();
+}
+
+function startCtAuto(){
+  stopCtAuto();
+  var added = 0;
+  for(var i=1;i<=10;i++){
+    (function(idx){
+      var uEl = document.getElementById('cg_user'+idx);
+      var intEl = document.getElementById('cg_interval'+idx);
+      var addEl = document.getElementById('cg_add'+idx);
+      if(!uEl||!uEl.value.trim()) return;
+      var uname = uEl.value.trim();
+      var interval = parseInt(intEl&&intEl.value)||30;
+      var addAmt = parseFloat(addEl&&addEl.value)||1;
+      var timer = setInterval(function(){
+        var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+        cw[uname] = (parseFloat(cw[uname])||0) + addAmt;
+        localStorage.setItem('contest_wagers',JSON.stringify(cw));
+      }, interval*1000);
+      _ctAutoTimers.push(timer);
+    })(i);
+    added++;
+  }
+  toast('Auto-wager started for '+added+' users!');
+}
+
+function stopCtAuto(){
+  _ctAutoTimers.forEach(function(t){clearInterval(t);});
+  _ctAutoTimers=[];
+  toast('Auto-wager stopped','error');
+}
+
+function removeCtEntry(uname){
+  var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+  delete cw[uname];
+  localStorage.setItem('contest_wagers',JSON.stringify(cw));
+  toast(uname+' removed from leaderboard');
+  document.getElementById('admContent').innerHTML=buildContestGen();
+}
+
+// ═══════════════════════════════════════════════════════
+// SECTION: FAKE ACCOUNT CHECKER
+// ═══════════════════════════════════════════════════════
+SECTIONS.fake_check = buildFakeCheck;
+TITLES.fake_check = 'Fake Account Checker';
+
+function buildFakeCheck(){
+  return '<div class="pg-hdr"><h1>Fake Account Checker</h1><p>Search any username to check if it\'s a real registered user or a generated fake contest/payout entry.</p></div>'+
+  card('Account Search','search',null,
+    '<div class="form-row" style="align-items:flex-end">'+
+    '<div class="form-group" style="flex:3;margin-bottom:0"><label><i class="fas fa-user"></i> Search Username</label><input type="text" id="fkSearch" placeholder="Enter exact username to check..." oninput="fakeCheckSearch(this.value)"/></div>'+
+    '</div>'+
+    '<div id="fkResult" style="margin-top:20px"></div>'
+  )+
+  card('All Generated (Fake) Contest Entries','robot',null,
+    (function(){
+      var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+      var au = JSON.parse(localStorage.getItem('adm_users')||'[]');
+      var ru = JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+      var fakes = Object.keys(cw).filter(function(u){
+        var inReal = au.find(function(x){return x.name.toLowerCase()===u.toLowerCase();}) ||
+                     ru.find(function(x){return x.name&&x.name.toLowerCase()===u.toLowerCase();});
+        return !inReal;
+      });
+      if(!fakes.length) return '<p style="color:rgba(255,255,255,.3);padding:12px 0;font-size:13px">No fake contest entries detected — all leaderboard users are real.</p>';
+      return '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Contest Wager</th><th>Status</th><th>Remove</th></tr></thead><tbody>'+
+      fakes.map(function(u){
+        var cw2=JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+        return '<tr><td style="color:#f59e0b;font-weight:700">'+u+'</td><td>'+((parseFloat(cw2[u])||0).toFixed(3))+' TRX</td><td><span class="tbl-badge tbl-yellow">FAKE</span></td><td><button class="btn btn-sm btn-danger" onclick="removeCtEntry(\''+u+'\');document.getElementById(\'admContent\').innerHTML=buildFakeCheck()"><i class="fas fa-trash"></i></button></td></tr>';
+      }).join('')+
+      '</tbody></table></div>';
+    })()
+  )+
+  card('All Generated Payout Records','receipt',null,
+    (function(){
+      var gp = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+      if(!gp.length) return '<p style="color:rgba(255,255,255,.3);padding:12px 0;font-size:13px">No generated payout records.</p>';
+      return '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Amount</th><th>TxID</th><th>Status</th></tr></thead><tbody>'+
+      gp.slice().reverse().map(function(p){
+        return '<tr><td style="color:#f59e0b;font-weight:700">'+p.username+'</td><td>'+p.amount+' TRX</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.txid.substr(0,20)+'...</td><td><span class="tbl-badge tbl-yellow">GENERATED</span></td></tr>';
+      }).join('')+
+      '</tbody></table></div>';
+    })()
+  );
+}
+
+function fakeCheckSearch(q){
+  var res = document.getElementById('fkResult');
+  if(!res) return;
+  q = (q||'').trim();
+  if(!q){ res.innerHTML=''; return; }
+
+  var au = JSON.parse(localStorage.getItem('adm_users')||'[]');
+  var ru = JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+  var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+  var gp = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+
+  var isRealUser = au.find(function(x){return x.name.toLowerCase()===q.toLowerCase();}) ||
+                   ru.find(function(x){return x.name&&x.name.toLowerCase()===q.toLowerCase();});
+  var inContest  = Object.keys(cw).find(function(u){return u.toLowerCase()===q.toLowerCase();});
+  var inGenPay   = gp.find(function(p){return p.username.toLowerCase()===q.toLowerCase();});
+
+  var html = '';
+  if(isRealUser){
+    html += '<div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.3);border-radius:12px;padding:18px 20px;margin-bottom:12px">'+
+    '<div style="font-size:15px;font-weight:800;color:#3ecf8e;margin-bottom:8px"><i class="fas fa-circle-check"></i> REAL USER — Registered Account</div>'+
+    '<div style="font-size:13px;color:rgba(255,255,255,.7)">Username: <strong>'+isRealUser.name+'</strong> &nbsp;|&nbsp; Email: '+isRealUser.email+'&nbsp;|&nbsp; Balance: '+(isRealUser.balance||'0')+' TRX &nbsp;|&nbsp; Joined: '+new Date(isRealUser.joined||Date.now()).toLocaleDateString()+'</div>'+
+    '</div>';
+  } else {
+    html += '<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:18px 20px;margin-bottom:12px">'+
+    '<div style="font-size:15px;font-weight:800;color:#f87171;margin-bottom:6px"><i class="fas fa-circle-xmark"></i> NOT A REAL USER — No registered account found</div>'+
+    '</div>';
+  }
+
+  if(inContest){
+    html += '<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 20px;margin-bottom:10px">'+
+    '<div style="font-size:13px;font-weight:700;color:#f59e0b"><i class="fas fa-trophy"></i> FAKE CONTEST ENTRY — Appears in leaderboard with '+((parseFloat(cw[inContest])||0).toFixed(3))+' TRX wagered</div>'+
+    '</div>';
+  }
+
+  if(inGenPay){
+    html += '<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 20px;margin-bottom:10px">'+
+    '<div style="font-size:13px;font-weight:700;color:#f59e0b"><i class="fas fa-receipt"></i> GENERATED PAYOUT RECORD — '+inGenPay.amount+' TRX on '+new Date(inGenPay.date).toLocaleString()+'</div>'+
+    '</div>';
+  }
+
+  if(!isRealUser && !inContest && !inGenPay){
+    html += '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 20px">'+
+    '<div style="font-size:13px;color:rgba(255,255,255,.5)"><i class="fas fa-question-circle"></i> Username not found anywhere in the system</div></div>';
+  }
+
+  res.innerHTML = html;
+}
+
+// Add sidebar buttons for new sections
+window.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    var sb = document.querySelector('.sb-nav');
+    if(!sb) return;
+    var sep = document.createElement('div');
+    sep.style.cssText='height:1px;background:rgba(255,255,255,.06);margin:8px 12px';
+    sb.appendChild(sep);
+
+    [{key:'payout_gen',icon:'money-bill-wave',label:'Payout Generate'},
+     {key:'contest_gen',icon:'trophy',label:'Contest Generate'},
+     {key:'fake_check',icon:'robot',label:'Fake Account Check'}
+    ].forEach(function(item){
+      var a = document.createElement('a');
+      a.className='sb-item';
+      a.href='javascript:void(0)';
+      a.innerHTML='<i class="fas fa-'+item.icon+'"></i><s>'+item.label+'</s>';
+      a.onclick=function(){ showSection(a, item.key); };
+      sb.appendChild(a);
+    });
+  }, 100);
+});
