@@ -30,7 +30,7 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item sb-stake" id="nav-stake" onclick="go('stake')" href="javascript:void(0)"><i>&#x1F4B0;</i><s>Stake</s></a>
+    <a class="sb-item sb-stake" id="nav-stake" onclick="go('stake',true)" href="javascript:void(0)"><i>&#x1F4B0;</i><s>Stake</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
