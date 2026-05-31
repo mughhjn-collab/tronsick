@@ -40,7 +40,7 @@ a{text-decoration:none;color:inherit}
 /* ═══ HERO ═══ */
 .hero{background:linear-gradient(160deg,#0d1f18 0%,#132920 45%,#0a1f14 100%);padding-top:62px;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column}
 .hero-overlay{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.hero-wrap{max-width:100%;margin:0;padding:70px 5% 60px;display:grid;grid-template-columns:52% 48%;gap:0;align-items:center;flex:1;position:relative;z-index:1}
+.hero-wrap{max-width:860px;margin:0 auto;padding:70px 5% 60px;display:flex;flex-direction:column;gap:0;align-items:flex-start;flex:1;position:relative;z-index:1}
 
 /* Hero Left */
 .hero-left{padding-right:40px}
@@ -108,15 +108,27 @@ a{text-decoration:none;color:inherit}
 .how-card-featured .how-cta{color:#f87171}
 
 /* ═══ GAMES ═══ */
-.games-sec{padding:90px 0;background:#12122b}
-.games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px}
-.game-tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:26px 16px;text-align:center;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;align-items:center;gap:7px}
-.game-tile:hover{border-color:#f59e0b;background:rgba(245,158,11,.06);transform:translateY(-4px);box-shadow:0 10px 28px rgba(245,158,11,.1)}
-.gt-em{font-size:32px}
-.gt-nm{font-weight:700;font-size:14px;color:#fff}
+.games-sec{padding:90px 0;background:#0d1f18}
+.games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px}
+@media(min-width:700px){.games-grid{grid-template-columns:repeat(3,1fr)}}
+.game-tile{border-radius:18px;padding:32px 16px 20px;text-align:center;cursor:pointer;transition:all .28s;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.game-tile:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.gt-icon{font-size:52px;line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.gt-nm{font-weight:900;font-size:15px;color:#fff;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,.4)}
 .gt-eg{display:none}
+.game-tile::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.08) 0%,transparent 60%);pointer-events:none}
+/* Individual game gradients */
+.gt-dice{background:linear-gradient(145deg,#7c3aed,#4f46e5)}
+.gt-mines{background:linear-gradient(145deg,#059669,#10b981)}
+.gt-tower{background:linear-gradient(145deg,#0891b2,#06b6d4)}
+.gt-limbo{background:linear-gradient(145deg,#7c3aed,#a855f7)}
+.gt-keno{background:linear-gradient(145deg,#d97706,#f59e0b)}
+.gt-wheel{background:linear-gradient(145deg,#dc2626,#f97316)}
+.gt-sicbo{background:linear-gradient(145deg,#db2777,#e11d48)}
+.gt-plinko{background:linear-gradient(145deg,#1d4ed8,#3b82f6)}
+.gt-chuck{background:linear-gradient(145deg,#15803d,#a3e635)}
 .games-cta{text-align:center;color:rgba(255,255,255,.4);font-size:14px}
-.games-cta a{color:#f59e0b;font-weight:700}
+.games-cta a{color:#a3e635;font-weight:700}
 
 /* ═══ PAYOUTS ═══ */
 .payouts-sec{padding:90px 0;background:#fff}
@@ -170,7 +182,7 @@ a{text-decoration:none;color:inherit}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:960px){
-  .hero-wrap{grid-template-columns:1fr;gap:40px;padding-top:50px}
+  .hero-wrap{max-width:860px;margin:0 auto;padding:70px 5% 60px;display:flex;flex-direction:column;gap:0;align-items:flex-start;flex:1;position:relative;z-index:1}
   .hero-left h1{text-align:center}
   .how-grid{grid-template-columns:1fr}
   .games-grid{grid-template-columns:repeat(2,1fr)}
@@ -182,7 +194,7 @@ a{text-decoration:none;color:inherit}
   .signup-box{max-width:100%}
 }
 @media(max-width:960px){
-  .hero-wrap{grid-template-columns:1fr;gap:40px;padding-top:50px}
+  .hero-wrap{max-width:860px;margin:0 auto;padding:70px 5% 60px;display:flex;flex-direction:column;gap:0;align-items:flex-start;flex:1;position:relative;z-index:1}
   .hero-left h1{text-align:center}
   .how-grid{grid-template-columns:1fr}
   .games-grid{grid-template-columns:repeat(2,1fr)}

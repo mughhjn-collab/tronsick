@@ -63,23 +63,10 @@
       </div>
     </div>
 
-    <!-- RIGHT: Auth buttons -->
-    <div class="hero-right">
-      <div class="hero-auth-box" id="signupBox">
-      <div class="hero-auth-box" id="signupBox">
-        <div class="hab-live"><span class="hab-dot"></span> Live on TRON Blockchain</div>
-        <div class="hab-title">Why TronSick?</div>
-        <div class="hab-reasons">
-          <div class="hab-row"><span class="hab-icon">⏱</span><div><strong>Claim every 40 minutes</strong><span>Up to 60 TRX, zero deposit</span></div></div>
-          <div class="hab-row"><span class="hab-icon">🏆</span><div><strong>Weekly prize pool</strong><span>Top earners split TRX rewards</span></div></div>
-          <div class="hab-row"><span class="hab-icon">💰</span><div><strong>Daily cashback</strong><span>Auto-credited every night</span></div></div>
-          <div class="hab-row"><span class="hab-icon">🎮</span><div><strong>9 provably fair games</strong><span>Dice, Mines, Tower & more</span></div></div>
-          <div class="hab-row"><span class="hab-icon">👥</span><div><strong>50% referral income</strong><span>Paid forever, no cap</span></div></div>
-        </div>
-        <a href="login.php?tab=register" class="hab-btn-signup" id="heroSignupBtn">CREATE FREE ACCOUNT</a>
-        <a href="login.php" class="hab-btn-login" id="heroLoginBtn">Already a member? Log In →</a>
-      </div>
-    </div>
+
+  </div>
+</section>
+
 
   </div>
 </section>
@@ -147,17 +134,43 @@
       <p>Every game uses a cryptographic server seed + client seed system. Verify any result independently — outcomes cannot be manipulated. Every game has just <strong>1% house edge</strong>. Your bets also count toward the Weekly Contest leaderboard.</p>
     </div>
     <div class="games-grid">
-      <div class="game-tile" id="g1"><span class="gt-em">🎲</span><span class="gt-nm">Dice</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g2"><span class="gt-em">💣</span><span class="gt-nm">Mines</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g3"><span class="gt-em">🏰</span><span class="gt-nm">Tower</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g4"><span class="gt-em">🚀</span><span class="gt-nm">Limbo</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g5"><span class="gt-em">🎱</span><span class="gt-nm">Keno</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g6"><span class="gt-em">🎡</span><span class="gt-nm">Wheel</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g7"><span class="gt-em">🎰</span><span class="gt-nm">Sic Bo</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g8"><span class="gt-em">📍</span><span class="gt-nm">Plinko</span><span class="gt-eg">1% Edge</span></div>
-      <div class="game-tile" id="g9"><span class="gt-em">🎯</span><span class="gt-nm">Chuck-a-Luck</span><span class="gt-eg">1% Edge</span></div>
-    </div>
-    <p class="games-cta">All games require a free account. <a href="login.php?tab=register">Sign up in 30 seconds →</a></p>
+      <a href="login.php?tab=register" class="game-tile gt-dice" id="g1">
+        <div class="gt-icon">&#127922;</div>
+        <span class="gt-nm">DICE</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-mines" id="g2">
+        <div class="gt-icon">&#128163;</div>
+        <span class="gt-nm">MINES</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-tower" id="g3">
+        <div class="gt-icon">&#127984;</div>
+        <span class="gt-nm">TOWER</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-limbo" id="g4">
+        <div class="gt-icon">&#128640;</div>
+        <span class="gt-nm">LIMBO</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-keno" id="g5">
+        <div class="gt-icon">&#127921;</div>
+        <span class="gt-nm">KENO</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-wheel" id="g6">
+        <div class="gt-icon">&#127881;</div>
+        <span class="gt-nm">WHEEL</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-sicbo" id="g7">
+        <div class="gt-icon">&#127922;&#127922;</div>
+        <span class="gt-nm">SIC BO</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-plinko" id="g8">
+        <div class="gt-icon">&#9679;</div>
+        <span class="gt-nm">PLINKO</span>
+      </a>
+      <a href="login.php?tab=register" class="game-tile gt-chuck" id="g9">
+        <div class="gt-icon">&#127919;</div>
+        <span class="gt-nm">CHUCK-A-LUCK</span>
+      </a>
+        <p class="games-cta">All games require a free account. <a href="login.php?tab=register">Sign up in 30 seconds →</a></p>
   </div>
 </section>
 
@@ -181,24 +194,6 @@
   </div>
 </section>
 
-<!-- ═══ BOTTOM CTA ═══ -->
-<section class="cta-sec" id="ctaSec">
-  <div class="container cta-inner">
-    <div class="cta-badge">⚡ Free · No Deposit · Faucet + Contest + Cashback</div>
-    <h2>47,000+ Users Are Earning<br/>Free TRX Every Day</h2>
-    <p>Your first claim is waiting right now. Sign up free in under 60 seconds — claim every 40 minutes, compete in the weekly contest, earn daily cashback, and play 9 provably fair games. Zero cost to start.</p>
-    <a href="login.php?tab=register" class="btn-orange btn-xl" id="ctaBtn">CLAIM MY FREE TRX NOW →</a>
-    <div style="display:flex;justify-content:center;gap:32px;margin-top:28px;flex-wrap:wrap">
-      <div style="text-align:center"><strong style="display:block;font-size:22px;color:#f59e0b;font-family:monospace">40 Min</strong><span style="font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Faucet Timer</span></div>
-      <div style="width:1px;background:rgba(255,255,255,.1)"></div>
-      <div style="text-align:center"><strong style="display:block;font-size:22px;color:#f59e0b;font-family:monospace">Weekly</strong><span style="font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Contest Prize Pool</span></div>
-      <div style="width:1px;background:rgba(255,255,255,.1)"></div>
-      <div style="text-align:center"><strong style="display:block;font-size:22px;color:#f59e0b;font-family:monospace">Daily</strong><span style="font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Cashback Rewards</span></div>
-      <div style="width:1px;background:rgba(255,255,255,.1)"></div>
-      <div style="text-align:center"><strong style="display:block;font-size:22px;color:#f59e0b;font-family:monospace">50%</strong><span style="font-size:12px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">Referral Commission</span></div>
-    </div>
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer class="footer">
