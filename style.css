@@ -1,4 +1,4 @@
-﻿*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:#1a1a2e;color:#e2e8f0;line-height:1.65;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
@@ -112,7 +112,7 @@ a{text-decoration:none;color:inherit}
 .game-tile:hover{border-color:#f59e0b;background:rgba(245,158,11,.06);transform:translateY(-4px);box-shadow:0 10px 28px rgba(245,158,11,.1)}
 .gt-em{font-size:32px}
 .gt-nm{font-weight:700;font-size:14px;color:#fff}
-.gt-eg{font-size:11px;color:rgba(255,255,255,.3)}
+.gt-eg{display:none}
 .games-cta{text-align:center;color:rgba(255,255,255,.4);font-size:14px}
 .games-cta a{color:#f59e0b;font-weight:700}
 
@@ -132,18 +132,18 @@ a{text-decoration:none;color:inherit}
 .ptbl-foot span a{color:#e11d48;font-weight:700}
 
 /* ═══ FAQ ═══ */
-.faq-sec{padding:90px 0;background:#f9fafb;border-top:1px solid #e5e7eb}
+.faq-sec{padding:90px 0;background:#111827;border-top:1px solid rgba(255,255,255,.06)}
 .faq-layout{display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start}
-.faq-left h2{font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#111827;margin-bottom:14px;letter-spacing:-.5px}
-.faq-left p{font-size:15px;color:#6b7280;line-height:1.75}
+.faq-left h2{font-size:clamp(24px,3.5vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-.5px}
+.faq-left p{font-size:15px;color:rgba(255,255,255,.45);line-height:1.75}
 .faq-list{display:flex;flex-direction:column;gap:10px}
-.fq{border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;transition:border-color .2s}
-.fq.open{border-color:#e11d48}
-.fq-btn{width:100%;background:#fff;border:none;cursor:pointer;font-family:inherit;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#111827;text-align:left;gap:12px}
-.fq-ic{color:#e11d48;font-size:22px;flex-shrink:0;transition:transform .3s;line-height:1;font-weight:300}
+.fq{border:1.5px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.03);transition:border-color .2s}
+.fq.open{border-color:#a3e635}
+.fq-btn{width:100%;background:transparent;border:none;cursor:pointer;font-family:inherit;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#fff;text-align:left;gap:12px}
+.fq-ic{color:#a3e635;font-size:22px;flex-shrink:0;transition:transform .3s;line-height:1;font-weight:300}
 .fq.open .fq-ic{transform:rotate(45deg)}
-.fq-body{display:none;padding:0 20px 18px;background:#fff}
-.fq-body p{font-size:14px;color:#6b7280;line-height:1.8}
+.fq-body{display:none;padding:0 20px 18px;background:transparent}
+.fq-body p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.8}
 .fq.open .fq-body{display:block}
 
 /* ═══ CTA ═══ */
@@ -186,16 +186,36 @@ a{text-decoration:none;color:inherit}
   .footer-grid{grid-template-columns:1fr}
 }
 
-/* ── HERO AUTH BOX (replaces signup form) ── */
-.hero-auth-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:36px 32px;text-align:center;backdrop-filter:blur(12px)}
-.hab-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
-.hab-sub{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:28px;line-height:1.5}
-.hab-stats{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;background:rgba(0,0,0,.2);border-radius:12px;padding:16px}
+/* ── HERO AUTH BOX (premium dark card) ── */
+.hero-auth-box{
+  background:linear-gradient(145deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 100%);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  padding:38px 34px 32px;
+  text-align:center;
+  backdrop-filter:blur(20px);
+  box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);
+  position:relative;
+  overflow:hidden;
+}
+.hero-auth-box::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(163,230,53,.4),transparent)}
+.hab-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:-.4px;line-height:1.1}
+.hab-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px;line-height:1.5}
+.hab-stats{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 12px}
 .hab-stat{flex:1;text-align:center}
-.hab-val{display:block;font-size:26px;font-weight:900;color:#a3e635;font-family:'JetBrains Mono',monospace}
-.hab-lbl{display:block;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
-.hab-sep{width:1px;height:40px;background:rgba(255,255,255,.1)}
-.hab-btn-signup{display:block;width:100%;padding:14px;background:#a3e635;border-radius:10px;font-size:15px;font-weight:900;color:#0f1a10;letter-spacing:.5px;text-transform:uppercase;text-decoration:none;transition:background .2s,transform .15s,box-shadow .2s;margin-bottom:14px}
-.hab-btn-signup:hover{background:#b8f24a;transform:translateY(-2px);box-shadow:0 8px 24px rgba(163,230,53,.35)}
-.hab-btn-login{display:block;font-size:13px;color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s}
+.hab-val{display:block;font-size:28px;font-weight:900;color:#a3e635;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
+.hab-lbl{display:block;font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-top:5px}
+.hab-sep{width:1px;height:44px;background:rgba(255,255,255,.08)}
+.hab-btn-signup{
+  display:block;width:100%;padding:15px;
+  background:linear-gradient(135deg,#a3e635,#84cc16);
+  border-radius:11px;font-size:14px;font-weight:900;
+  color:#0a1a00;letter-spacing:.8px;text-transform:uppercase;
+  text-decoration:none;
+  transition:all .2s;
+  margin-bottom:14px;
+  box-shadow:0 4px 20px rgba(163,230,53,.25);
+}
+.hab-btn-signup:hover{background:linear-gradient(135deg,#b8f24a,#a3e635);transform:translateY(-2px);box-shadow:0 8px 28px rgba(163,230,53,.4)}
+.hab-btn-login{display:block;font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;padding:6px 0}
 .hab-btn-login:hover{color:#a3e635}
