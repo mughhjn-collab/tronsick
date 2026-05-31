@@ -53,15 +53,15 @@
 
     <!-- LEFT: Features -->
     <div class="hero-left">
-      <h1 id="heroH1">CLAIM FREE TRX<br/>EVERY 40 MINUTES!</h1>
+      <h1 id="heroH1">COLLECT FREE TRX<br/>EVERY 40 MINUTES!</h1>
       <ul class="feat-list" id="featList">
-        <li><span class="fcheck">✔</span><span>Free faucet — claim <strong>up to 60 TRX every 40 minutes</strong>, no deposit needed</span></li>
-        <li><span class="fcheck">✔</span><span><strong>Weekly Contest</strong> — compete on leaderboard and win massive TRX prize pools</span></li>
-        <li><span class="fcheck">✔</span><span><strong>Daily Cashback</strong> — earn back a % of losses every 24 hours, automatically</span></li>
-        <li><span class="fcheck">✔</span><span>9 provably fair games — <strong>Dice, Mines, Tower, Limbo & more</strong></span></li>
-        <li><span class="fcheck">✔</span><span><strong>50% Referral Commission</strong> on every friend's claim — lifetime, unlimited</span></li>
-        <li><span class="fcheck">✔</span><span><strong>VIP Levels</strong> — higher rank = bigger faucet rewards & exclusive perks</span></li>
-        <li><span class="fcheck">✔</span><span>Instant TRC-20 withdrawals — <strong>minimum 50 TRX, no hidden fees</strong></span></li>
+        <li><span class="fcheck">✔</span><span>Open the faucet, hit Claim — <strong>up to 60 TRX lands in your account instantly</strong>, no deposit, no tasks</span></li>
+        <li><span class="fcheck">✔</span><span><strong>Weekly Leaderboard Prize Pool</strong> — top players split TRX rewards every single Monday</span></li>
+        <li><span class="fcheck">✔</span><span><strong>Automatic Daily Cashback</strong> — a portion of your losses returned to your balance every night, hands-free</span></li>
+        <li><span class="fcheck">✔</span><span>9 casino games you can actually verify — <strong>Dice, Mines, Tower, Keno, Limbo, Wheel & more</strong></span></li>
+        <li><span class="fcheck">✔</span><span>Your referral link pays <strong>50% commission on every friend's claim — for life, no cap</strong></span></li>
+        <li><span class="fcheck">✔</span><span><strong>VIP system</strong> — every rank unlocks bigger faucet amounts, higher cashback & exclusive bonuses</span></li>
+        <li><span class="fcheck">✔</span><span>Withdraw straight to your TRON wallet — <strong>50 TRX minimum, processed instantly</strong></span></li>
       </ul>
       <a href="login.php?tab=register" class="btn-orange" id="heroPlayBtn">CLAIM FREE TRX NOW</a>
     </div>

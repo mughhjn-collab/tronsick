@@ -1,4 +1,4 @@
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+﻿*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:#1a1a2e;color:#e2e8f0;line-height:1.65;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
@@ -38,7 +38,7 @@ a{text-decoration:none;color:inherit}
 .mob-nav a:hover{color:#fff;background:rgba(255,255,255,.05)}
 
 /* ═══ HERO ═══ */
-.hero{background:linear-gradient(160deg,#0f0f23 0%,#1a1040 40%,#0d1f3c 100%);padding-top:62px;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column}
+.hero{background:linear-gradient(160deg,#0d1f18 0%,#132920 45%,#0a1f14 100%);padding-top:62px;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column}
 .hero-overlay{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
 .hero-wrap{max-width:100%;margin:0;padding:70px 5% 60px;display:grid;grid-template-columns:52% 48%;gap:0;align-items:center;flex:1;position:relative;z-index:1}
 
@@ -177,6 +177,18 @@ a{text-decoration:none;color:inherit}
   .hstat{padding:0 18px}
   .signup-box{max-width:100%}
 }
+@media(max-width:960px){
+  .hero-wrap{grid-template-columns:1fr;gap:40px;padding-top:50px}
+  .hero-left h1{text-align:center}
+  .how-grid{grid-template-columns:1fr}
+  .games-grid{grid-template-columns:repeat(2,1fr)}
+  .faq-layout{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .nav-menu,.nav-right{display:none}
+  .burger{display:flex}
+  .hstat{padding:0 18px}
+  .signup-box{max-width:100%}
+}
 @media(max-width:560px){
   .games-grid{grid-template-columns:repeat(2,1fr)}
   .hero-stats{justify-content:flex-start;overflow-x:auto;padding:16px 24px}
@@ -184,36 +196,17 @@ a{text-decoration:none;color:inherit}
   .footer-grid{grid-template-columns:1fr}
 }
 
-/* ── HERO AUTH BOX (premium dark card) ── */
-.hero-auth-box{
-  background:linear-gradient(145deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 100%);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:20px;
-  padding:38px 34px 32px;
-  text-align:center;
-  backdrop-filter:blur(20px);
-  box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);
-  position:relative;
-  overflow:hidden;
-}
-.hero-auth-box::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(163,230,53,.4),transparent)}
+/* -- HERO AUTH BOX (green card) -- */
+.hero-auth-box{background:linear-gradient(145deg,rgba(163,230,53,.07) 0%,rgba(255,255,255,.02) 100%);border:1px solid rgba(163,230,53,.2);border-radius:20px;padding:38px 34px 32px;text-align:center;backdrop-filter:blur(20px);box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(163,230,53,.1);position:relative;overflow:hidden}
+.hero-auth-box::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:1px;background:linear-gradient(90deg,transparent,rgba(163,230,53,.6),transparent)}
 .hab-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:-.4px;line-height:1.1}
-.hab-sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px;line-height:1.5}
-.hab-stats{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px 12px}
+.hab-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:26px;line-height:1.5}
+.hab-stats{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;background:rgba(0,0,0,.3);border:1px solid rgba(163,230,53,.1);border-radius:12px;padding:16px 12px}
 .hab-stat{flex:1;text-align:center}
 .hab-val{display:block;font-size:28px;font-weight:900;color:#a3e635;font-family:'JetBrains Mono',monospace;letter-spacing:-1px}
 .hab-lbl{display:block;font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.8px;margin-top:5px}
-.hab-sep{width:1px;height:44px;background:rgba(255,255,255,.08)}
-.hab-btn-signup{
-  display:block;width:100%;padding:15px;
-  background:linear-gradient(135deg,#a3e635,#84cc16);
-  border-radius:11px;font-size:14px;font-weight:900;
-  color:#0a1a00;letter-spacing:.8px;text-transform:uppercase;
-  text-decoration:none;
-  transition:all .2s;
-  margin-bottom:14px;
-  box-shadow:0 4px 20px rgba(163,230,53,.25);
-}
-.hab-btn-signup:hover{background:linear-gradient(135deg,#b8f24a,#a3e635);transform:translateY(-2px);box-shadow:0 8px 28px rgba(163,230,53,.4)}
-.hab-btn-login{display:block;font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;padding:6px 0}
-.hab-btn-login:hover{color:#a3e635}
+.hab-sep{width:1px;height:44px;background:rgba(163,230,53,.15)}
+.hab-btn-signup{display:block;width:100%;padding:15px;background:linear-gradient(135deg,#a3e635,#84cc16);border-radius:11px;font-size:14px;font-weight:900;color:#0a1a00;letter-spacing:.8px;text-transform:uppercase;text-decoration:none;transition:all .2s;margin-bottom:12px;box-shadow:0 4px 20px rgba(163,230,53,.3)}
+.hab-btn-signup:hover{background:linear-gradient(135deg,#b8f24a,#a3e635);transform:translateY(-2px);box-shadow:0 8px 28px rgba(163,230,53,.45)}
+.hab-btn-login{display:block;width:100%;padding:12px;background:rgba(163,230,53,.08);border:1px solid rgba(163,230,53,.2);border-radius:11px;font-size:14px;font-weight:700;color:#a3e635;letter-spacing:.3px;text-decoration:none;transition:all .2s}
+.hab-btn-login:hover{background:rgba(163,230,53,.15);border-color:rgba(163,230,53,.4)}
