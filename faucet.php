@@ -6,10 +6,10 @@
   <title>Faucet &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=13"/>
+  <link rel="stylesheet" href="dashboard.css?v=14"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
-<script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
+<script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/');}</script></head>
 <body>
 
 <!-- OVERLAY -->
@@ -730,7 +730,7 @@
   <!-- FOOTER -->
   <footer class="foot">
     <div class="foot-in">
-      <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 30 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
+      <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 40 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
       <div class="fc"><h4>Account</h4><a href="/settings.php">Settings</a><a href="/withdraw.php">Withdraw</a><a href="/deposit.php">Deposit</a></div>
       <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
       <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
@@ -754,7 +754,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=13"></script>
+<script src="dashboard.js?v=14"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers – activate only if dashboard.js didn't define them

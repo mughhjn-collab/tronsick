@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -25,7 +25,7 @@
     <div class="al-stats">
       <div class="al-stat"><strong>47K+</strong><span>Active Users</span></div>
       <div class="al-stat"><strong>1.28M</strong><span>TRX Paid Out</span></div>
-      <div class="al-stat"><strong>30 Min</strong><span>Faucet Timer</span></div>
+      <div class="al-stat"><strong>40 Min</strong><span>Faucet Timer</span></div>
     </div>
   </div>
 
@@ -114,6 +114,12 @@ function handleLogin(e) {
     localStorage.setItem('userEmail', uemail);
     localStorage.setItem('userLoggedIn', '1');
     localStorage.setItem('userId', uid);
+    // Bonus rolls only on registration - check if already given
+    if(!localStorage.getItem('bonusRollsGiven_' + uname)){
+      localStorage.setItem('bonusRolls','3');
+      localStorage.setItem('bonusRollsGiven_' + uname, '1');
+    }
+    localStorage.setItem('newUserBonus','0');
     // Register user in admin panel user list (if not already there)
     try {
       const admUsers = JSON.parse(localStorage.getItem('adm_users') || '[]');

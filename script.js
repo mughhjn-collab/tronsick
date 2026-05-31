@@ -1,4 +1,4 @@
-// HERO SIGNUP VALIDATION
+﻿// HERO SIGNUP VALIDATION
 function heroSignup(e) {
   e.preventDefault();
   const err = document.getElementById('sbErr');
@@ -37,7 +37,7 @@ function fqOpen(btn) {
 }
 
 // 30-MIN TIMER
-let total = 1800, left = 1787;
+let total = 2400, left = 2387;
 function tick() {
   const m = String(Math.floor(left / 60)).padStart(2, '0');
   const s = String(left % 60).padStart(2, '0');

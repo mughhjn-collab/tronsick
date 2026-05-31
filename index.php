@@ -1,14 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TronSick – Win Free TRX Every 30 Minutes | Faucet, Games & Referrals</title>
-  <meta name="description" content="Claim free TRX every 30 minutes on TronSick. Play provably fair games, earn referral commissions, and withdraw instantly. Join 47,000+ users today."/>
+  <meta name="description" content="Claim free TRX every 40 minutes on TronSick. Play provably fair games, earn referral commissions, and withdraw instantly. Join 47,000+ users today."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+  <script>
+    // If user is already logged in, go to faucet (not landing page)
+    if(localStorage.getItem('userLoggedIn')==='1' && localStorage.getItem('userName')){
+      window.location.replace('faucet.php');
+    }
+  </script>
 </head>
 <body>
 
@@ -48,7 +54,7 @@
     <div class="hero-left">
       <h1 id="heroH1">WIN FREE TRX<br/>EVERY 30 MINUTES!</h1>
       <ul class="feat-list" id="featList">
-        <li><span class="fcheck">✔</span><span>Claim up to <strong>500 TRX</strong> every 30 minutes — completely free</span></li>
+        <li><span class="fcheck">✔</span><span>Claim up to <strong>500 TRX</strong> every 40 minutes — completely free</span></li>
         <li><span class="fcheck">✔</span><span>Multiply your TRX playing <strong>Hi-Lo, Dice &amp; Mines</strong></span></li>
         <li><span class="fcheck">✔</span><span>Earn <strong>Daily Bonus Rewards</strong> with streak multipliers</span></li>
         <li><span class="fcheck">✔</span><span><strong>Weekly Contest</strong> — compete and win big TRX prizes</span></li>
@@ -112,8 +118,8 @@
         <div class="how-num">01</div>
         <div class="how-content">
           <div class="how-icon-box ic-blue">💧</div>
-          <h3>30-Minute Faucet</h3>
-          <p>Click Claim every 30 minutes and receive free TRX — instantly. No tasks, no surveys, no tricks. Maintain a daily streak to unlock <strong>bonus multipliers up to 3×</strong> your base reward.</p>
+          <h3>40-Minute Faucet</h3>
+          <p>Click Claim every 40 minutes and receive free TRX — instantly. No tasks, no surveys, no tricks. Maintain a daily streak to unlock <strong>bonus multipliers up to 3×</strong> your base reward.</p>
           <a href="register.php" class="how-cta">Start Claiming Free TRX →</a>
         </div>
       </div>
@@ -204,7 +210,7 @@
     </div>
     <div class="faq-list">
       <div class="fq" id="fq1"><button class="fq-btn" onclick="fqOpen(this)">Is TronSick completely free?<span class="fq-ic">+</span></button><div class="fq-body"><p>Yes — 100% free. Sign up with an email address only. No deposit, no credit card, no subscription. You can claim TRX from the faucet immediately after verifying your account at absolutely zero cost.</p></div></div>
-      <div class="fq" id="fq2"><button class="fq-btn" onclick="fqOpen(this)">How does the 30-minute faucet work?<span class="fq-ic">+</span></button><div class="fq-body"><p>After logging in, click the Claim button. TRX is credited instantly to your balance. A 30-minute cooldown begins. When it expires, you can claim again — up to 48 times every day. Claim every day to build a streak multiplier that increases your reward.</p></div></div>
+      <div class="fq" id="fq2"><button class="fq-btn" onclick="fqOpen(this)">How does the 40-minute faucet work?<span class="fq-ic">+</span></button><div class="fq-body"><p>After logging in, click the Claim button. TRX is credited instantly to your balance. A 30-minute cooldown begins. When it expires, you can claim again — up to 48 times every day. Claim every day to build a streak multiplier that increases your reward.</p></div></div>
       <div class="fq" id="fq3"><button class="fq-btn" onclick="fqOpen(this)">How does the 50% referral commission work?<span class="fq-ic">+</span></button><div class="fq-body"><p>Every account gets a unique referral URL. When someone joins through your link and claims TRX, you receive 50% of their claim value as commission — automatically added to your balance. This runs forever with no cap on how many people you refer.</p></div></div>
       <div class="fq" id="fq4"><button class="fq-btn" onclick="fqOpen(this)">Are the casino games provably fair?<span class="fq-ic">+</span></button><div class="fq-body"><p>Absolutely. Every game uses a server seed + client seed cryptographic system. After each round you receive the original server seed hash so you can independently verify the result using any SHA256 tool online. We cannot alter outcomes — the math is public and immutable.</p></div></div>
       <div class="fq" id="fq5"><button class="fq-btn" onclick="fqOpen(this)">When and how do I withdraw?<span class="fq-ic">+</span></button><div class="fq-body"><p>Go to your dashboard Withdraw page, enter your TRC-20 TRON wallet address, enter the amount, and confirm. Withdrawals are processed instantly on the TRON network. Minimum withdrawal is 50 TRX with no maximum limit per transaction.</p></div></div>
@@ -218,7 +224,7 @@
   <div class="container cta-inner">
     <div class="cta-badge">⚡ Free · No Deposit · Instant Access</div>
     <h2>47,000+ Users Are Earning<br/>Free TRX Right Now</h2>
-    <p>Your first claim is waiting. Create your free account and start earning TRX every 30 minutes — no payment of any kind required.</p>
+    <p>Your first claim is waiting. Create your free account and start earning TRX every 40 minutes — no payment of any kind required.</p>
     <a href="register.php" class="btn-orange btn-xl" id="ctaBtn">CREATE MY FREE ACCOUNT →</a>
   </div>
 </section>
@@ -228,7 +234,7 @@
   <div class="container footer-grid">
     <div class="fb">
       <div class="footer-logo">Tron<span>Sick</span></div>
-      <p>The fastest TRON faucet. Earn free TRX every 30 minutes through faucet, provably fair games, and a 50% lifetime referral program.</p>
+      <p>The fastest TRON faucet. Earn free TRX every 40 minutes through faucet, provably fair games, and a 50% lifetime referral program.</p>
     </div>
     <div class="fc"><h4>Account</h4><a href="login.php" id="fLogin">Log In</a><a href="register.php" id="fReg">Register Free</a></div>
     <div class="fc"><h4>Earn TRX</h4><a href="#">Faucet</a><a href="#games">Casino Games</a><a href="#">Referral Program</a><a href="#payouts">Payment Proofs</a></div>
