@@ -857,3 +857,56 @@ button{cursor:pointer}
 /* Verify button as link */
 .bm-verify-btn{display:inline-block;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#061a0f!important;border:none;border-radius:8px;padding:12px 32px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:all .2s;text-decoration:none!important;margin-top:4px}
 .bm-verify-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(62,207,142,.3)}
+
+/* ═══════════════════════════════════════
+   💰 STAKE PAGE
+═══════════════════════════════════════ */
+.stake-wrap{max-width:860px;margin:0 auto;padding:24px 20px 60px}
+.stake-header{display:flex;align-items:center;gap:18px;margin-bottom:28px;padding:24px;background:linear-gradient(135deg,rgba(62,207,142,.06),rgba(34,197,94,.03));border:1px solid rgba(62,207,142,.15);border-radius:16px}
+.stake-icon{font-size:40px;line-height:1}
+.stake-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:4px}
+.stake-subtitle{font-size:13px;color:rgba(232,240,235,.5)}
+
+/* Active stake status */
+.stake-status-card{background:linear-gradient(135deg,#0d2218,#0a1a10);border:1px solid rgba(62,207,142,.25);border-radius:16px;padding:24px;margin-bottom:24px}
+.stake-status-hd{font-size:13px;font-weight:800;color:#3ecf8e;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.stake-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stake-stat{background:rgba(0,0,0,.25);border:1px solid rgba(62,207,142,.1);border-radius:10px;padding:16px;text-align:center}
+.stake-stat-v{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.stake-stat-l{font-size:10px;color:rgba(232,240,235,.4);text-transform:uppercase;letter-spacing:.5px}
+.stake-claim-btn{width:100%;padding:14px;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#051a0a;font-weight:900;font-size:15px;letter-spacing:.5px;border:none;border-radius:10px;cursor:pointer;transition:all .25s;margin-bottom:10px}
+.stake-claim-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 24px rgba(62,207,142,.35)}
+.stake-claim-btn:disabled{opacity:.4;cursor:not-allowed}
+.stake-claim-note{text-align:center;font-size:13px;color:rgba(232,240,235,.45);margin-bottom:12px}
+.stake-unstake-btn{width:100%;padding:11px;background:transparent;border:1px solid rgba(239,68,68,.3);color:rgba(239,68,68,.7);font-weight:700;font-size:13px;border-radius:10px;cursor:pointer;transition:all .2s}
+.stake-unstake-btn:hover:not(:disabled){border-color:#ef4444;color:#ef4444;background:rgba(239,68,68,.06)}
+.stake-unstake-btn:disabled{opacity:.3;cursor:not-allowed}
+
+/* Tier cards */
+.stake-tiers-hd{font-size:14px;font-weight:800;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
+.stake-tiers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:700px){.stake-tiers-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.stake-tiers-grid{grid-template-columns:1fr}}
+.stake-tier-card{background:#141c2a;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.stake-tier-card:hover{border-color:rgba(62,207,142,.4);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.stake-tier-popular{border-color:rgba(62,207,142,.3)!important;background:linear-gradient(135deg,#0d2218,#141c2a)!important}
+.stake-tier-vip{border-color:rgba(245,158,11,.3)!important;background:linear-gradient(135deg,#1a1200,#141c2a)!important}
+.stake-tier-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;border-radius:4px;background:rgba(62,207,142,.2);color:#3ecf8e}
+.stake-tier-vip .stake-tier-badge{background:rgba(245,158,11,.2);color:#f59e0b}
+.stake-tier-amount{font-size:22px;font-weight:900;color:#fff;font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+.stake-tier-reward{font-size:16px;font-weight:800;color:#3ecf8e;margin-bottom:4px}
+.stake-tier-apy{font-size:11px;color:rgba(232,240,235,.4);margin-bottom:14px}
+.stake-tier-btn{width:100%;padding:10px;background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.25);color:#3ecf8e;font-weight:800;font-size:12px;letter-spacing:.5px;border-radius:8px;cursor:pointer;transition:all .2s}
+.stake-tier-card:hover .stake-tier-btn{background:rgba(62,207,142,.22);border-color:#3ecf8e}
+.stake-tier-vip .stake-tier-reward{color:#f59e0b}
+.stake-tier-vip .stake-tier-btn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25);color:#f59e0b}
+.stake-tier-vip:hover .stake-tier-btn{background:rgba(245,158,11,.22);border-color:#f59e0b}
+
+/* Info box */
+.stake-info-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:10px;padding:12px 16px;font-size:12.5px;color:rgba(232,240,235,.55);line-height:1.7;margin-bottom:24px}
+.stake-info-box strong{color:rgba(232,240,235,.8)}
+
+/* History */
+.stake-hist-wrap{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px}
+.stake-hist-hd{font-size:13px;font-weight:800;color:#fff;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+

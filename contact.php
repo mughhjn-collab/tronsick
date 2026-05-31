@@ -6,8 +6,8 @@
   <title>Contact &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=8"/>
-  <link rel="stylesheet" href="games_new.css?v=8"/>
+  <link rel="stylesheet" href="dashboard.css?v=9"/>
+  <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -30,13 +30,14 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
+    <a class="sb-item sb-stake" id="nav-stake" onclick="go('stake')" href="javascript:void(0)"><i>&#x1F4B0;</i><s>Stake</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
     <a class="sb-item"        id="nav-settings"    href="/settings.php">  <i>&#9881;</i><s>Settings</s></a>
     <a class="sb-item"        id="nav-contact"     href="/contact.php">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
-    <a class="sb-item sb-stake" id="nav-stake" href="https://stake.com" target="_blank" rel="noopener"><i>&#x1F3B0;</i><s>Stake</s></a>
+    
     <div class="sb-gap"></div>
     <a class="sb-item sb-out" href="javascript:void(0)" onclick="doSiteLogout()">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
@@ -340,6 +341,74 @@
         </table>
       </div>
 
+    </div>
+  </div>
+  <!-- STAKE -->
+  <div class="pg" id="sec-stake">
+    <div class="stake-wrap">
+      <div class="stake-header">
+        <div class="stake-icon">&#x1F4B0;</div>
+        <div>
+          <h2 class="stake-title">TRX Staking</h2>
+          <p class="stake-subtitle">Lock your TRX for 24 hours and earn daily rewards automatically</p>
+        </div>
+      </div>
+
+      <!-- Current Stake Status -->
+      <div class="stake-status-card" id="stakeStatusCard" style="display:none">
+        <div class="stake-status-hd">&#x23F3; Active Stake</div>
+        <div class="stake-status-grid">
+          <div class="stake-stat"><div class="stake-stat-v" id="stakeLockedAmt">0</div><div class="stake-stat-l">Staked TRX</div></div>
+          <div class="stake-stat"><div class="stake-stat-v" id="stakeRewardAmt" style="color:#3ecf8e">0</div><div class="stake-stat-l">Daily Reward</div></div>
+          <div class="stake-stat"><div class="stake-stat-v" id="stakeCountdown">--:--:--</div><div class="stake-stat-l">Time Left</div></div>
+        </div>
+        <button class="stake-claim-btn" id="stakeClaimBtn" onclick="stakeClaim()" disabled>Claim Reward</button>
+        <div class="stake-claim-note" id="stakeClaimNote">Stake is locked for 24 hours</div>
+        <button class="stake-unstake-btn" id="stakeUnstakeBtn" onclick="stakeUnstake()" disabled>Unstake &amp; Withdraw</button>
+      </div>
+
+      <!-- Stake Tiers -->
+      <div class="stake-tiers" id="stakeTiersPanel">
+        <div class="stake-tiers-hd">&#x1F4CA; Choose Stake Tier</div>
+        <div class="stake-tiers-grid">
+          <div class="stake-tier-card" onclick="stakeSelect(10)">
+            <div class="stake-tier-amount">10 TRX</div>
+            <div class="stake-tier-reward">+0.05 TRX/day</div>
+            <div class="stake-tier-apy">APY ≈ 182%</div>
+            <button class="stake-tier-btn">Stake 10 TRX</button>
+          </div>
+          <div class="stake-tier-card stake-tier-popular" onclick="stakeSelect(200)">
+            <div class="stake-tier-badge">POPULAR</div>
+            <div class="stake-tier-amount">200 TRX</div>
+            <div class="stake-tier-reward">+2 TRX/day</div>
+            <div class="stake-tier-apy">APY ≈ 365%</div>
+            <button class="stake-tier-btn">Stake 200 TRX</button>
+          </div>
+          <div class="stake-tier-card" onclick="stakeSelect(2000)">
+            <div class="stake-tier-amount">2000 TRX</div>
+            <div class="stake-tier-reward">+10 TRX/day</div>
+            <div class="stake-tier-apy">APY ≈ 182%</div>
+            <button class="stake-tier-btn">Stake 2000 TRX</button>
+          </div>
+          <div class="stake-tier-card stake-tier-vip" onclick="stakeSelect(5000)">
+            <div class="stake-tier-badge">VIP</div>
+            <div class="stake-tier-amount">5000 TRX</div>
+            <div class="stake-tier-reward">+30 TRX/day</div>
+            <div class="stake-tier-apy">APY ≈ 219%</div>
+            <button class="stake-tier-btn">Stake 5000 TRX</button>
+          </div>
+        </div>
+        <div class="stake-info-box">
+          &#x26A0; Your TRX will be locked for <strong>24 hours</strong>. You can claim your reward and unstake after the lock period ends.
+          Maximum 1 active stake at a time.
+        </div>
+      </div>
+
+      <!-- Stake History -->
+      <div class="stake-hist-wrap">
+        <div class="stake-hist-hd">&#x1F4CB; Stake History</div>
+        <div id="stakeHistBody"><div class="dg-no-bets">No stake history yet.</div></div>
+      </div>
     </div>
   </div>
 
@@ -726,7 +795,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=8"></script>
+<script src="dashboard.js?v=9"></script>
 <script>window._INIT_SECTION='contact';</script>
 </body>
 </html>

@@ -13,10 +13,13 @@ function doSiteLogout(){
 // â”€â”€ SIDEBAR â”€â”€
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','settings','contact'];
-var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdraw',surveys:'Surveys',affiliates:'Affiliates',gifts:'Gift Cards',cashback:'Cashback',contest:'Contest',settings:'Settings',contact:'Contact'};
-var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',settings:'/settings.php',contact:'/contact.php'};
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';}
+const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','stake','settings','contact'];
+var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdraw',surveys:'Surveys',affiliates:'Affiliates',gifts:'Gift Cards',cashback:'Cashback',contest:'Contest',stake:'Staking',settings:'Settings',contact:'Contact'};
+
+var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
+
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}}
+
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
 
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
@@ -170,7 +173,152 @@ let rollsLeft=0;
 function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
 function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
+
+// ═══════════════════════════════════════
+// STAKING SYSTEM
+// ═══════════════════════════════════════
+var STAKE_TIERS={10:0.05,200:2,2000:10,5000:30};
+var _stakeTimer=null;
+
+function stakeSelect(amount){
+  var bal=parseFloat(localStorage.getItem('userBalance')||'0');
+  var existing=_stakeGet();
+  if(existing && existing.active){showToast('You already have an active stake! Unstake first.');return;}
+  if(bal<amount){showToast('Insufficient balance! Need '+amount+' TRX');return;}
+  if(!STAKE_TIERS[amount]){showToast('Invalid stake amount');return;}
+  // Confirm
+  if(!confirm('Stake '+amount+' TRX for 24 hours?\nYou will earn '+STAKE_TIERS[amount]+' TRX reward.\nYour balance will be locked until then.')){return;}
+  // Deduct balance
+  addBal(-amount);
+  // Save stake
+  var stakeData={amount:amount,reward:STAKE_TIERS[amount],startTime:Date.now(),endTime:Date.now()+86400000,claimed:false,active:true};
+  localStorage.setItem('userStake',JSON.stringify(stakeData));
+  // Push to history
+  var hist=_stakeHistGet();
+  hist.unshift({amount:amount,reward:STAKE_TIERS[amount],startTime:stakeData.startTime,endTime:stakeData.endTime,status:'active'});
+  localStorage.setItem('userStakeHist',JSON.stringify(hist.slice(0,20)));
+  showToast('✅ '+amount+' TRX staked! Unlock in 24 hours.');
+  stakeRenderStatus();
+  stakeRenderHist();
+}
+
+function _stakeGet(){
+  try{return JSON.parse(localStorage.getItem('userStake'));}catch(e){return null;}
+}
+function _stakeHistGet(){
+  try{return JSON.parse(localStorage.getItem('userStakeHist'))||[];}catch(e){return[];}
+}
+
+function stakeClaim(){
+  var s=_stakeGet();
+  if(!s||!s.active){showToast('No active stake');return;}
+  if(Date.now()<s.endTime){showToast('Stake not unlocked yet!');return;}
+  if(s.claimed){showToast('Reward already claimed');return;}
+  // Add reward
+  addBal(s.reward);
+  s.claimed=true;
+  localStorage.setItem('userStake',JSON.stringify(s));
+  // Update history
+  var hist=_stakeHistGet();
+  if(hist.length>0){hist[0].status='claimed';}
+  localStorage.setItem('userStakeHist',JSON.stringify(hist));
+  showToast('🎉 Claimed '+s.reward+' TRX reward!');
+  stakeRenderStatus();
+  stakeRenderHist();
+}
+
+function stakeUnstake(){
+  var s=_stakeGet();
+  if(!s||!s.active){showToast('No active stake');return;}
+  if(Date.now()<s.endTime){showToast('Cannot unstake before 24 hours!');return;}
+  // Return principal
+  addBal(s.amount);
+  // Mark done
+  var hist=_stakeHistGet();
+  if(hist.length>0){hist[0].status=s.claimed?'completed':'unstaked';}
+  localStorage.setItem('userStakeHist',JSON.stringify(hist));
+  localStorage.removeItem('userStake');
+  showToast('✅ '+s.amount+' TRX returned to your balance!');
+  stakeRenderStatus();
+  stakeRenderHist();
+}
+
+function stakeRenderStatus(){
+  var s=_stakeGet();
+  var card=document.getElementById('stakeStatusCard');
+  var tiersPanel=document.getElementById('stakeTiersPanel');
+  if(!card) return;
+  if(!s||!s.active){
+    card.style.display='none';
+    if(tiersPanel)tiersPanel.style.display='block';
+    if(_stakeTimer){clearInterval(_stakeTimer);_stakeTimer=null;}
+    return;
+  }
+  card.style.display='block';
+  if(tiersPanel)tiersPanel.style.display='none';
+  // Update amounts
+  var la=document.getElementById('stakeLockedAmt');
+  var ra=document.getElementById('stakeRewardAmt');
+  if(la)la.textContent=s.amount+' TRX';
+  if(ra)ra.textContent='+'+s.reward+' TRX';
+  // Countdown
+  function tick(){
+    var rem=s.endTime-Date.now();
+    var cd=document.getElementById('stakeCountdown');
+    var claimBtn=document.getElementById('stakeClaimBtn');
+    var unstakeBtn=document.getElementById('stakeUnstakeBtn');
+    var note=document.getElementById('stakeClaimNote');
+    if(rem<=0){
+      if(cd)cd.textContent='UNLOCKED';
+      if(cd)cd.style.color='#3ecf8e';
+      if(claimBtn){claimBtn.disabled=s.claimed;claimBtn.textContent=s.claimed?'Reward Claimed':'Claim '+s.reward+' TRX';}
+      if(unstakeBtn)unstakeBtn.disabled=false;
+      if(note)note.textContent=s.claimed?'Reward claimed. You can now unstake.':'Stake unlocked! Claim your reward.';
+      if(note)note.style.color='#3ecf8e';
+      if(_stakeTimer){clearInterval(_stakeTimer);_stakeTimer=null;}
+    } else {
+      var h=Math.floor(rem/3600000),m=Math.floor((rem%3600000)/60000),sec=Math.floor((rem%60000)/1000);
+      if(cd)cd.textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+      if(cd)cd.style.color='#f59e0b';
+      if(claimBtn){claimBtn.disabled=true;claimBtn.textContent='Claim Reward';}
+      if(unstakeBtn)unstakeBtn.disabled=true;
+      if(note)note.textContent='Stake locked for 24 hours';
+      if(note)note.style.color='';
+    }
+  }
+  tick();
+  if(_stakeTimer)clearInterval(_stakeTimer);
+  _stakeTimer=setInterval(tick,1000);
+}
+
+function stakeRenderHist(){
+  var body=document.getElementById('stakeHistBody');
+  if(!body) return;
+  var hist=_stakeHistGet();
+  if(!hist.length){body.innerHTML='<div class="dg-no-bets">No stake history yet.</div>';return;}
+  var html='<table class="dg-hist-tbl"><thead><tr><th>Amount</th><th>Reward</th><th>Start</th><th>Status</th></tr></thead><tbody>';
+  hist.forEach(function(h){
+    var d=new Date(h.startTime);
+    var ds=(d.getDate()<10?'0':'')+d.getDate()+'/'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+' '+(d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+    var sc={active:'#f59e0b',claimed:'#3ecf8e',completed:'#3ecf8e',unstaked:'#ef4444'};
+    html+='<tr class="dg-hist-row">';
+    html+='<td style="font-weight:700;color:#fff">'+h.amount+' TRX</td>';
+    html+='<td style="color:#3ecf8e;font-weight:700">+'+h.reward+' TRX</td>';
+    html+='<td class="dg-tc-time">'+ds+'</td>';
+    html+='<td style="color:'+(sc[h.status]||'#fff')+';font-weight:700;text-transform:uppercase;font-size:11px">'+h.status+'</td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
+
+function initStake(){
+  stakeRenderStatus();
+  stakeRenderHist();
+}
+
 var betHistory=[];
+
 var clientSeed=(Math.random().toString(36).substr(2,16)+Math.random().toString(36).substr(2,16));
 var serverSeedHash='a3f8c2b1d9e4f7a6b2c8d1e5f3a9b7c4d6e2f8a1b5c3d7e9';
 var serverSeed='srv_'+Math.random().toString(36).substr(2,32);
