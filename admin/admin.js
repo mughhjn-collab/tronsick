@@ -25,7 +25,7 @@ var S={
   maxWithdraw:parseFloat(localStorage.getItem('max_withdraw')||'0'),
   withdrawFee:parseFloat(localStorage.getItem('withdraw_fee')||'0.1'),
   affiliateRate:parseFloat(localStorage.getItem('affiliate_rate')||'50'),
-  oxaKey:localStorage.getItem('oxa_key')||'',
+  oxaKey:localStorage.getItem('oxa_key')||'B5CXIY-CK6Z0Y-NKKTI7-JR6C1N',
   oxaMerchant:localStorage.getItem('oxa_merchant')||'',
   oxaEnabled:localStorage.getItem('oxa_enabled')==='1',
   maintenanceMode:localStorage.getItem('maintenance_mode')==='1',

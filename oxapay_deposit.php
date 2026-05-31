@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * OxaPay Deposit Backend
  * Creates a static TRX wallet address per user via OxaPay API
@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 // ── CONFIG ────────────────────────────────────────────
-define('OXAPAY_MERCHANT_KEY', localStorage.getItem('oxa_key') ?: '');
+define('OXAPAY_MERCHANT_KEY', 'B5CXIY-CK6Z0Y-NKKTI7-JR6C1N');
 define('OXAPAY_API_URL', 'https://api.oxapay.com/v1/payment/static-address');
 define('SITE_URL', 'https://tronsick.io');
 define('DEPOSIT_FILE', __DIR__ . '/deposits.json');
@@ -19,7 +19,7 @@ $adminKey = '';
 $keysFile = __DIR__ . '/admin_keys.json';
 if(file_exists($keysFile)){
     $keys = json_decode(file_get_contents($keysFile), true);
-    $adminKey = $keys['oxa_key'] ?? '';
+    $adminKey = $keys['oxa_key'] ?? OXAPAY_MERCHANT_KEY;
 }
 // Fallback: check POST param (for testing)
 if(!$adminKey && isset($_POST['key'])) $adminKey = trim($_POST['key']);
