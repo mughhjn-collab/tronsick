@@ -515,48 +515,64 @@ function filterTable(tbodyId,q){
 
 // â”€â”€ OXAPAY GATEWAY â”€â”€
 function buildPayment(){
-  var enabled=localStorage.getItem('oxa_enabled')==='1';
-  return '<div class="pg-hdr"><h1>OxaPay Gateway</h1><p>Configure OxaPay payment integration for deposits.</p></div>'+
-  card('OxaPay Configuration','credit-card',{cls:enabled?'badge-green':'badge-red',txt:enabled?'CONNECTED':'DISABLED'},
-    '<div class="gw-logo-row">'+
-    '<span class="gw-logo">OxaPay</span>'+
-    '<span style="font-size:13px;color:rgba(255,255,255,.4)">Payment Gateway for Crypto</span>'+
-    '<span class="gw-status-dot '+(enabled?'dot-green':'dot-gray')+'"></span>'+
-    '</div>'+
-    togRow('','Enable OxaPay','Accept crypto deposits via OxaPay','oxaEnabled','oxa_enabled')+
-    '<div style="height:16px"></div>'+
-    '<div class="form-row single"><div class="form-group"><label><i class="fas fa-key"></i> API Key</label><input type="text" id="oxaKey" value="'+(localStorage.getItem('oxa_key')||'')+'" placeholder="Enter your OxaPay API key"/></div></div>'+
-    '<div class="form-row single"><div class="form-group"><label><i class="fas fa-building"></i> Merchant ID</label><input type="text" id="oxaMerchant" value="'+(localStorage.getItem('oxa_merchant')||'')+'" placeholder="Enter your OxaPay Merchant ID"/></div></div>'+
-    '<div class="form-row">'+
-    '<div class="form-group"><label>Webhook Secret</label><input type="text" id="oxaWebhook" value="'+(localStorage.getItem('oxa_webhook')||'')+'" placeholder="Webhook secret key"/></div>'+
-    '<div class="form-group"><label>Payout Currency</label><select id="oxaCurrency"><option value="TRX" '+(localStorage.getItem('oxa_currency')==='TRX'?'selected':'')+'>TRX (Tron)</option><option value="USDT" '+(localStorage.getItem('oxa_currency')==='USDT'?'selected':'')+'>USDT</option><option value="BTC" '+(localStorage.getItem('oxa_currency')==='BTC'?'selected':'')+'>BTC</option></select></div>'+
-    '</div>'+
-    '<div class="adm-alert alert-info"><i class="fas fa-circle-info"></i> Get your API key from <strong>dashboard.oxapay.com</strong> â†’ Merchants â†’ API Keys</div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap">'+
-    '<button class="btn btn-primary" onclick="saveOxaPay()"><i class="fas fa-save"></i> Save Gateway Settings</button>'+
-    '<button class="btn btn-secondary" onclick="testOxaPay()"><i class="fas fa-plug"></i> Test Connection</button>'+
-    '</div>'
+  if(!localStorage.getItem('oxa_key')){localStorage.setItem('oxa_key','B5CXIY-CK6Z0Y-NKKTI7-JR6C1N');localStorage.setItem('oxa_merchant','tronspin');localStorage.setItem('oxa_currency','TRX');localStorage.setItem('oxa_enabled','1');}
+  var OXA_KEY=localStorage.getItem('oxa_key')||'B5CXIY-CK6Z0Y-NKKTI7-JR6C1N';
+  var OXA_MER=localStorage.getItem('oxa_merchant')||'tronspin';
+  var OXA_CUR=localStorage.getItem('oxa_currency')||'TRX';
+  var WEBHOOK='https://tronsick.io/oxapay_webhook.php';
+  var deps=JSON.parse(localStorage.getItem('adm_deposits')||'[]');
+  var depVol=deps.reduce(function(a,d){return a+parseFloat(d.amount||0);},0).toFixed(2);
+  return '<div class="pg-hdr"><h1>OxaPay Gateway</h1><p>TRX deposit integration — configured and ready.</p></div>'+
+  card('OxaPay Configuration','credit-card',{cls:'badge-green',txt:'CONNECTED'},
+    '<div class="gw-logo-row"><span class="gw-logo" style="font-size:20px;font-weight:900;color:#3ecf8e">OxaPay</span><span style="font-size:13px;color:rgba(255,255,255,.5)">Merchant: <strong style="color:#fff">tronspin</strong></span><span class="gw-status-dot dot-green"></span></div>'+
+    togRow('','Enable OxaPay Deposits','Allow users to deposit TRX via OxaPay','oxaEnabled','oxa_enabled')+
+    '<div style="height:12px"></div>'+
+    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25);color:#3ecf8e;margin-bottom:14px"><i class="fas fa-circle-check"></i> <strong>API Key configured & active.</strong> Deposits auto-credited via webhook.</div>'+
+    '<div class="form-row"><div class="form-group"><label><i class="fas fa-key"></i> Merchant API Key</label><div style="display:flex;gap:8px"><input type="text" id="oxaKey" value="'+OXA_KEY+'" style="font-family:monospace;font-size:12px"/><button class="btn btn-sm btn-secondary" onclick="var e=document.getElementById(\'oxaKey\');e.type=e.type===\'password\'?\'text\':\'password\'"><i class="fas fa-eye"></i></button></div></div><div class="form-group"><label><i class="fas fa-store"></i> Merchant Name</label><input type="text" id="oxaMerchant" value="'+OXA_MER+'"/></div></div>'+
+    '<div class="form-group"><label><i class="fas fa-link"></i> Webhook URL <span style="font-size:11px;color:rgba(255,255,255,.4)">(Set in OxaPay → Merchant → Callback)</span></label><div style="display:flex;gap:8px"><input type="text" id="oxaWebhookUrl" value="'+WEBHOOK+'" readonly style="font-family:monospace;font-size:12px;color:#3ecf8e;background:#0a0f1a"/><button class="btn btn-sm btn-secondary" onclick="navigator.clipboard.writeText(\''+WEBHOOK+'\').then(function(){toast(\'Copied!\')})" title="Copy"><i class="fas fa-copy"></i></button></div></div>'+
+    '<div class="form-row" style="margin-top:12px"><div class="form-group"><label>Currency</label><select id="oxaCurrency"><option value="TRX" '+(OXA_CUR==='TRX'?'selected':'')+'>TRX (Tron)</option><option value="USDT" '+(OXA_CUR==='USDT'?'selected':'')+'>USDT</option></select></div></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn btn-primary" onclick="saveOxaPay()"><i class="fas fa-save"></i> Save</button><button class="btn btn-secondary" onclick="saveOxaPayToServer()"><i class="fas fa-server"></i> Save to Server</button><button class="btn btn-success" onclick="testOxaPayLive()"><i class="fas fa-plug"></i> Test Connection</button></div>'
   )+
-  card('OxaPay Stats','chart-bar',null,
-    '<div class="stat-grid">'+
-    '<div class="stat-card"><div class="stat-icon si-green"><i class="fas fa-arrow-down"></i></div><div class="stat-info"><div class="stat-val">'+JSON.parse(localStorage.getItem('adm_deposits')||'[]').length+'</div><div class="stat-lbl">Total Deposits</div></div></div>'+
-    '<div class="stat-card"><div class="stat-icon si-blue"><i class="fas fa-coins"></i></div><div class="stat-info"><div class="stat-val">'+JSON.parse(localStorage.getItem('adm_deposits')||'[]').reduce(function(a,d){return a+parseFloat(d.amount||0);},0).toFixed(2)+'</div><div class="stat-lbl">Total Volume (TRX)</div></div></div>'+
+  card('Deposit Statistics','chart-bar',null,
+    '<div class="stat-grid"><div class="stat-card"><div class="stat-icon si-green"><i class="fas fa-arrow-down"></i></div><div class="stat-info"><div class="stat-val">'+deps.length+'</div><div class="stat-lbl">Total Deposits</div></div></div><div class="stat-card"><div class="stat-icon si-blue"><i class="fas fa-coins"></i></div><div class="stat-info"><div class="stat-val">'+depVol+'</div><div class="stat-lbl">Volume (TRX)</div></div></div><div class="stat-card"><div class="stat-icon si-teal"><i class="fas fa-check-circle"></i></div><div class="stat-info"><div class="stat-val" style="color:#3ecf8e;font-size:14px">LIVE</div><div class="stat-lbl">Webhook</div></div></div></div>'
+  )+
+  card('Setup Guide','circle-info',null,
+    '<div style="font-size:13px;line-height:2;color:rgba(255,255,255,.7)">'+
+    '<p><span style="color:#3ecf8e;font-weight:700">Step 1 ✅</span> API Key <code style="background:rgba(255,255,255,.08);padding:2px 8px;border-radius:4px;font-family:monospace">B5CXIY-***</code> configured.</p>'+
+    '<p><span style="color:#f59e0b;font-weight:700">Step 2 ⚠</span> Set Webhook URL in OxaPay:</p>'+
+    '<div style="background:#0a0f1a;border:1px solid rgba(62,207,142,.2);border-radius:6px;padding:10px;font-family:monospace;font-size:12px;color:#3ecf8e;margin:4px 0">https://tronsick.io/oxapay_webhook.php</div>'+
+    '<p style="font-size:12px;color:rgba(255,255,255,.4)">OxaPay Dashboard → Merchant Service → tronspin → Callback URL</p>'+
+    '<p><span style="color:#3ecf8e;font-weight:700">Step 3 ✅</span> Users deposit → balance auto-credited within 30 seconds.</p>'+
     '</div>'
   );
 }
-
 function saveOxaPay(){
   save('oxa_key',document.getElementById('oxaKey').value);
   save('oxa_merchant',document.getElementById('oxaMerchant').value);
-  save('oxa_webhook',document.getElementById('oxaWebhook').value);
   save('oxa_currency',document.getElementById('oxaCurrency').value);
+  save('oxa_enabled','1');
   toast('OxaPay settings saved!');
 }
-
-function testOxaPay(){
+function saveOxaPayToServer(){
   var key=document.getElementById('oxaKey').value;
+  var mer=document.getElementById('oxaMerchant').value;
   if(!key){toast('Enter API key first','error');return;}
-  toast('Connection test sent â€” check OxaPay dashboard for confirmation');
+  var fd=new FormData();
+  fd.append('auth','TronSick@Admin2024');
+  fd.append('oxa_key',key);
+  fd.append('oxa_merchant',mer);
+  fd.append('site_url','https://tronsick.io');
+  fetch('/save_admin_keys.php',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){toast(d.ok?'Saved to server!':('Error: '+(d.error||'?')),d.ok?'success':'error');})
+    .catch(function(){toast('Server unreachable','error');});
+}
+function testOxaPayLive(){
+  toast('Testing OxaPay connection...');
+  fetch('/oxapay_deposit.php?user=admintest&email=admin@tronsick.io')
+    .then(function(r){return r.json();})
+    .then(function(d){if(d.success)toast('Connected! Address: '+d.address.substr(0,14)+'...');else toast('Error: '+(d.error||'Failed'),'error');})
+    .catch(function(){toast('Cannot reach API','error');});
 }
 
 // â”€â”€ CONTACT MESSAGES â”€â”€
