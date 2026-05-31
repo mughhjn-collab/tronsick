@@ -100,10 +100,31 @@
     .astat-val{font-size:18px;font-weight:900;color:#a3e635}
     .astat-lbl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
+    /* ── NAV TOPBAR ── */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;position:relative;z-index:10;border-bottom:1px solid rgba(255,255,255,.05)}
+    .tb-left{display:flex;align-items:center;gap:0}
+    .tb-logo{font-size:21px;font-weight:900;color:#fff;letter-spacing:-.5px;text-decoration:none;transition:opacity .2s}
+    .tb-logo:hover{opacity:.8}
+    .tb-logo span{color:#a3e635}
+    .tb-nav{display:flex;align-items:center;gap:6px}
+    .tb-nav a{font-size:13px;font-weight:600;color:rgba(255,255,255,.5);padding:7px 14px;border-radius:8px;transition:all .2s;text-decoration:none}
+    .tb-nav a:hover{color:#fff;background:rgba(255,255,255,.07)}
+    .tb-nav a.tb-active{color:#a3e635}
+    .tb-nav .tb-signup{background:#a3e635;color:#0f1a10;font-weight:800;padding:7px 16px}
+    .tb-nav .tb-signup:hover{background:#b8f24a;color:#0f1a10}
+
+    /* ── FOOTER ── */
+    .auth-footer{text-align:center;padding:24px 20px 28px;border-top:1px solid rgba(255,255,255,.05);margin-top:auto}
+    .auth-footer-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:10px}
+    .auth-footer-links a{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s}
+    .auth-footer-links a:hover{color:rgba(255,255,255,.7)}
+    .auth-footer-copy{font-size:11px;color:rgba(255,255,255,.2)}
+
     /* ── RESPONSIVE ── */
-    @media(max-width:480px){
+    @media(max-width:560px){
       .auth-card{padding:28px 22px 32px}
-      .top-bar{padding:14px 20px}
+      .top-bar{padding:12px 16px}
+      .tb-nav .tb-home{display:none}
     }
   </style>
 </head>
@@ -112,6 +133,11 @@
 <!-- TOPBAR -->
 <div class="top-bar">
   <a href="index.php" class="tb-logo">Tron<span>Sick</span></a>
+  <nav class="tb-nav">
+    <a href="index.php" class="tb-home">Home</a>
+    <a href="login.php" class="tb-active" id="navLoginLink">Log In</a>
+    <a href="login.php?tab=register" class="tb-signup" id="navSignupLink">Sign Up</a>
+  </nav>
 </div>
 
 <!-- AUTH CARD -->
@@ -267,38 +293,78 @@ function showForgotPanel(){ switchTab('forgot'); }
 
 function sendResetLink(){
   var email = document.getElementById('forgotEmail').value.trim();
-  var err = document.getElementById('forgotErr');
-  var succ = document.getElementById('forgotSuccess');
+  var err   = document.getElementById('forgotErr');
+  var succ  = document.getElementById('forgotSuccess');
   err.style.display='none'; succ.style.display='none';
+
   if(!email||!email.includes('@')||!email.includes('.')){
     err.style.display='block'; err.textContent='Please enter a valid email address.'; return;
   }
+
+  // ── Check if email is registered ──
+  var emailLower = email.toLowerCase();
+  var isRegistered = false;
+
+  // Check site_registered_users
+  try{
+    var ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    if(ru.find(function(u){ return u.email && u.email.toLowerCase()===emailLower; })) isRegistered=true;
+  }catch(e){}
+
+  // Check adm_users
+  if(!isRegistered){
+    try{
+      var au=JSON.parse(localStorage.getItem('adm_users')||'[]');
+      if(au.find(function(u){ return u.email && u.email.toLowerCase()===emailLower; })) isRegistered=true;
+    }catch(e){}
+  }
+
+  // Check userRealEmail_ keys
+  if(!isRegistered){
+    for(var k in localStorage){
+      if(k.startsWith('userRealEmail_') && localStorage.getItem(k) && localStorage.getItem(k).toLowerCase()===emailLower){
+        isRegistered=true; break;
+      }
+    }
+  }
+
+  if(!isRegistered){
+    err.style.display='block';
+    err.textContent='This email is not registered. Please check your email address or sign up for a new account.';
+    return;
+  }
+
   var btn = document.getElementById('forgotBtn');
   btn.textContent='Sending…'; btn.disabled=true;
 
   // Generate reset token
-  var token = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+  var token = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
   var expires = Date.now() + 60*60*1000; // 1 hour
-  localStorage.setItem('pwreset_'+token, JSON.stringify({email:email.toLowerCase(), expires:expires}));
-  localStorage.setItem('pwreset_email_'+email.toLowerCase(), token);
+  localStorage.setItem('pwreset_'+token, JSON.stringify({email:emailLower, expires:expires}));
+  localStorage.setItem('pwreset_email_'+emailLower, token);
 
   var resetLink = window.location.origin+'/reset_password.php?token='+token;
 
-  // Try server-side email via PHP
+  // Send email via PHP
   fetch('forgot_pw.php', {
     method:'POST',
     headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'email='+encodeURIComponent(email)+'&token='+encodeURIComponent(token)+'&link='+encodeURIComponent(resetLink)
   }).catch(function(){});
 
-  // Show success (always - server email is best-effort)
+  // Show clean success message — no backup link shown
   setTimeout(function(){
     document.getElementById('forgotEmailWrap').style.display='none';
     btn.style.display='none';
-    succ.innerHTML = '✅ Reset link sent!<br/><br/>If <strong>'+email+'</strong> is registered, you will receive an email within a few minutes.<br/><br/><span style="font-size:12px;opacity:.7">Didn\'t receive it? Check spam or use this link:</span><br/><a href="'+resetLink+'" style="color:#a3e635;font-size:12px;word-break:break-all">'+resetLink+'</a>';
+    succ.innerHTML =
+      '<strong style="font-size:14px">✅ Reset link sent!</strong><br/><br/>'+
+      'A password reset link has been sent to <strong>'+email+'</strong>.<br/>'+
+      'Please check your inbox (and spam folder) and click the link to reset your password.<br/><br/>'+
+      '<span style="font-size:12px;opacity:.6">The link will expire in 1 hour.</span>';
     succ.style.display='block';
   }, 1500);
 }
+
 
 // ── CHECK URL PARAM (auto show register tab) ──
 (function(){
@@ -490,5 +556,19 @@ function handleReg(e){
   }, 1200);
 }
 </script>
+
+<!-- FOOTER -->
+<footer class="auth-footer">
+  <div class="auth-footer-links">
+    <a href="index.php">Home</a>
+    <a href="index.php#features">Features</a>
+    <a href="index.php#games">Games</a>
+    <a href="index.php#faq">FAQ</a>
+    <a href="index.php#payouts">Payouts</a>
+  </div>
+  <div class="auth-footer-copy">&copy; 2026 TronSick.io &mdash; Free TRX Faucet &amp; Casino</div>
+</footer>
+
 </body>
 </html>
+
