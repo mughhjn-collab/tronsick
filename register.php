@@ -151,9 +151,16 @@ function handleReg(e) {
     localStorage.setItem('regUser', u);
     localStorage.setItem('userName', u);
     localStorage.setItem('userEmail', em);  // Save REAL email
+    // Track registered user for admin panel count
+    var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    if(!_ru.find(function(x){return x.name===u;})){
+      _ru.push({name:u,email:em,joined:new Date().toISOString(),balance:'0'});
+      localStorage.setItem('site_registered_users',JSON.stringify(_ru));
+    }
     // Redirect to login with success flag
     window.location.href='login.php?registered=1&user='+encodeURIComponent(u);
   }, 1500);
+
 }
 }
 </script>

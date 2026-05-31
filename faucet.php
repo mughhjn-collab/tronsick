@@ -754,7 +754,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=11"></script>
+<script src="dashboard.js?v=12"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers – activate only if dashboard.js didn't define them

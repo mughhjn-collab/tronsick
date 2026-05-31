@@ -173,6 +173,128 @@ function doClaim(){const btn=document.getElementById('claimBtn'),note=document.g
 let rollsLeft=0;
 function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
+
+// ═══════════════════════════════════════
+// ANTIBOT ENGINE — reads admin settings, controls outcomes
+// ═══════════════════════════════════════
+var _ab={
+  // Per-session state (reset on page load)
+  ab1Count:0,           // bets at trigger amount (AB1)
+  ab2Count:0,           // cycle position for AB2
+  ab2Phase:'loss',      // 'loss' | 'wins'
+  ab2WinsSoFar:0,
+  ab3LastBet:0,         // last bet amount for AB3 reset detection
+  ab3LossCount:0,       // how many losses so far in cycle
+  ab3WinCount:0,        // wins so far
+  ab3Phase:'initial'    // 'initial' | 'cycle'
+};
+
+/**
+ * Central antibot decision function.
+ * Call before deciding win/loss in Dice, Limbo, Mines.
+ * @param {number} betAmt  - current bet amount
+ * @param {number} winPct  - user's selected win chance (0-100), or -1 if not applicable
+ * @param {number} payout  - current payout multiplier (for AB3), or 0 if not applicable
+ * @returns {boolean|null} - true=FORCE WIN, false=FORCE LOSS, null=use normal RNG
+ */
+function _abCheckWin(betAmt, winPct, payout){
+  betAmt = parseFloat(betAmt)||0;
+  winPct = parseFloat(winPct)||0;
+  payout = parseFloat(payout)||0;
+
+  var ab1On     = localStorage.getItem('ab1_on')==='1';
+  var ab1Amt    = parseFloat(localStorage.getItem('ab1_amount')||'0');
+  var ab1Mode   = localStorage.getItem('ab1_mode')||'medium';
+  var ab2On     = localStorage.getItem('ab2_on')==='1';
+  var ab2Amt    = parseFloat(localStorage.getItem('ab2_amount')||'0');
+  var ab2Wins   = parseInt(localStorage.getItem('ab2_wins')||'6');
+  var ab3On     = localStorage.getItem('ab3_on')==='1';
+
+  var amtMatch1 = ab1Amt>0 && Math.abs(betAmt-ab1Amt)<0.000001;
+  var amtMatch2 = ab2Amt>0 && Math.abs(betAmt-ab2Amt)<0.000001;
+
+  // ── ANTIBOT 2 check (96%–65% range + amount match) ──
+  if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
+    // AB2 overrides AB1 for this range
+    if(_ab.ab2Phase==='loss'){
+      // Force first bet as LOSS, then switch to win phase
+      _ab.ab2WinsSoFar=0;
+      _ab.ab2Phase='wins';
+      return false; // FORCE LOSS
+    } else {
+      // In win phase
+      _ab.ab2WinsSoFar++;
+      if(_ab.ab2WinsSoFar>=ab2Wins){
+        // Enough wins — next is loss again
+        _ab.ab2Phase='loss';
+        _ab.ab2WinsSoFar=0;
+      }
+      return true; // FORCE WIN
+    }
+  }
+  // Reset AB2 state if out of range
+  if(winPct<65 || winPct>96 || !amtMatch2){
+    _ab.ab2Phase='loss';
+    _ab.ab2WinsSoFar=0;
+  }
+
+  // ── ANTIBOT 3 (high payout 4x–9700x) ──
+  if(ab3On && payout>=4){
+    // Detect bet increase after win → reset cycle
+    if(betAmt > _ab.ab3LastBet * 1.001 && _ab.ab3LastBet > 0){
+      _ab.ab3Phase='initial';
+      _ab.ab3LossCount=0;
+      _ab.ab3WinCount=0;
+    }
+    _ab.ab3LastBet=betAmt;
+
+    // Required losses before first win based on payout
+    var baseLoss = Math.max(3, Math.floor(payout));
+    baseLoss = Math.min(baseLoss, 20); // cap at 20
+
+    if(_ab.ab3Phase==='initial'){
+      _ab.ab3LossCount++;
+      if(_ab.ab3LossCount>=baseLoss){
+        _ab.ab3Phase='cycle';
+        _ab.ab3LossCount=0;
+        _ab.ab3WinCount=0;
+        return true; // WIN after initial losses
+      }
+      return false; // FORCE LOSS
+    } else {
+      // Cycle phase: random 4-7 losses then 1 win
+      var cycleLoss = baseLoss + Math.floor(Math.random()*3);
+      _ab.ab3LossCount++;
+      if(_ab.ab3LossCount>=cycleLoss){
+        _ab.ab3LossCount=0;
+        return true; // WIN
+      }
+      return false; // FORCE LOSS
+    }
+  }
+
+  // ── ANTIBOT 1 (amount match, below 65% or AB2 not active for this range) ──
+  if(ab1On && ab1Amt>0 && amtMatch1){
+    _ab.ab1Count++;
+    if(ab1Mode==='hard'){
+      return false; // Always FORCE LOSS
+    } else {
+      // Medium: first 3 normal, then pattern: 1 win per 4 losses roughly
+      if(_ab.ab1Count<=3) return null; // normal for first 3
+      var lossProb = Math.min(0.85, 0.5 + (_ab.ab1Count*0.03));
+      return Math.random() > lossProb ? true : false;
+    }
+  }
+
+  return null; // No antibot active — normal RNG
+}
+
+// Hook antibot into Dice game win resolution
+var _origDiceWin=null;
+function _abWrapDice(){
+  // Will be called by dice bet functions — checks before resolving
+}
+
 function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
 
 // ═══════════════════════════════════════
@@ -755,8 +877,7 @@ addBal(-bet);updateWager(bet);
 btn.disabled=true;btn.textContent='Rolling...';
 lbNonce++;
 // Generate result: 0.99/random gives crash point with house edge
-var result=Math.max(0.01,Math.min(1000000,parseFloat((0.99/Math.random()).toFixed(2))));
-var win=result>=payout;
+var result=Math.max(0.01,Math.min(1000000,parseFloat((0.99/Math.random()).toFixed(2))));var _abR=_abCheckWin(bet,100/payout,payout);var win=result>=payout;if(_abR===true)win=true;else if(_abR===false)win=false;
 // Animate multiplier counting up
 var multEl=document.getElementById('lbMultNum');
 var rocketEl=document.getElementById('lbRocket');
@@ -821,8 +942,7 @@ var winPct=parseFloat((document.getElementById('lbWinPct')||{}).value)||0;
 var losePct=parseFloat((document.getElementById('lbLosePct')||{}).value)||0;
 lbNonce++;
 addBal(-bet);updateWager(bet);
-var result=Math.max(0.01,Math.min(1000000,parseFloat((0.99/Math.random()).toFixed(2))));
-var win=result>=payout;
+var result=Math.max(0.01,Math.min(1000000,parseFloat((0.99/Math.random()).toFixed(2))));var _abR=_abCheckWin(bet,100/payout,payout);var win=result>=payout;if(_abR===true)win=true;else if(_abR===false)win=false;
 if(win)addBal(bet*payout);
 var profit=win?(bet*(payout-1)):-bet;
 // Animate multiplier
@@ -997,7 +1117,7 @@ addBal(-bet);updateWager(bet);
 btn.disabled=true;btn.textContent='Rolling...';
 nonce++;
 setTimeout(function(){
-var roll=parseFloat((Math.random()*100).toFixed(2));
+var roll=parseFloat((Math.random()*100).toFixed(2));var _abR=_abCheckWin(bet,wc,payout);
 var win=(dgDir==='under'&&roll<wc)||(dgDir==='over'&&roll>(100-wc));
 var sl=document.getElementById('dgSlider');
 var hex=document.getElementById('hexBubble');
