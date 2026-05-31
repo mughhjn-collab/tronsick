@@ -50,10 +50,53 @@
 <section class="hero" id="hero">
   <div class="hero-overlay"></div>
   <div class="hero-wrap">
-    <!-- LEFT: Dashboard Illustration -->
-    <!-- LEFT: Hero Illustration -->
+    <!-- LEFT: TRX Logo Widget -->
     <div class="hero-img-col" id="heroImgCol">
-      <img src="hero-illustration.png" alt="TronSick Dashboard" class="hero-illus" id="heroIllus"/>
+      <div class="trx-widget" id="trxWidget">
+
+        <!-- Outer glow ring -->
+        <div class="trx-ring trx-ring-3"></div>
+        <div class="trx-ring trx-ring-2"></div>
+        <div class="trx-ring trx-ring-1"></div>
+
+        <!-- TRX Core -->
+        <div class="trx-core">
+          <svg class="trx-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="trxGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <linearGradient id="trxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#a3e635"/>
+                <stop offset="100%" style="stop-color:#65a30d"/>
+              </linearGradient>
+            </defs>
+            <!-- Outer triangle -->
+            <polygon points="60,8 108,92 12,92" fill="none" stroke="url(#trxGrad)" stroke-width="4" filter="url(#trxGlow)" stroke-linejoin="round"/>
+            <!-- Inner triangle -->
+            <polygon points="60,30 88,78 32,78" fill="rgba(163,230,53,0.08)" stroke="url(#trxGrad)" stroke-width="2" filter="url(#trxGlow)" stroke-linejoin="round"/>
+            <!-- Center diamond -->
+            <circle cx="60" cy="60" r="8" fill="#a3e635" filter="url(#trxGlow)" opacity="0.9"/>
+            <!-- Lines from center to edges -->
+            <line x1="60" y1="52" x2="60" y2="30" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
+            <line x1="60" y1="68" x2="32" y2="78" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
+            <line x1="60" y1="68" x2="88" y2="78" stroke="#a3e635" stroke-width="1.5" opacity="0.5"/>
+          </svg>
+          <div class="trx-label">TRX</div>
+        </div>
+
+        <!-- Floating stat chips -->
+        <div class="trx-chip trx-chip-1">&#9651; Free Faucet</div>
+        <div class="trx-chip trx-chip-2">&#10003; Provably Fair</div>
+        <div class="trx-chip trx-chip-3">50% Referral</div>
+        <div class="trx-chip trx-chip-4">Daily Cashback</div>
+
+        <!-- Sparkle dots -->
+        <div class="sp sp1"></div><div class="sp sp2"></div><div class="sp sp3"></div>
+        <div class="sp sp4"></div><div class="sp sp5"></div><div class="sp sp6"></div>
+
+      </div>
     </div>
 
     <!-- RIGHT: Content -->

@@ -251,7 +251,7 @@ a{text-decoration:none;color:inherit}
 }
 /* -- HERO IMAGE COLUMN -- */
 .hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}
-.hero-illus{width:100%;max-width:460px;height:auto;mix-blend-mode:screen;display:block}
+.hero-illus{display:none}
 @keyframes floatImg{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 
 /* -- HERO RIGHT CONTENT -- */
@@ -345,3 +345,42 @@ a{text-decoration:none;color:inherit}
 @keyframes spTwinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
 
 @media(max-width:860px){.hero-img-col{display:flex;align-items:center;justify-content:center;background:transparent}}
+/* ══════════════════════════════
+   TRX LOGO HERO WIDGET
+   ══════════════════════════════ */
+.hero-img-col{display:flex;align-items:center;justify-content:center}
+.trx-widget{position:relative;width:380px;height:380px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* Rings */
+.trx-ring{position:absolute;border-radius:50%;border:1px solid rgba(163,230,53,.15)}
+.trx-ring-1{width:200px;height:200px;animation:spinRing 12s linear infinite}
+.trx-ring-2{width:280px;height:280px;border-style:dashed;animation:spinRing 20s linear infinite reverse;border-color:rgba(163,230,53,.1)}
+.trx-ring-3{width:360px;height:360px;animation:spinRing 35s linear infinite;border-color:rgba(163,230,53,.06)}
+@keyframes spinRing{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* Core */
+.trx-core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px}
+.trx-svg{width:130px;height:130px;animation:trxPulse 3s ease-in-out infinite}
+@keyframes trxPulse{0%,100%{filter:drop-shadow(0 0 10px rgba(163,230,53,.5))}50%{filter:drop-shadow(0 0 28px rgba(163,230,53,.9)) drop-shadow(0 0 50px rgba(163,230,53,.3))}}
+.trx-label{font-size:22px;font-weight:900;color:#a3e635;letter-spacing:4px;font-family:'JetBrains Mono',monospace;text-shadow:0 0 20px rgba(163,230,53,.6)}
+
+/* Floating chips */
+.trx-chip{position:absolute;background:rgba(10,26,16,.85);border:1px solid rgba(163,230,53,.25);border-radius:20px;padding:7px 14px;font-size:11px;font-weight:700;color:#a3e635;letter-spacing:.5px;white-space:nowrap;backdrop-filter:blur(8px);animation:chipFloat 4s ease-in-out infinite}
+.trx-chip-1{top:30px;left:10px;animation-delay:0s}
+.trx-chip-2{top:30px;right:10px;animation-delay:.8s}
+.trx-chip-3{bottom:60px;left:0;animation-delay:1.6s}
+.trx-chip-4{bottom:60px;right:0;animation-delay:2.4s}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+/* Sparkles */
+.sp{position:absolute;border-radius:50%;background:#a3e635;animation:spTwinkle 3s ease-in-out infinite}
+.sp1{width:4px;height:4px;top:18%;left:22%;animation-delay:0s}
+.sp2{width:3px;height:3px;top:12%;right:25%;animation-delay:.5s}
+.sp3{width:5px;height:5px;bottom:22%;left:15%;animation-delay:1s}
+.sp4{width:3px;height:3px;bottom:18%;right:18%;animation-delay:1.5s}
+.sp5{width:4px;height:4px;top:50%;left:5%;animation-delay:2s}
+.sp6{width:3px;height:3px;top:48%;right:6%;animation-delay:2.5s}
+@keyframes spTwinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(2)}}
+
+@media(max-width:860px){.trx-widget{width:280px;height:280px}.trx-ring-3{width:260px;height:260px}.trx-ring-2{width:200px;height:200px}.trx-ring-1{width:140px;height:140px}}
+@media(max-width:680px){.hero-img-col{display:none}}
