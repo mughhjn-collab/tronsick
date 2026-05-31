@@ -50,43 +50,9 @@
 <section class="hero" id="hero">
   <div class="hero-overlay"></div>
   <div class="hero-wrap">
-
-    <!-- LEFT: Feature Highlights -->
-    <!-- LEFT: Feature Highlights -->
-    <div class="hero-feats-col" id="heroFeatsCol">
-
-      <div class="hf-item">
-        <span class="hf-dot">&bull;</span>
-        <div class="hf-text">
-          <strong>Free Faucet &mdash; Every 40 Minutes</strong>
-          <span>Claim up to 60 TRX straight to your balance. No deposit, no surveys. Just show up and collect.</span>
-        </div>
-      </div>
-
-      <div class="hf-item">
-        <span class="hf-dot">&bull;</span>
-        <div class="hf-text">
-          <strong>Weekly Contest &amp; Daily Cashback</strong>
-          <span>Top earners split a prize pool every Monday. Lose a day? Auto-cashback refunds a % back &mdash; overnight, automatically.</span>
-        </div>
-      </div>
-
-      <div class="hf-item">
-        <span class="hf-dot">&bull;</span>
-        <div class="hf-text">
-          <strong>50% Referral Income &mdash; For Life</strong>
-          <span>Every claim your referral makes puts 50% straight into your balance. No limits. No expiry. Passive income that never stops.</span>
-        </div>
-      </div>
-
-      <div class="hf-item">
-        <span class="hf-dot">&bull;</span>
-        <div class="hf-text">
-          <strong>9 Provably Fair Casino Games</strong>
-          <span>Dice, Mines, Tower, Limbo, Keno, Wheel &amp; more. Every result is cryptographically verifiable &mdash; we cannot cheat.</span>
-        </div>
-      </div>
-
+    <!-- LEFT: Dashboard Illustration -->
+    <div class="hero-img-col" id="heroImgCol">
+      <img src="hero-illustration.png" alt="TronSick Dashboard" class="hero-illus" id="heroIllus"/>
     </div>
 
     <!-- RIGHT: Content -->

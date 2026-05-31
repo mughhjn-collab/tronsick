@@ -40,7 +40,7 @@ a{text-decoration:none;color:inherit}
 /* ═══ HERO ═══ */
 .hero{background:linear-gradient(160deg,#0d1f18 0%,#132920 45%,#0a1f14 100%);padding-top:62px;position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column}
 .hero-overlay{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.hero-wrap{max-width:1160px;margin:0 auto;padding:70px 5% 60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;flex:1;position:relative;z-index:1}
+.hero-wrap{max-width:1100px;margin:0 auto;padding:60px 4% 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;flex:1;position:relative;z-index:1}
 
 /* Hero Left */
 .hero-left{padding-left:20px}
@@ -182,7 +182,7 @@ a{text-decoration:none;color:inherit}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:960px){
-  .hero-wrap{max-width:1160px;margin:0 auto;padding:70px 5% 60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;flex:1;position:relative;z-index:1}
+  .hero-wrap{max-width:1100px;margin:0 auto;padding:60px 4% 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;flex:1;position:relative;z-index:1}
   .hero-left h1{text-align:center}
   .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
   .games-grid{grid-template-columns:repeat(2,1fr)}
@@ -194,7 +194,7 @@ a{text-decoration:none;color:inherit}
   .signup-box{max-width:100%}
 }
 @media(max-width:960px){
-  .hero-wrap{max-width:1160px;margin:0 auto;padding:70px 5% 60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;flex:1;position:relative;z-index:1}
+  .hero-wrap{max-width:1100px;margin:0 auto;padding:60px 4% 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;flex:1;position:relative;z-index:1}
   .hero-left h1{text-align:center}
   .how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:0}
   .games-grid{grid-template-columns:repeat(2,1fr)}
@@ -247,5 +247,29 @@ a{text-decoration:none;color:inherit}
 .hf-text span{font-family:'Inter',sans-serif;font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;font-weight:400}
 @media(max-width:768px){
   .hero-feats-col{display:none}
-  .hero-wrap{grid-template-columns:1fr!important}
+  .hero-wrap{max-width:1100px;margin:0 auto;padding:60px 4% 60px;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;flex:1;position:relative;z-index:1}
+}
+/* -- HERO IMAGE COLUMN -- */
+.hero-img-col{display:flex;align-items:center;justify-content:center}
+.hero-illus{width:100%;max-width:480px;height:auto;animation:floatImg 5s ease-in-out infinite;filter:drop-shadow(0 20px 50px rgba(163,230,53,.15))}
+@keyframes floatImg{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* -- HERO RIGHT CONTENT -- */
+.hero-left{padding-left:10px}
+.hero-sitename{font-size:clamp(36px,5vw,68px);font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:10px;line-height:1;font-family:'Plus Jakarta Sans','Inter',sans-serif}
+.hero-left h1{font-size:clamp(15px,2vw,22px);font-weight:800;line-height:1.4;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:.3px}
+.hero-desc{font-size:14px;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:28px;max-width:480px}
+.hero-desc strong{color:#a3e635}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.hbtn{padding:13px 32px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.hbtn-signup{background:#a3e635;color:#0a1a00;box-shadow:0 4px 20px rgba(163,230,53,.3)}
+.hbtn-signup:hover{background:#b8f24a;transform:translateY(-2px);box-shadow:0 8px 28px rgba(163,230,53,.45)}
+.hbtn-login{background:transparent;color:#a3e635;border:2px solid rgba(163,230,53,.5);min-width:110px}
+.hbtn-login:hover{border-color:#a3e635;background:rgba(163,230,53,.08)}
+
+@media(max-width:860px){
+  .hero-wrap{grid-template-columns:1fr !important;padding:40px 20px !important}
+  .hero-img-col{display:none}
+  .hero-left{padding-left:0;text-align:center}
+  .hero-btns{justify-content:center}
 }
