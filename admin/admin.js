@@ -1,4 +1,4 @@
-﻿
+
 // Auth guard â€” localStorage so it persists across tabs and refreshes
 if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
 
@@ -921,7 +921,24 @@ function saveEditUser(){
     if(u.id===id){ u.name=name; u.email=email; u.balance=bal.toFixed(6); }
   });
   localStorage.setItem('adm_users',JSON.stringify(users));
-  toast('User saved ✅');
+
+  // ── KEY FIX: Write balance to user-specific key so dashboard picks it up ──
+  // Store as pending credit — when user opens site, syncBal() applies it
+  var pendKey = 'adm_bal_' + name.toLowerCase();
+  localStorage.setItem(pendKey, bal.toFixed(6));
+
+  // Also try to write directly to userBalance if this user is currently logged in
+  var curUser = localStorage.getItem('userName')||'';
+  if(curUser.toLowerCase() === name.toLowerCase()){
+    localStorage.setItem('userBalance', bal.toFixed(6));
+    // Update visible balance element if on same browser
+    var el=document.getElementById('userBalance');
+    if(el) el.textContent=bal.toFixed(6);
+    toast('User saved ✅ — Balance updated live!');
+  } else {
+    toast('User saved ✅ — Balance will apply on their next login.');
+  }
+
   closeEditUser();
   document.getElementById('admContent').innerHTML=buildUsers();
 }

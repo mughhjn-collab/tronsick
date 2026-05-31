@@ -60,7 +60,7 @@
     <div class="hw">
       <div class="earn-hd">
         <h1>EARN FREE TRX</h1>
-        <p class="wlc">Welcome back, <strong id="userName">User</strong></p>
+        <p class="wlc">Welcome back, <strong id="userName"></strong></p>
       </div>
 
       <div class="tabs">

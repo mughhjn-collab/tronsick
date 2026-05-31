@@ -26,12 +26,14 @@ function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.lo
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
 // ── BALANCE HELPERS ──
 function syncBal(){
+// Admin balance override check
+try{var _un=localStorage.getItem('userName')||'';if(_un){var _abk='adm_bal_'+_un.toLowerCase();var _ab=localStorage.getItem(_abk);if(_ab!==null){localStorage.setItem('userBalance',_ab);localStorage.removeItem(_abk);}}}catch(e){}
 try{
   var bal=parseFloat(localStorage.getItem('userBalance')||'0');
   var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);
   var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';
   // ── Username & Email sync ──
-  var uname=localStorage.getItem('userName')||'User';
+  var uname=localStorage.getItem('userName')||'';
   var uemail=localStorage.getItem('userEmail')||'';
   var unEl=document.getElementById('userName');if(unEl)unEl.textContent=uname;
   var emEl=document.getElementById('setEmail');if(emEl&&uemail)emEl.value=uemail;
