@@ -250,11 +250,7 @@
       <div class="auth-switch">Already have an account? <button type="button" onclick="switchTab('login')">Log In →</button></div>
     </form>
 
-    <!-- Stats strip -->
-    <div class="auth-info">
-      <div class="auth-info-title">Join 47,000+ earners</div>
-      <div class="auth-stats">
-        <div class="astat"><div class="astat-val">40m</div><div class="astat-lbl">Faucet Timer</div></div>
+<div class="astat-lbl">Faucet Timer</div></div>
         <div class="astat"><div class="astat-val">9</div><div class="astat-lbl">Casino Games</div></div>
         <div class="astat"><div class="astat-val">50%</div><div class="astat-lbl">Referral Cut</div></div>
         <div class="astat"><div class="astat-val">24h</div><div class="astat-lbl">Cashback</div></div>
