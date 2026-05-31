@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -52,18 +52,15 @@
   <div class="hero-wrap">
 
     <!-- LEFT: Features -->
+    <!-- LEFT -->
     <div class="hero-left">
-      <h1 id="heroH1">COLLECT FREE TRX<br/>EVERY 40 MINUTES!</h1>
-      <ul class="feat-list" id="featList">
-        <li><span class="fcheck">✔</span><span>Open the faucet, hit Claim — <strong>up to 60 TRX lands in your account instantly</strong>, no deposit, no tasks</span></li>
-        <li><span class="fcheck">✔</span><span><strong>Weekly Leaderboard Prize Pool</strong> — top players split TRX rewards every single Monday</span></li>
-        <li><span class="fcheck">✔</span><span><strong>Automatic Daily Cashback</strong> — a portion of your losses returned to your balance every night, hands-free</span></li>
-        <li><span class="fcheck">✔</span><span>9 casino games you can actually verify — <strong>Dice, Mines, Tower, Keno, Limbo, Wheel & more</strong></span></li>
-        <li><span class="fcheck">✔</span><span>Your referral link pays <strong>50% commission on every friend's claim — for life, no cap</strong></span></li>
-        <li><span class="fcheck">✔</span><span><strong>VIP system</strong> — every rank unlocks bigger faucet amounts, higher cashback & exclusive bonuses</span></li>
-        <li><span class="fcheck">✔</span><span>Withdraw straight to your TRON wallet — <strong>50 TRX minimum, processed instantly</strong></span></li>
-      </ul>
-      <a href="login.php?tab=register" class="btn-orange" id="heroPlayBtn">CLAIM FREE TRX NOW</a>
+      <div class="hero-sitename" id="heroSiteName">TRONSICK.IO</div>
+      <h1 id="heroH1">EARN FREE TRX WITH THE FAUCET,<br/>PROVABLY FAIR GAMES &amp; REFERRALS</h1>
+      <p class="hero-desc" id="heroDesc">Sign up for free and claim TRX every 40 minutes. Play 9 provably fair casino games, compete in weekly prize pools, receive daily cashback on losses, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
+      <div class="hero-btns" id="heroBtns">
+        <a href="login.php?tab=register" class="hbtn hbtn-signup" id="heroSignup">SIGN UP</a>
+        <a href="login.php" class="hbtn hbtn-login" id="heroLogin">LOG IN</a>
+      </div>
     </div>
 
     <!-- RIGHT: Auth buttons -->
