@@ -51,9 +51,36 @@
   <div class="hero-overlay"></div>
   <div class="hero-wrap">
 
-    <!-- LEFT: Illustration -->
-    <div class="hero-img-col">
-      <img src="hero-illustration.png" alt="Earn free TRX on TronSick" class="hero-illus" id="heroIllus"/>
+    <!-- LEFT: Feature Highlights -->
+    <div class="hero-feats-col" id="heroFeatsCol">
+      <div class="hf-item">
+        <div class="hf-bar"></div>
+        <div class="hf-text">
+          <strong>Free Faucet Every 40 Minutes</strong>
+          <span>Claim real TRX around the clock — no deposit, no surveys, no tricks</span>
+        </div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-bar"></div>
+        <div class="hf-text">
+          <strong>Weekly Contest &amp; Daily Cashback</strong>
+          <span>Top earners split a prize pool every Monday, and losers get auto-cashback every night</span>
+        </div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-bar"></div>
+        <div class="hf-text">
+          <strong>50% Referral Commission — Forever</strong>
+          <span>Every claim your referral makes pays you 50% instantly, no cap, no expiry</span>
+        </div>
+      </div>
+      <div class="hf-item">
+        <div class="hf-bar"></div>
+        <div class="hf-text">
+          <strong>9 Provably Fair Casino Games</strong>
+          <span>Dice, Mines, Tower, Keno, Limbo, Wheel &amp; more — all cryptographically verifiable</span>
+        </div>
+      </div>
     </div>
 
     <!-- RIGHT: Content -->
