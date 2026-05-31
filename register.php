@@ -151,14 +151,26 @@ function handleReg(e) {
     localStorage.setItem('regUser', u);
     localStorage.setItem('userName', u);
     localStorage.setItem('userEmail', em);  // Save REAL email
+    localStorage.setItem('userLoggedIn', '1');
+    localStorage.setItem('userId', 'u_' + u.toLowerCase().replace(/[^a-z0-9]/g,''));
+    // ── Save real email permanently per username ──
+    localStorage.setItem('userRealEmail_' + u.toLowerCase(), em);
     // Track registered user for admin panel count
     var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
     if(!_ru.find(function(x){return x.name===u;})){
       _ru.push({name:u,email:em,joined:new Date().toISOString(),balance:'0'});
       localStorage.setItem('site_registered_users',JSON.stringify(_ru));
     }
-    // Redirect to login with success flag
-    window.location.href='login.php?registered=1&user='+encodeURIComponent(u);
+    // ── Also save to adm_users so login.php can read real email ──
+    try{
+      var _au=JSON.parse(localStorage.getItem('adm_users')||'[]');
+      if(!_au.find(function(x){return x.name===u||x.email===em;})){
+        _au.push({id:'u_'+u.toLowerCase().replace(/[^a-z0-9]/g,''),name:u,email:em,balance:'0.000000',banned:false,joined:new Date().toISOString()});
+        localStorage.setItem('adm_users',JSON.stringify(_au));
+      }
+    }catch(e){}
+    // Redirect directly to faucet (already logged in)
+    window.location.href='faucet.php?registered=1&user='+encodeURIComponent(u);
   }, 1500);
 
 }
