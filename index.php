@@ -118,7 +118,7 @@
     <div class="how-grid">
 
       <div class="how-card" id="hw1">
-        <div class="how-num">01</div>
+
         <div class="how-content">
           <div class="how-icon-box ic-blue">⚡</div>
           <h3>Free TRX Every 40 Minutes</h3>
@@ -128,8 +128,8 @@
       </div>
 
       <div class="how-card how-card-featured" id="hw2">
-        <div class="how-badge">🏆 Most Popular</div>
-        <div class="how-num">02</div>
+
+
         <div class="how-content">
           <div class="how-icon-box ic-red">🎯</div>
           <h3>Win Weekly. Recover Daily.</h3>
@@ -139,7 +139,7 @@
       </div>
 
       <div class="how-card" id="hw3">
-        <div class="how-num">03</div>
+
         <div class="how-content">
           <div class="how-icon-box ic-gold">💎</div>
           <h3>VIP Ranks That Actually Pay</h3>
@@ -149,7 +149,7 @@
       </div>
 
       <div class="how-card" id="hw4">
-        <div class="how-num">04</div>
+
         <div class="how-content">
           <div class="how-icon-box ic-blue">🔗</div>
           <h3>50% Commission. Forever.</h3>
@@ -225,7 +225,7 @@
       <div class="fq" id="fq4"><button class="fq-btn" onclick="fqOpen(this)">What is Daily Cashback?<span class="fq-ic">+</span></button><div class="fq-body"><p>Daily Cashback is an automatic reward system. If you had a negative balance day from casino play, TronSick returns a percentage of your net losses directly to your account balance each day at midnight UTC. No codes, no requests — it happens automatically. Higher VIP levels receive higher cashback percentages.</p></div></div>
       <div class="fq" id="fq5"><button class="fq-btn" onclick="fqOpen(this)">How does the 50% referral commission work?<span class="fq-ic">+</span></button><div class="fq-body"><p>Every account gets a unique referral link. When someone registers through your link and claims TRX, you automatically receive 50% of their claim value as commission — added directly to your balance in real time. There is no limit on how many friends you can refer and no expiry date on your commission.</p></div></div>
       <div class="fq" id="fq6"><button class="fq-btn" onclick="fqOpen(this)">Are the casino games provably fair?<span class="fq-ic">+</span></button><div class="fq-body"><p>Yes. Every game on TronSick uses a server seed + client seed cryptographic system. Before each bet, a hashed server seed is shown to you. After the result, the original seed is revealed so you can verify the outcome yourself using any SHA-256 tool online. We are mathematically unable to alter results.</p></div></div>
-      <div class="fq" id="fq7"><button class="fq-btn" onclick="fqOpen(this)">When and how do I withdraw my TRX?<span class="fq-ic">+</span></button><div class="fq-body"><p>Go to the Withdraw section in your dashboard. Enter your TRC-20 TRON wallet address and the amount you wish to withdraw. Withdrawals are processed instantly on the TRON blockchain. Minimum withdrawal is 50 TRX. There is no maximum withdrawal limit and no hidden fees.</p></div></div>
+      <div class="fq" id="fq7"><button class="fq-btn" onclick="fqOpen(this)">When and how do I withdraw my TRX?<span class="fq-ic">+</span></button><div class="fq-body"><p>Go to the Withdraw section in your dashboard. Enter your TRC-20 TRON wallet address and the amount you wish to withdraw. Withdrawals are processed instantly on the TRON blockchain. Minimum withdrawal is 10 TRX. There is no maximum withdrawal limit and no hidden fees.</p></div></div>
     </div>
   </div>
 </section>
@@ -238,9 +238,9 @@
       <div class="footer-logo">Tron<span>Sick</span></div>
       <p>The fastest TRON faucet. Earn free TRX every 40 minutes through faucet, provably fair games, and a 50% lifetime referral program.</p>
     </div>
-    <div class="fc"><h4>Account</h4><a href="login.php" id="fLogin">Log In</a><a href="login.php?tab=register" id="fReg">Register Free</a></div>
-    <div class="fc"><h4>Earn TRX</h4><a href="#">Faucet</a><a href="#games">Casino Games</a><a href="#">Referral Program</a><a href="#payouts">Payment Proofs</a></div>
-    <div class="fc"><h4>Help</h4><a href="#faq">FAQ</a><a href="#">Contact Us</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Provably Fair</a></div>
+
+
+
   </div>
   <div class="footer-bottom">
     <div class="container footer-bottom-row">
