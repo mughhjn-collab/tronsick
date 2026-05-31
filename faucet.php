@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -74,25 +74,25 @@
         <p class="fdesc">To receive rewards from Hourly faucet, please fill the correct captcha and press <strong>CLAIM</strong> button. The amount of free TRX that you earn will depend on your level and paid out according to the table below. Your level is <span class="hl">Stone</span>, to reach the next level please play our games.</p>
 
         <div class="prog">
-          <div class="prog-info">Wagered: <strong id="wagered">0.000000</strong> / Target: <strong>30 TRX</strong></div>
-          <div class="prog-row"><span>Stone</span><span>Iron</span></div>
-          <div class="prog-track"><div class="prog-fill" style="width:0%"></div></div>
-          <div class="prog-pct">0%</div>
+          <div class="prog-info">Wagered: <strong id="wagered">0.000000</strong> / Target: <strong id="levelTarget">30 TRX</strong></div>
+          <div class="prog-row"><span id="levelCurLabel">Stone</span><span id="levelNxtLabel">Iron</span></div>
+          <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+          <div class="prog-pct" id="progPct">0%</div>
         </div>
 
         <div class="tbl-box">
           <div class="tbl-hd">LEVEL SYSTEM</div>
           <table class="tbl">
-            <thead><tr><th>Level</th><th>Payout</th></tr></thead>
+            <thead><tr><th>Level</th><th>Wager Required</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr class="tbl-on"><td><strong>Stone &#10003;</strong></td><td>0.005000 TRX</td></tr>
-              <tr><td>Iron</td><td>0.010000 TRX</td></tr>
-              <tr><td>Bronze</td><td>0.020000 TRX</td></tr>
-              <tr><td>Silver</td><td>0.070000 TRX</td></tr>
-              <tr><td>Gold</td><td>0.500000 TRX</td></tr>
-              <tr><td>Platinum</td><td>5.000000 TRX</td></tr>
-              <tr><td>Diamond</td><td>15.000000 TRX</td></tr>
-              <tr><td>Master</td><td>60.000000 TRX</td></tr>
+              <tr class="tbl-on" id="lvl-stone"><td><strong>Stone &#10003;</strong></td><td>0 TRX</td><td>0.005000 TRX</td></tr>
+              <tr id="lvl-iron"><td>Iron</td><td>30 TRX</td><td>0.010000 TRX</td></tr>
+              <tr id="lvl-bronze"><td>Bronze</td><td>300 TRX</td><td>0.020000 TRX</td></tr>
+              <tr id="lvl-silver"><td>Silver</td><td>1,000 TRX</td><td>0.070000 TRX</td></tr>
+              <tr id="lvl-gold"><td>Gold</td><td>3,000 TRX</td><td>0.500000 TRX</td></tr>
+              <tr id="lvl-platinum"><td>Platinum</td><td>10,000 TRX</td><td>5.000000 TRX</td></tr>
+              <tr id="lvl-diamond"><td>Diamond</td><td>30,000 TRX</td><td>15.000000 TRX</td></tr>
+              <tr id="lvl-master"><td>Master</td><td>100,000 TRX</td><td>60.000000 TRX</td></tr>
             </tbody>
           </table>
         </div>
@@ -765,8 +765,136 @@ if(typeof addBal!=='function'){
 if(typeof syncBal!=='function'){
   window.syncBal=function(){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};
 }
-if(typeof updateWager!=='function'){window.updateWager=function(){};}
 if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('wdAmt');if(e)e.value=Math.max(0,b-0.1).toFixed(6);};}
+
+// ═══════════════════════════════════════════════════════
+// LEVEL SYSTEM — Dynamic Progress Bar + Level Table
+// ═══════════════════════════════════════════════════════
+(function initLevelSystem(){
+  // Level definitions: {name, minWager (TRX to REACH this level), payout}
+  var LEVELS = [
+    { id:'stone',    name:'Stone',    min:0,       payout:'0.005000 TRX' },
+    { id:'iron',     name:'Iron',     min:30,      payout:'0.010000 TRX' },
+    { id:'bronze',   name:'Bronze',   min:300,     payout:'0.020000 TRX' },
+    { id:'silver',   name:'Silver',   min:1000,    payout:'0.070000 TRX' },
+    { id:'gold',     name:'Gold',     min:3000,    payout:'0.500000 TRX' },
+    { id:'platinum', name:'Platinum', min:10000,   payout:'5.000000 TRX' },
+    { id:'diamond',  name:'Diamond',  min:30000,   payout:'15.000000 TRX'},
+    { id:'master',   name:'Master',   min:100000,  payout:'60.000000 TRX'}
+  ];
+
+  function getCurrentLevel(wagered) {
+    var cur = LEVELS[0];
+    for (var i = LEVELS.length - 1; i >= 0; i--) {
+      if (wagered >= LEVELS[i].min) { cur = LEVELS[i]; break; }
+    }
+    return cur;
+  }
+
+  function getNextLevel(curLevel) {
+    for (var i = 0; i < LEVELS.length - 1; i++) {
+      if (LEVELS[i].id === curLevel.id) return LEVELS[i + 1];
+    }
+    return null; // already Master
+  }
+
+  function updateLevelUI() {
+    var wagered = parseFloat(localStorage.getItem('totalWagered') || '0');
+
+    // Update wagered display
+    var wEl = document.getElementById('wagered');
+    var gWEl = document.getElementById('gWagered');
+    if (wEl) wEl.textContent = wagered.toFixed(6);
+    if (gWEl) gWEl.textContent = wagered.toFixed(6);
+
+    var cur  = getCurrentLevel(wagered);
+    var next = getNextLevel(cur);
+
+    // ── Save updated level to localStorage ──
+    localStorage.setItem('userLevel', cur.name);
+
+    // ── Update progress bar (faucet page) ──
+    var progFill = document.getElementById('progFill');
+    var progPct  = document.getElementById('progPct');
+    var curLabel = document.getElementById('levelCurLabel');
+    var nxtLabel = document.getElementById('levelNxtLabel');
+    var targetEl = document.getElementById('levelTarget');
+
+    if (next) {
+      var fromWager = cur.min;          // wager you needed to reach current level
+      var toWager   = next.min;         // wager needed for next level
+      var span      = toWager - fromWager;
+      var done      = Math.min(wagered - fromWager, span);
+      var pct       = span > 0 ? Math.round((done / span) * 100) : 100;
+      pct = Math.max(0, Math.min(100, pct));
+
+      if (progFill)  progFill.style.width = pct + '%';
+      if (progPct)   progPct.textContent  = pct + '%';
+      if (curLabel)  curLabel.textContent = cur.name;
+      if (nxtLabel)  nxtLabel.textContent = next.name;
+      if (targetEl)  targetEl.textContent = next.min.toLocaleString() + ' TRX';
+    } else {
+      // Max level — Master
+      if (progFill)  progFill.style.width = '100%';
+      if (progPct)   progPct.textContent  = '100%';
+      if (curLabel)  curLabel.textContent = cur.name;
+      if (nxtLabel)  nxtLabel.textContent = 'MAX';
+      if (targetEl)  targetEl.textContent = 'MAX LEVEL';
+    }
+
+    // ── Update games page progress bar ──
+    var gFill = document.getElementById('gProgFill');
+    var gPct  = document.getElementById('gProgPct');
+    var gCurEl = document.querySelector('#gamesLevelBar .prog-row span:first-child');
+    var gNxtEl = document.querySelector('#gamesLevelBar .prog-row span:last-child');
+    var gTgtEl = document.querySelector('#gamesLevelBar .prog-info strong:last-child');
+    if (next) {
+      var fromW = cur.min, toW = next.min;
+      var sp2 = toW - fromW;
+      var dn2 = Math.min(wagered - fromW, sp2);
+      var p2  = sp2 > 0 ? Math.round((dn2 / sp2) * 100) : 100;
+      p2 = Math.max(0, Math.min(100, p2));
+      if (gFill)  gFill.style.width = p2 + '%';
+      if (gPct)   gPct.textContent  = p2 + '%';
+      if (gCurEl) gCurEl.textContent = cur.name;
+      if (gNxtEl) gNxtEl.textContent = next.name;
+      if (gTgtEl) gTgtEl.textContent = next.min.toLocaleString() + ' TRX';
+    }
+
+    // ── Update description text ──
+    document.querySelectorAll('.hl').forEach(function(el){ el.textContent = cur.name; });
+
+    // ── Update level table: highlight current row ──
+    LEVELS.forEach(function(lv){
+      var row = document.getElementById('lvl-' + lv.id);
+      if (!row) return;
+      row.classList.remove('tbl-on');
+      var td0 = row.querySelector('td:first-child');
+      if (td0) {
+        if (lv.id === cur.id) {
+          td0.innerHTML = '<strong>' + lv.name + ' &#10003;</strong>';
+          row.classList.add('tbl-on');
+        } else {
+          td0.textContent = lv.name;
+        }
+      }
+    });
+  }
+
+  // Run on load
+  updateLevelUI();
+
+  // Also expose so games can call it after each bet
+  window.updateWager = function(addedWager) {
+    var cur = parseFloat(localStorage.getItem('totalWagered') || '0');
+    var newVal = cur + (parseFloat(addedWager) || 0);
+    localStorage.setItem('totalWagered', newVal.toString());
+    updateLevelUI();
+  };
+
+  // Refresh every 5s in case another tab updated wagered
+  setInterval(updateLevelUI, 5000);
+})();
 </script>
 </body>
 </html>
