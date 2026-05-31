@@ -736,22 +736,17 @@ html+='</tbody></table>';
 list.innerHTML=html;
 }
 function _ensureBetModal(){
+// Static HTML modal is now correct (has bmTitle, bmSeeds, bmVerifyLink)
 var m=document.getElementById('betModal');
-if(m)return m;
-// Create modal dynamically and append to body
+if(m){
+  m.onclick=function(e){if(e.target===m)_closeBetModal();};
+  return m;
+}
+// Fallback: create dynamically if not found
 var div=document.createElement('div');
 div.id='betModal';
-div.className='bet-modal';
 div.style.cssText='display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;';
-div.innerHTML='<div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);">'+
-'<div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'+
-'<div class="bm-title" id="bmTitle" style="font-size:15px;font-weight:800;color:#fff;">&#127922; Bet Info</div>'+
-'<button class="bm-close" onclick="_closeBetModal(this)" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;">&#215;</button>'+
-'</div>'+
-'<div class="bm-result" id="bmResult" style="text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;"></div>'+
-'<div id="bmSeeds"></div>'+
-'<div id="bmVerifyLink" style="text-align:center;margin-top:14px;"></div>'+
-'</div>';
+div.innerHTML='<div onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div id="bmTitle" style="font-size:15px;font-weight:800;color:#fff">&#127922; Bet Info</div><button onclick="_closeBetModal()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px">&#215;</button></div><div id="bmResult" style="text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px"></div><div id="bmSeeds"></div><div id="bmVerifyLink" style="text-align:center;margin-top:14px"></div></div>';
 div.onclick=function(e){if(e.target===div)_closeBetModal();};
 document.body.appendChild(div);
 return div;
@@ -1457,8 +1452,13 @@ function cfFlip(){
 
     // Save to history
     cfNonce++;
-    var serverSeed = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
-    var clientSeed = localStorage.getItem('dgClientSeed')||'tronsick';
+    var serverSeed = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
+    // Generate and persist a real random client seed (not 'tronsick' fallback)
+    var clientSeed = localStorage.getItem('dgClientSeed');
+    if(!clientSeed || clientSeed==='tronsick'){
+      clientSeed = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+      localStorage.setItem('dgClientSeed', clientSeed);
+    }
     var rec = {
       id: cfNonce,
       game: 'Coin Flip',

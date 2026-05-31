@@ -6,8 +6,8 @@
   <title>Settings &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=2"/>
-  <link rel="stylesheet" href="games_new.css?v=6"/>
+  <link rel="stylesheet" href="dashboard.css?v=7"/>
+  <link rel="stylesheet" href="games_new.css?v=7"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
 <body>
@@ -664,18 +664,19 @@
 
 
 <!-- BET INFO MODAL � shared by all games -->
-<div class="bet-modal" id="betModal" onclick="closeBetModal()" style="display:none">
-  <div class="bm-box" onclick="event.stopPropagation()">
-    <div class="bm-hd">
-      <div class="bm-title">&#127922; Bet Info</div>
-      <button class="bm-close" onclick="closeBetModal()">&#215;</button>
+<div class="bet-modal" id="betModal" onclick="_closeBetModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
+  <div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
+    <div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="bm-title" id="bmTitle" style="font-size:15px;font-weight:800;color:#fff;">&#127922; Bet Info</div>
+      <button class="bm-close" onclick="_closeBetModal()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;">&#215;</button>
     </div>
-    <div class="bm-result" id="bmResult"></div>
-    <div class="bm-sf-group" id="bmSeeds"></div>
+    <div class="bm-result" id="bmResult" style="text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;"></div>
+    <div id="bmSeeds"></div>
+    <div id="bmVerifyLink" style="text-align:center;margin-top:14px;"></div>
   </div>
 </div>
 
-<script src="dashboard.js?v=6"></script>
+<script src="dashboard.js?v=7"></script>
 <script>window._INIT_SECTION='settings';</script>
 <script>
 // ── SETTINGS GUARANTEED INLINE INIT ──

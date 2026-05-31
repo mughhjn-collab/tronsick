@@ -741,6 +741,17 @@ button{cursor:pointer}
 .bm-verify-btn{background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:all .2s}
 .bm-verify-btn:hover{opacity:.9;transform:translateY(-1px)}
 
+/* ══ BET MODAL SEED FIELDS ══ */
+.bm-sf{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.bm-sf-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.bm-sf-row{display:flex;align-items:center;gap:8px}
+.bm-sf-ico{font-size:14px;color:rgba(255,255,255,.3);flex-shrink:0;min-width:16px;text-align:center}
+.bm-sf-inp{flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:6px;padding:7px 10px;outline:none;width:100%;min-width:0}
+.bm-sf-inp:focus{border-color:rgba(62,207,142,.3)}
+.bm-sf-nonce .bm-sf-inp{font-size:20px;font-weight:900;text-align:center}
+.bm-sf-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:#fff;word-break:break-all}
+
+
 /* ══ GAME CARDS v2 - 3D Icons, Name Below ══ */
 .gc-wrapper{display:flex;flex-direction:column;cursor:pointer;border-radius:14px;overflow:hidden;background:#141c2a;border:1px solid rgba(255,255,255,.08);transition:all .25s}
 .gc-wrapper:hover{border-color:rgba(62,207,142,.4);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
