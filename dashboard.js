@@ -1,4 +1,4 @@
-﻿// Strip any hash fragment from URL on load
+// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // ── LOGOUT ──
@@ -18,7 +18,7 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
 
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
@@ -153,7 +153,7 @@ try{
 function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
 // ── END BALANCE HELPERS ──
 document.addEventListener('DOMContentLoaded',()=>{
-const dep=document.getElementById('depAddr');if(dep)dep.textContent='T'+Array.from({length:33},()=>'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Math.floor(Math.random()*36)]).join('');
+// deposit address is loaded by initDeposit() via OxaPay API
 const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
@@ -1990,3 +1990,95 @@ function cfMax(){
 }
 // ── END COIN FLIP ──
 
+
+// ═══════════════════════════════════════
+// OXAPAY DEPOSIT SYSTEM
+// ═══════════════════════════════════════
+var _depPollTimer = null;
+
+function initDeposit(){
+  var user  = localStorage.getItem('userName')  || 'guest';
+  var email = localStorage.getItem('userEmail') || 'user@tronsick.io';
+  var cached = localStorage.getItem('dep_addr_' + user);
+  if(cached) _depShowAddress(cached);
+  fetch('/oxapay_deposit.php?user=' + encodeURIComponent(user) + '&email=' + encodeURIComponent(email))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){
+        localStorage.setItem('dep_addr_' + user, d.address);
+        _depShowAddress(d.address, d.qr_url);
+      } else {
+        var addrEl = document.getElementById('depAddr');
+        var ld = document.getElementById('depQrLoading');
+        if(addrEl) addrEl.value = 'Error: ' + (d.error || 'Failed');
+        if(ld) ld.innerHTML = '<span style="color:#ef4444;font-size:12px">' + (d.error || 'Error loading address') + '</span>';
+      }
+    })
+    .catch(function(e){ var a=document.getElementById('depAddr'); if(a) a.value='Connection error. Refresh and try again.'; });
+  _depStartPoll(user);
+  _depLoadTx(user);
+}
+
+function _depShowAddress(addr, qrUrl){
+  var addrEl  = document.getElementById('depAddr');
+  var qrImg   = document.getElementById('depQrImg');
+  var loading = document.getElementById('depQrLoading');
+  if(addrEl) addrEl.value = addr;
+  if(qrImg){
+    var url = qrUrl || ('https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(addr));
+    qrImg.src = url;
+    qrImg.style.display = 'block';
+    qrImg.onload = function(){ if(loading) loading.style.display = 'none'; };
+  }
+}
+
+function depCopyAddr(){
+  var el = document.getElementById('depAddr');
+  if(!el || !el.value || el.value === 'Loading address...' || el.value.indexOf('Error') === 0) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(el.value).then(function(){showToast('Address copied!');});
+  } else { el.select(); document.execCommand('copy'); showToast('Address copied!'); }
+}
+
+function depForceRefresh(){
+  var user = localStorage.getItem('userName') || 'guest';
+  _depLoadTx(user, true);
+  showToast('Checking for new deposits...');
+}
+
+function _depStartPoll(user){
+  if(_depPollTimer) clearInterval(_depPollTimer);
+  _depPollTimer = setInterval(function(){
+    fetch('/oxapay_check.php?user=' + encodeURIComponent(user))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); }
+        if(d.transactions) _depRenderTx(d.transactions);
+      }).catch(function(){});
+  }, 30000);
+}
+
+function _depLoadTx(user, showMsg){
+  fetch('/oxapay_check.php?user=' + encodeURIComponent(user))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.credit && d.credit > 0){ addBal(d.credit); showToast('Deposit of ' + d.credit.toFixed(6) + ' TRX credited!'); }
+      _depRenderTx(d.transactions || []);
+      if(showMsg && (!d.transactions || !d.transactions.length)) showToast('No pending transactions found.');
+    }).catch(function(){});
+}
+
+function _depRenderTx(txs){
+  var body = document.getElementById('depTxBody');
+  if(!body) return;
+  if(!txs || !txs.length){ body.innerHTML = '<tr><td colspan="4" class="dep-tx-empty">No transactions found</td></tr>'; return; }
+  var html = '';
+  txs.forEach(function(tx){
+    var d = new Date(tx.time * 1000);
+    var ts = (d.getDate()<10?'0':'')+d.getDate()+'/'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+' '+(d.getHours()<10?'0':'')+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+    var addr = tx.address ? tx.address.substr(0,8)+'...'+tx.address.substr(-6) : 'N/A';
+    var sc = tx.status==='Completed'?'#3ecf8e':tx.status==='confirming'?'#f59e0b':'#94a3b8';
+    html += '<tr><td class="dep-tc-time">'+ts+'</td><td style="color:#3ecf8e;font-weight:700">'+parseFloat(tx.amount).toFixed(6)+' TRX</td><td style="font-family:monospace;font-size:11px">'+addr+'</td><td><span style="color:'+sc+';font-weight:700;font-size:11px;text-transform:uppercase">'+tx.status+'</span></td></tr>';
+  });
+  body.innerHTML = html;
+}

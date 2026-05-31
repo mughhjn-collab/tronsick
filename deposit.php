@@ -6,7 +6,7 @@
   <title>Deposit &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=10"/>
+  <link rel="stylesheet" href="dashboard.css?v=13"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','totalWagered','userLevel','userRef'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('https://tronsick.io/login.php');}</script></head>
@@ -237,9 +237,60 @@
 
   <!-- DEPOSIT -->
   <div class="pg active" id="sec-deposit">
-    <div class="pg-hd"><h2>Deposit TRX</h2><p>Send TRX to your account address</p></div>
-    <div class="card"><label class="fl">TRC-20 Deposit Address</label><div class="addr" id="depAddr">Generating...</div><button class="gbtn" onclick="copyDep()">Copy Address</button><p class="sn">Send only TRX (TRC-20). Reflects within 1&ndash;3 minutes.</p></div>
+    <div class="dep-outer">
+      <div class="dep-card">
+        <div class="dep-card-hd">
+          <span class="dep-card-icon">&#x1F4B3;</span>
+          <span class="dep-card-title">DEPOSIT</span>
+        </div>
+        <p class="dep-desc">To deposit TRX into your account, you can either scan the provided <span class="dep-hl-green">QR code</span> or copy the <span class="dep-hl-green">TRX wallet address</span>. Ensure that your wallet is using the <span class="dep-hl-cyan">TRC20 network</span>. Then, enter the amount of TRX you want to deposit and confirm the transaction. Please <span class="dep-hl-red">double-check the address</span> and the amount before confirming. The transaction will be credited after one confirmation.</p>
+
+        <label class="dep-lbl">Network</label>
+        <div class="dep-select-wrap">
+          <select class="dep-select" id="depNetwork">
+            <option value="TRX">Tron (TRC20)</option>
+          </select>
+        </div>
+
+        <label class="dep-lbl" style="margin-top:16px">Address</label>
+        <div class="dep-addr-row">
+          <input class="dep-addr-inp" id="depAddr" type="text" value="Loading address..." readonly/>
+          <button class="dep-copy-btn" onclick="depCopyAddr()" title="Copy address">&#128203;</button>
+        </div>
+
+        <div class="dep-qr-wrap">
+          <div class="dep-qr-box" id="depQrBox">
+            <div class="dep-qr-loading" id="depQrLoading">
+              <div class="dep-spinner"></div>
+              <span>Generating your address...</span>
+            </div>
+            <img id="depQrImg" src="" alt="Deposit QR Code" style="display:none;border-radius:6px;max-width:160px"/>
+          </div>
+        </div>
+
+        <p class="dep-note"><a href="javascript:void(0)" onclick="depForceRefresh()" class="dep-hl-green">Click here</a> if your transactions have not credited. <span class="dep-hl-red">•</span></p>
+      </div>
+
+      <!-- YOUR TRANSACTIONS -->
+      <div class="dep-tx-box">
+        <div class="dep-tx-hd">YOUR TRANSACTIONS</div>
+        <table class="dep-tx-tbl">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Amount</th>
+              <th>Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="depTxBody">
+            <tr><td colspan="4" class="dep-tx-empty">No transactions found</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
+
 
   <!-- WITHDRAW -->
   <div class="pg" id="sec-withdraw">
@@ -754,7 +805,7 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=12"></script>
+<script src="dashboard.js?v=13"></script>
 <script>window._INIT_SECTION='deposit';</script>
 </body>
 </html>
