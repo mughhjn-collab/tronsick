@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="mobile.css"/>
   <script>
     var _params=new URLSearchParams(window.location.search);
     if(_params.get('landing')!=='1'){
@@ -101,25 +102,25 @@
             <circle cx="80" cy="75" r="7" fill="url(#trnGrad)" filter="url(#cGlow)"/>
           </svg>
           <div class="trx-coin-label">TRX</div>
-          <div class="trx-coin-sub">TRON Network</div>
+          <div class="trx-coin-sub">Claim Free</div>
         </div>
 
         <!-- Floating stat cards (premium) -->
         <div class="trx-stat trx-stat-tl">
-          <div class="trx-stat-val">60</div>
-          <div class="trx-stat-key">TRX / Claim</div>
+          <div class="trx-stat-icon">⚡</div>
+          <div class="trx-stat-key">Free Faucet</div>
         </div>
         <div class="trx-stat trx-stat-tr">
-          <div class="trx-stat-val">40m</div>
-          <div class="trx-stat-key">Faucet Timer</div>
+          <div class="trx-stat-icon">✓</div>
+          <div class="trx-stat-key">Provably Fair</div>
         </div>
         <div class="trx-stat trx-stat-bl">
-          <div class="trx-stat-val">50%</div>
-          <div class="trx-stat-key">Referral Cut</div>
+          <div class="trx-stat-icon">50%</div>
+          <div class="trx-stat-key">Referral</div>
         </div>
         <div class="trx-stat trx-stat-br">
-          <div class="trx-stat-val">9</div>
-          <div class="trx-stat-key">Games</div>
+          <div class="trx-stat-icon">💰</div>
+          <div class="trx-stat-key">Daily Cashback</div>
         </div>
 
         <!-- Sparkles -->
@@ -133,8 +134,8 @@
     <!-- RIGHT: Content -->
     <div class="hero-left">
       <div class="hero-sitename" id="heroSiteName">TRONSICK</div>
-      <h1 id="heroH1">EARN FREE TRX WITH THE FAUCET,<br/>PROVABLY FAIR GAMES &amp; REFERRALS</h1>
-      <p class="hero-desc" id="heroDesc">Sign up free and claim TRX every 40 minutes from our faucet. Play 9 provably fair casino games, compete in weekly prize pools, receive daily cashback, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
+      <h1 id="heroH1">EARN FREE TRX WITH THE FAUCET,<br/>CASHBACK, CONTESTS &amp; REFERRALS</h1>
+      <p class="hero-desc" id="heroDesc">Sign up free and claim TRX every 40 minutes from our faucet. Play 9 provably fair casino games, compete in weekly prize pools, receive <strong>daily cashback</strong> on every bet, and earn passive income — your referrals pay you <strong>50% commission on every claim, forever.</strong></p>
       <div class="hero-btns" id="heroBtns">
         <a href="login.php?tab=register" class="hbtn hbtn-signup" id="heroSignup">SIGN UP</a>
         <a href="login.php" class="hbtn hbtn-login" id="heroLogin">LOG IN</a>
@@ -144,9 +145,6 @@
   </div>
 </section>
 
-
-  </div>
-</section>
 
 <!-- ═══ HOW IT WORKS ═══ -->
 <section class="how-sec" id="features">
@@ -207,8 +205,8 @@
 <section class="games-sec" id="games">
   <div class="container">
     <div class="sec-head light-head">
-      <h2>9 Provably Fair Casino Games</h2>
-      <p>Every game uses a cryptographic server seed + client seed system. Verify any result independently — outcomes cannot be manipulated. Every game has just <strong>1% house edge</strong>. Your bets also count toward the Weekly Contest leaderboard.</p>
+      <h2>Cashback &amp; Provably Fair Games</h2>
+      <p>Every game uses a cryptographic server seed + client seed system. Verify any result independently — outcomes cannot be manipulated. Every game has just <strong>1% house edge</strong>. Earn daily cashback on every bet — win or lose!</p>
     </div>
     <div class="games-grid">
       <a href="login.php?tab=register" class="game-tile gt-dice" id="g1">
