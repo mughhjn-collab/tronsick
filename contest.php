@@ -755,7 +755,7 @@ window._INIT_SECTION='contest';
 (function contestTimer(){
   function pad(n){return n<10?'0'+n:''+n;}
   // Anchor: Mon 2026-06-02 10:00 UTC (known past Monday)
-  var ANCHOR = 1748858400000; // Mon Jun 02 2026 10:00:00 UTC
+  var ANCHOR = 1748340000000; // Mon May 26 2025 10:00:00 UTC
   var CYCLE  = ((6*24)+10)*3600*1000; // 6d10h in ms = 554400000
   function getEnd(){
     var now = Date.now();

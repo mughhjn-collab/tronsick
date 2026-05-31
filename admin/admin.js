@@ -1,4 +1,4 @@
-﻿// TronSick Admin Panel v2.1 — 2026-05-31 06:44
+﻿// TronSick Admin Panel v2.2 — 2026-05-31T14:57:19.268Z — 2026-05-31 06:44
 
 // Auth guard â€” localStorage so it persists across tabs and refreshes
 if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
