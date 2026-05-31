@@ -36,6 +36,8 @@
     <a class="sb-item"        id="nav-settings"    href="/settings.php">  <i>&#9881;</i><s>Settings</s></a>
     <a class="sb-item"        id="nav-contact"     href="/contact.php">   <i>&#9993;</i><s>Contact</s></a>
     <div class="sb-gap"></div>
+    <a class="sb-item sb-stake" id="nav-stake" href="https://stake.com" target="_blank" rel="noopener"><i>&#x1F3B0;</i><s>Stake</s></a>
+    <div class="sb-gap"></div>
     <a class="sb-item sb-out" href="javascript:void(0)" onclick="doSiteLogout()">                              <i>&#x1F534;</i><s>Logout</s></a>
   </nav>
 </aside>

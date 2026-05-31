@@ -101,6 +101,10 @@ button{cursor:pointer}
 .sb-gap{flex:1;min-height:8px}
 .sb-out{color:rgba(248,113,113,.4)!important}
 .sb-out:hover{background:rgba(248,113,113,.08)!important;color:var(--red)!important}
+.sb-stake{color:rgba(168,139,250,.6)!important;border-left:2px solid transparent}
+.sb-stake:hover{background:rgba(139,92,246,.1)!important;color:#a78bfa!important;border-left-color:#a78bfa!important}
+.sb-stake i{background:linear-gradient(135deg,#a78bfa,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
 
 /* ══ TOPBAR ══ */
 .topbar{
