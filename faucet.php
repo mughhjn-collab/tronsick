@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE "” Roll System -->
+      <!-- BONUS PANE "� Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -118,11 +118,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 "“ 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 "“ 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 "“ 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 "“ 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 "“ 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "� 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "� 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "� 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "� 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "� 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -523,7 +523,7 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Live Countdown 6d 10h cycle -->
+      <!-- CONTEST ENDS IN � Live Countdown 6d 10h cycle -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -737,7 +737,7 @@
 </main>
 
 
-<!-- BET INFO MODAL — shared by all games -->
+<!-- BET INFO MODAL � shared by all games -->
 <div class="bet-modal" id="betModal" onclick="_closeBetModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
   <div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
     <div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -750,11 +750,11 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=1"></script>
-<script src="dashboard.js?v=18"></script>
+<script src="site_sync.js?v=2"></script>
+<script src="dashboard.js?v=19"></script>
 <script>
 window._INIT_SECTION='home';
-// Fallback helpers – activate only if dashboard.js didn't define them
+// Fallback helpers � activate only if dashboard.js didn't define them
 if(typeof addBal!=='function'){
   window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);var w=document.getElementById('wdBal');if(w)w.textContent=b.toFixed(6)+' TRX';}catch(x){}};
 }
@@ -763,9 +763,9 @@ if(typeof syncBal!=='function'){
 }
 if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('wdAmt');if(e)e.value=Math.max(0,b-0.1).toFixed(6);};}
 
-// ═══════════════════════════════════════════════════════
-// LEVEL SYSTEM — Dynamic Progress Bar + Level Table
-// ═══════════════════════════════════════════════════════
+// -------------------------------------------------------
+// LEVEL SYSTEM � Dynamic Progress Bar + Level Table
+// -------------------------------------------------------
 (function initLevelSystem(){
   // Level definitions: {name, minWager (TRX to REACH this level), payout}
   var LEVELS = [
@@ -806,10 +806,10 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
     var cur  = getCurrentLevel(wagered);
     var next = getNextLevel(cur);
 
-    // ── Save updated level to localStorage ──
+    // -- Save updated level to localStorage --
     localStorage.setItem('userLevel', cur.name);
 
-    // ── Update progress bar (faucet page) ──
+    // -- Update progress bar (faucet page) --
     var progFill = document.getElementById('progFill');
     var progPct  = document.getElementById('progPct');
     var curLabel = document.getElementById('levelCurLabel');
@@ -830,7 +830,7 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
       if (nxtLabel)  nxtLabel.textContent = next.name;
       if (targetEl)  targetEl.textContent = next.min.toLocaleString() + ' TRX';
     } else {
-      // Max level — Master
+      // Max level � Master
       if (progFill)  progFill.style.width = '100%';
       if (progPct)   progPct.textContent  = '100%';
       if (curLabel)  curLabel.textContent = cur.name;
@@ -838,7 +838,7 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
       if (targetEl)  targetEl.textContent = 'MAX LEVEL';
     }
 
-    // ── Update games page progress bar ──
+    // -- Update games page progress bar --
     var gFill = document.getElementById('gProgFill');
     var gPct  = document.getElementById('gProgPct');
     var gCurEl = document.querySelector('#gamesLevelBar .prog-row span:first-child');
@@ -857,10 +857,10 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
       if (gTgtEl) gTgtEl.textContent = next.min.toLocaleString() + ' TRX';
     }
 
-    // ── Update description text ──
+    // -- Update description text --
     document.querySelectorAll('.hl').forEach(function(el){ el.textContent = cur.name; });
 
-    // ── Update level table: highlight current row ──
+    // -- Update level table: highlight current row --
     LEVELS.forEach(function(lv){
       var row = document.getElementById('lvl-' + lv.id);
       if (!row) return;
@@ -903,15 +903,14 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
   setInterval(updateLevelUI, 5000);
 })();
 
-// CONTEST — 6d10h timer from most recent Monday 10:00 UTC
-SiteSync.startContestTimer({
-  daysEl: document.getElementById('ctCkDays'),
-  hoursEl: document.getElementById('ctCkHours'),
-  minsEl: document.getElementById('ctCkMins'),
-  secsEl: document.getElementById('ctCkSecs')
-}, 60000);
+// CONTEST � 6d10h timer + leaderboard
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.SiteSync) SiteSync.startContestTimer({}, 1000);
+  renderContestLeaderboard();
+  setInterval(renderContestLeaderboard, 10000);
+});
 
-// CONTEST LEADERBOARD — server-synced
+// CONTEST LEADERBOARD � server-synced
 function renderContestLeaderboard(){
   var tbody = document.getElementById('ctLeaderboard');
   if(!tbody) return;
@@ -924,7 +923,7 @@ function renderContestLeaderboard(){
     entries.sort(function(a,b){ return b.wager - a.wager; });
     var myName = localStorage.getItem('userName') || '';
     var myWager = parseFloat(cw[myName]) || parseFloat(localStorage.getItem('totalWagered') || '0');
-    var myRank = '—';
+    var myRank = '�';
     for(var i=0;i<entries.length;i++){
       if(entries[i].name === myName){ myRank = '#'+ (i+1); break; }
     }
@@ -933,7 +932,7 @@ function renderContestLeaderboard(){
     if(mwEl) mwEl.textContent = myWager.toFixed(6);
     if(mrEl) mrEl.textContent = myRank;
     if(!entries.length){
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px 0;font-size:14px">No wagers recorded yet — play a game to appear here!</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px 0;font-size:14px">No wagers recorded yet � play a game to appear here!</td></tr>';
       return;
     }
     var medals = ['&#129351;','&#129352;','&#129353;'];
@@ -950,10 +949,6 @@ function renderContestLeaderboard(){
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ draw(r.ok ? (r.wagers||{}) : {}); });
   else try{ draw(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(x){ draw({}); }
 }
-
-// Run on load and refresh every 10s
-renderContestLeaderboard();
-setInterval(renderContestLeaderboard, 10000);
 </script>
 </body>
 </html>

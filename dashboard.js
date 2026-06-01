@@ -233,8 +233,8 @@ function _abCheckWin(betAmt, winPct, payout){
   var ab2Wins   = parseInt(localStorage.getItem('ab2_wins')||'6');
   var ab3On     = localStorage.getItem('ab3_on')==='1';
 
-  var amtMatch1 = ab1Amt>0 && Math.abs(betAmt-ab1Amt)<0.000001;
-  var amtMatch2 = ab2Amt>0 && Math.abs(betAmt-ab2Amt)<0.000001;
+  var amtMatch1 = ab1Amt>0 && Math.abs(betAmt-ab1Amt) < Math.max(0.000001, ab1Amt * 0.001);
+  var amtMatch2 = ab2Amt>0 && Math.abs(betAmt-ab2Amt) < Math.max(0.000001, ab2Amt * 0.001);
 
   // ── ANTIBOT 2 check (96%–65% range + amount match) ──
   if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
@@ -364,7 +364,7 @@ function _ctStartCountdown(){
   }
   tick();
   if(_ctTimer)clearInterval(_ctTimer);
-  _ctTimer=setInterval(tick,60000);
+  _ctTimer=setInterval(tick,1000);
 }
 
 function _ctRenderLeaderboard(){

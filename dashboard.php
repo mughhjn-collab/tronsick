@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard "� TronSick</title>
+  <title>Dashboard "? TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="dashboard.css?v=17"/>
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE "� Roll System -->
+      <!-- BONUS PANE "? Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -118,11 +118,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 "� 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 "� 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 "� 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 "� 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 "� 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "? 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "? 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "? 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "? 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "? 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -523,7 +523,7 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN � Big Countdown -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -742,7 +742,7 @@
 </main>
 
 
-<!-- BET INFO MODAL � shared by all games -->
+<!-- BET INFO MODAL ? shared by all games -->
 <div class="bet-modal" id="betModal" onclick="_closeBetModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
   <div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
     <div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -755,7 +755,7 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=1"></script>
-<script src="dashboard.js?v=18"></script>
+<script src="site_sync.js?v=2"></script>
+<script src="dashboard.js?v=19"></script>
 </body>
 </html>

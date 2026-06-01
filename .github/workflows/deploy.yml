@@ -25,7 +25,7 @@ jobs:
           server-dir: /domains/tronsick.io/public_html/
           timeout: 120000
           log-level: verbose
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**

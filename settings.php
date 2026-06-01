@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE "� Roll System -->
+      <!-- BONUS PANE "? Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -118,11 +118,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 "� 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 "� 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 "� 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 "� 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 "� 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "? 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "? 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "? 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "? 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "? 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -523,7 +523,7 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN � Big Countdown -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -739,7 +739,7 @@
 </main>
 
 
-<!-- BET INFO MODAL � shared by all games -->
+<!-- BET INFO MODAL ? shared by all games -->
 <div class="bet-modal" id="betModal" onclick="_closeBetModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
   <div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
     <div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -752,11 +752,11 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=1"></script>
-<script src="dashboard.js?v=18"></script>
+<script src="site_sync.js?v=2"></script>
+<script src="dashboard.js?v=19"></script>
 <script>window._INIT_SECTION='settings';</script>
 <script>
-// ── SETTINGS GUARANTEED INLINE INIT ──
+// -- SETTINGS GUARANTEED INLINE INIT --
 (function init(){
   // Email from localStorage
   var uemail = localStorage.getItem('userEmail') || '';
@@ -817,12 +817,12 @@
 })();
 </script>
 
-<!-- ═══ 2FA SETUP SECTION ═══ -->
+<!-- --- 2FA SETUP SECTION --- -->
 <div class="pg-section" id="sec-2fa-setup" style="margin-top:24px">
 <div style="background:#111b2e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 20px">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
     <div>
-      <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px">🔐 Two-Factor Authentication (2FA)</div>
+      <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:4px">?? Two-Factor Authentication (2FA)</div>
       <div style="font-size:13px;color:rgba(255,255,255,.45)" id="twofa-status-txt">Protect your account with Google Authenticator</div>
     </div>
     <div id="twofa-badge" style="padding:5px 14px;border-radius:99px;font-size:12px;font-weight:700;background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)">DISABLED</div>
@@ -859,7 +859,7 @@
 
   <div id="twofa-enabled-view" style="display:none">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <span style="font-size:28px">✅</span>
+      <span style="font-size:28px">?</span>
       <div><div style="color:#3ecf8e;font-weight:700;font-size:14px">2FA is Active</div><div style="color:rgba(255,255,255,.4);font-size:12px">Your account is protected</div></div>
     </div>
     <button onclick="disableTwoFA()" style="padding:10px 20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:9px;color:#f87171;font-size:13px;font-weight:700;cursor:pointer">Disable 2FA</button>
@@ -868,7 +868,7 @@
 </div>
 
 <script>
-// ── TOTP helpers (same as login.php) ──────────────────────
+// -- TOTP helpers (same as login.php) ----------------------
 var B32C='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 function b32decode(s){s=s.toUpperCase().replace(/=+$/,'');var bits=0,val=0,out=[];for(var i=0;i<s.length;i++){val=(val<<5)|B32C.indexOf(s[i]);bits+=5;if(bits>=8){bits-=8;out.push((val>>bits)&0xff);}}return new Uint8Array(out);}
 async function verifyTOTP2(secret,code){if(!code||code.length!==6)return false;var key=b32decode(secret);var t=Math.floor(Date.now()/1000/30);for(var i=-1;i<=1;i++){var c=t+i;var buf=new ArrayBuffer(8);new DataView(buf).setUint32(4,c,false);try{var ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);var sig=await crypto.subtle.sign('HMAC',ck,buf);var h=new Uint8Array(sig);var off=h[h.length-1]&0x0f;var n=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);if(String(n%1000000).padStart(6,'0')===String(code))return true;}catch(ex){}}return false;}
@@ -936,7 +936,7 @@ async function verifyAndEnable2FA(){
   localStorage.setItem('2fa_secret_'+uname.toLowerCase(),_pendingSecret);
   _pendingSecret='';
   init2FAStatus();
-  showToast('🔐 2FA enabled successfully! Your account is now protected.');
+  showToast('?? 2FA enabled successfully! Your account is now protected.');
 }
 
 function disableTwoFA(){

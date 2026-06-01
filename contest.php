@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <!-- BONUS PANE "ï¿½ Roll System -->
+      <!-- BONUS PANE "? Roll System -->
       <div class="pane" id="paneBonus">
         <p class="fdesc">Roll a number between 0 and 10000. The higher the number, the bigger the reward! Each captcha gives you one free roll.</p>
 
@@ -118,11 +118,11 @@
           <table class="tbl">
             <thead><tr><th>Number</th><th>Payout</th></tr></thead>
             <tbody>
-              <tr><td>0 "ï¿½ 9885</td><td>0.005000 TRX</td></tr>
-              <tr><td>9886 "ï¿½ 9985</td><td>0.150000 TRX</td></tr>
-              <tr><td>9986 "ï¿½ 9993</td><td>1.500000 TRX</td></tr>
-              <tr><td>9994 "ï¿½ 9997</td><td>15.000000 TRX</td></tr>
-              <tr><td>9998 "ï¿½ 9999</td><td>150.000000 TRX</td></tr>
+              <tr><td>0 "? 9885</td><td>0.005000 TRX</td></tr>
+              <tr><td>9886 "? 9985</td><td>0.150000 TRX</td></tr>
+              <tr><td>9986 "? 9993</td><td>1.500000 TRX</td></tr>
+              <tr><td>9994 "? 9997</td><td>15.000000 TRX</td></tr>
+              <tr><td>9998 "? 9999</td><td>150.000000 TRX</td></tr>
               <tr class="tbl-gold"><td>10000</td><td>1,500.000000 TRX</td></tr>
             </tbody>
           </table>
@@ -523,7 +523,7 @@
   <div class="pg active" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN â€” Live v3 2026-05-31T07:28:07 -->
+      <!-- CONTEST ENDS IN — Live v3 2026-05-31T07:28:07 -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -734,7 +734,7 @@
 </main>
 
 
-<!-- BET INFO MODAL ï¿½ shared by all games -->
+<!-- BET INFO MODAL ? shared by all games -->
 <div class="bet-modal" id="betModal" onclick="_closeBetModal()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;">
   <div class="bm-box" onclick="event.stopPropagation()" style="background:#1a2030;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px;width:440px;max-width:95vw;box-shadow:0 16px 60px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;">
     <div class="bm-hd" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -747,19 +747,20 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=1"></script>
-<script src="dashboard.js?v=18"></script>
+<script src="site_sync.js?v=2"></script>
+<script src="dashboard.js?v=19"></script>
 <script>
 window._INIT_SECTION='contest';
 
-// LIVE COUNTDOWN â€” 6d10h from most recent Monday 10:00 UTC
-SiteSync.startContestTimer({
-  daysEl: document.getElementById('ctCkDays'),
-  hoursEl: document.getElementById('ctCkHours'),
-  minsEl: document.getElementById('ctCkMins')
-}, 60000);
+// CONTEST — 6d10h timer + live leaderboard
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.SiteSync){
+    SiteSync.startContestTimer({}, 1000);
+  }
+  renderContest();
+  setInterval(renderContest, 10000);
+});
 
-// LIVE LEADERBOARD â€” server-synced real wagers only
 function renderContest(){
   var tbody=document.getElementById('ctLeaderboard');
   if(!tbody) return;
@@ -773,11 +774,11 @@ function renderContest(){
     var mrEl=document.getElementById('ctMyRank');
     var mwEl=document.getElementById('ctMyWager');
     if(mwEl) mwEl.textContent=myWager.toFixed(6);
-    var myRank='â€”';
+    var myRank='—';
     for(var i=0;i<entries.length;i++){if(entries[i].name===myName){myRank='#'+(i+1);break;}}
     if(mrEl) mrEl.textContent=myRank;
     if(!entries.length){
-      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet â€” play a game to appear here!</td></tr>';
+      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
       return;
     }
     var medals=['&#129351;','&#129352;','&#129353;'];
@@ -795,8 +796,6 @@ function renderContest(){
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ draw(r.ok?(r.wagers||{}):{}); });
   else try{ draw(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ draw({}); }
 }
-renderContest();
-setInterval(renderContest,10000);
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -11,9 +11,9 @@
 <script>if(!localStorage.getItem("userLoggedIn")||!localStorage.getItem("userName")){window.location.replace("https://tronsick.io/login.php");}</script>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
 <style>
-/* ════════════════════════════════════
+/* ------------------------------------
    BONUS PAGE STYLES
-════════════════════════════════════ */
+------------------------------------ */
 .bonus-outer{max-width:700px;margin:0 auto;padding:24px 16px 80px}
 
 /* Hero Banner */
@@ -158,19 +158,19 @@
 
     <!-- HERO -->
     <div class="bonus-hero">
-      <span class="bonus-hero-icon">🎁</span>
+      <span class="bonus-hero-icon">??</span>
       <h1 class="bonus-hero-title">Deposit Bonus</h1>
-      <p class="bonus-hero-sub">Deposit TRX and earn instant bonus rewards — unlock by wagering</p>
+      <p class="bonus-hero-sub">Deposit TRX and earn instant bonus rewards � unlock by wagering</p>
     </div>
 
     <!-- HOW IT WORKS -->
     <div class="bonus-how">
       <div class="bonus-how-title">How It Works</div>
       <div class="how-steps">
-        <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Deposit TRX</strong> — Make your first deposit to qualify for a bonus tier</div></div>
-        <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Bonus is Added</strong> — Your bonus is credited automatically but stays <strong>locked</strong></div></div>
-        <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Wager to Unlock</strong> — Play games to meet the wager requirement and unlock your bonus</div></div>
-        <div class="how-step"><div class="how-num">4</div><div class="how-text"><strong>Claim</strong> — Once wagering is complete, click Claim to add bonus to your balance</div></div>
+        <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Deposit TRX</strong> � Make your first deposit to qualify for a bonus tier</div></div>
+        <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Bonus is Added</strong> � Your bonus is credited automatically but stays <strong>locked</strong></div></div>
+        <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Wager to Unlock</strong> � Play games to meet the wager requirement and unlock your bonus</div></div>
+        <div class="how-step"><div class="how-num">4</div><div class="how-text"><strong>Claim</strong> � Once wagering is complete, click Claim to add bonus to your balance</div></div>
       </div>
     </div>
 
@@ -185,18 +185,18 @@
 <!-- BONUS TOAST -->
 <div class="bonus-toast" id="bonusToast"></div>
 
-<script src="site_sync.js?v=1"></script>
-<script src="dashboard.js?v=18"></script>
+<script src="site_sync.js?v=2"></script>
+<script src="dashboard.js?v=19"></script>
 <script>
-// ═══════════════════════════════════════════
+// -------------------------------------------
 // BONUS SYSTEM
-// ═══════════════════════════════════════════
+// -------------------------------------------
 
 var BONUS_TIERS = [
   {
     id: 'b100',
     name: 'Starter Bonus',
-    icon: '🥉',
+    icon: '??',
     iconCls: 'ti-gold',
     pctCls: 'pct-gold',
     fillCls: 'fill-gold',
@@ -209,7 +209,7 @@ var BONUS_TIERS = [
   {
     id: 'b500',
     name: 'Silver Bonus',
-    icon: '🥈',
+    icon: '??',
     iconCls: 'ti-green',
     pctCls: 'pct-green',
     fillCls: 'fill-green',
@@ -222,7 +222,7 @@ var BONUS_TIERS = [
   {
     id: 'b2000',
     name: 'Gold Bonus',
-    icon: '🥇',
+    icon: '??',
     iconCls: 'ti-blue',
     pctCls: 'pct-blue',
     fillCls: 'fill-blue',
@@ -250,7 +250,7 @@ function renderBonus(){
 
   if(!hasAny){
     html += '<div class="bonus-empty">' +
-      '<div class="bonus-empty-icon">💰</div>' +
+      '<div class="bonus-empty-icon">??</div>' +
       '<div class="bonus-empty-title">No Active Bonus</div>' +
       '<div class="bonus-empty-desc">Make your first deposit to unlock exclusive bonus rewards. The more you deposit, the bigger your bonus!</div>' +
       '<a href="/deposit.php" class="go-deposit-btn"><i class="fas fa-arrow-up"></i> Make a Deposit</a>' +
@@ -295,12 +295,12 @@ function renderBonus(){
       var claimBtn = '';
       if(status === 'claimed'){
         statusBadge = '<span class="tier-status ts-claimed"><i class="fas fa-check-double"></i> Claimed</span>';
-        claimBtn = '<button class="claim-btn cb-claimed" disabled>Claimed ✓</button>';
+        claimBtn = '<button class="claim-btn cb-claimed" disabled>Claimed ?</button>';
       } else if(status === 'unlocked'){
         statusBadge = '<span class="tier-status ts-unlocked"><i class="fas fa-unlock"></i> Ready to Claim!</span>';
         claimBtn = '<button class="claim-btn cb-unlocked" onclick="claimBonus(\''+t.id+'\')"><i class="fas fa-gift"></i> Claim '+bonusAmt+' TRX</button>';
       } else {
-        statusBadge = '<span class="tier-status ts-locked"><i class="fas fa-lock"></i> Locked — '+remaining+' TRX wager left</span>';
+        statusBadge = '<span class="tier-status ts-locked"><i class="fas fa-lock"></i> Locked � '+remaining+' TRX wager left</span>';
         claimBtn = '<button class="claim-btn cb-locked" disabled>Wager to Unlock</button>';
       }
 
@@ -336,14 +336,14 @@ function claimBonus(tierId){
   var wager = parseFloat(localStorage.getItem('totalWagered')||'0');
   var wagered = wager - (b.wagerStart||0);
   var tier = BONUS_TIERS.find(function(t){ return t.id===tierId; });
-  if(wagered < tier.wagerReq){ showBonusToast('⚠ Wager requirement not met yet!'); return; }
+  if(wagered < tier.wagerReq){ showBonusToast('? Wager requirement not met yet!'); return; }
   b.claimed = true;
   b.claimedAt = Date.now();
   data[tierId] = b;
   saveBonusData(data);
   // Add bonus to balance
   addBal(parseFloat(b.bonusAmount||0));
-  showBonusToast('🎉 '+parseFloat(b.bonusAmount).toFixed(6)+' TRX bonus claimed!');
+  showBonusToast('?? '+parseFloat(b.bonusAmount).toFixed(6)+' TRX bonus claimed!');
   setTimeout(renderBonus, 500);
 }
 

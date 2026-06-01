@@ -89,8 +89,14 @@ function showSection(btn,sec){
   document.querySelectorAll('.sb-item').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('tbTitle').textContent=TITLES[sec]||sec;
-  document.getElementById('admContent').innerHTML=SECTIONS[sec]?SECTIONS[sec]():'';
-  if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
+  if(sec==='games' && window.SiteSync){
+    SiteSync.loadAntibot(function(){
+      document.getElementById('admContent').innerHTML=buildGames();
+    });
+  } else {
+    document.getElementById('admContent').innerHTML=SECTIONS[sec]?SECTIONS[sec]():'';
+    if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
+  }
   if(sec==='dashboard') refreshServerUserCount();
 }
 
@@ -266,13 +272,16 @@ function abToggle(n,val){
   localStorage.setItem('ab'+n+'_on',val?'1':'0');
   var payload={};
   payload['ab'+n+'_on']=val?'1':'0';
-  if(window.SiteSync) SiteSync.saveAntibot(payload);
-  toast('Antibot '+n+' '+(val?'ENABLED':'DISABLED'),(val?'success':'error'));
+  _syncAntibot(payload,'Antibot '+n+' '+(val?'ENABLED':'DISABLED'));
 }
 function _syncAntibot(payload,msg){
   if(window.SiteSync){
     SiteSync.saveAntibot(payload,function(r){
-      toast(r&&r.ok?msg+' (live on site)':msg+' (local only)',r&&r.ok?'success':'error');
+      if(r&&r.ok){
+        toast(msg+' ✓ Live on site!','success');
+      } else {
+        toast((r&&r.error)?r.error:(msg+' — server save FAILED'),'error');
+      }
     });
   } else toast(msg);
 }
@@ -373,11 +382,16 @@ function buildAdmContestLb(){
 
 function refreshServerUserCount(){
   if(!window.SiteSync) return;
-  SiteSync.getUsers(function(r){
-    if(!r||!r.ok) return;
-    S.users = r.users || [];
-    var el = document.querySelector('.stat-grid .stat-card .stat-val');
-    if(el) el.textContent = r.count || S.users.length;
+  SiteSync.syncLocalUsers(function(){
+    SiteSync.getUsers(function(r){
+      if(!r||!r.ok){
+        if(r&&r.error) toast('User count: '+r.error,'error');
+        return;
+      }
+      S.users = r.users || [];
+      var el = document.querySelector('.stat-grid .stat-card .stat-val');
+      if(el) el.textContent = r.count || S.users.length;
+    });
   });
 }
 
@@ -1153,7 +1167,6 @@ function saveSiteSettings(){
 window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('admContent').innerHTML = buildDashboard();
   refreshServerUserCount();
-  if(window.SiteSync) SiteSync.loadAntibot();
   setInterval(function(){
     var d = new Date();
     var el = document.getElementById('tbTime');
