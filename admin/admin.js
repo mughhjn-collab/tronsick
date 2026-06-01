@@ -116,9 +116,6 @@ function doLogout(){
     localStorage.removeItem(k);
   });
   window.location.href = '/panel-login.php';
-}).finally(function(){
-    window.location.href='/panel-login.php';
-  });
 }
 
 function save(key,val){
