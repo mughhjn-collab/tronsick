@@ -347,11 +347,8 @@ function sendResetLink(){
     }
   }
 
-  if(!isRegistered){
-    err.style.display='block';
-    err.textContent='This email is not registered. Please check your email address or sign up for a new account.';
-    return;
-  }
+  // Note: We always send (email not verified against server since localStorage may be empty on new device)
+  // if(!isRegistered) { ... } // removed - always send reset email
 
   var btn = document.getElementById('forgotBtn');
   btn.textContent='Sending?'; btn.disabled=true;
@@ -539,7 +536,7 @@ function doLoginFinish(id, pw_input, btn){
       localStorage.setItem('bonusRolls','3');
       localStorage.setItem('bonusRollsGiven_'+uname,'1');
     }
-    localStorage.setItem('newUserBonus','0');
+    // newUserBonus NOT set here - let dashboard.js initNewUserBonus() give 3 free rolls
     window.location.href='faucet.php';
   }, 800);
 }
@@ -571,7 +568,7 @@ function handleReg(e){
     // Save ALL session data
     localStorage.setItem('bonusRolls','3');
     localStorage.setItem('bonusRollsGiven_'+u,'1');
-    localStorage.setItem('newUserBonus','0');
+    // newUserBonus NOT set here - let dashboard.js initNewUserBonus() give 3 free rolls
     localStorage.setItem('regUser',u);
     localStorage.setItem('userName',u);
     // Save password for login verification

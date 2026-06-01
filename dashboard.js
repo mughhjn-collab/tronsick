@@ -1142,12 +1142,10 @@ function buildDiceUI(){
 var h='';
 h+='<div class="dg-wrap" style="max-width:900px;margin:16px auto;">';
 h+='<div class="dg-tabs"><button class="dg-tab dg-tab-act" id="dgtManual" onclick="dgSetMode(\'manual\')">Manual</button><button class="dg-tab" id="dgtAuto" onclick="dgSetMode(\'auto\')">Auto</button></div>';
-h+='<div class="dg-layout">';
-h+='<div class="dg-left">';
+h+='<div class="dg-layout-v">';
 h+='<div class="dg-display"><div class="dg-hex-wrap"><div class="hex-bubble" id="hexBubble">50.00</div><input type="range" class="dg-slider" id="dgSlider" min="0.01" max="96" step="0.01" value="50" oninput="dgSlide()"></div><div class="dg-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>';
 h+='<div class="dg-stats-row"><div class="dg-stat"><div class="dg-slbl">Payout</div><div class="dg-sval"><input class="dg-sinp" id="dgPayout" type="number" value="1.94" step="0.01" oninput="dgByPayout()"><span class="dg-sx">x</span></div></div><div class="dg-stat dg-stat-mid"><div class="dg-slbl" id="dgDirLbl">Roll Under</div><div class="dg-sval"><input class="dg-sinp" id="dgRollVal" type="number" value="50.00" step="0.01" oninput="dgByRoll()"><button class="dg-arrow-btn" onclick="dgToggleDir()">&#8644;</button></div></div><div class="dg-stat"><div class="dg-slbl">Win Chance</div><div class="dg-sval"><input class="dg-sinp" id="dgWinCh" type="number" value="50.00" step="0.01" oninput="dgByChance()"><span class="dg-sx">%</span></div></div></div>';
-h+='</div>';
-h+='<div class="dg-right">';
+
 h+='<div class="dg-amount-sec"><div class="dg-amt-lbl"><span class="dg-dot"></span> Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="dgAmt" type="number" value="0.0001" step="0.000001" min="0" oninput="dgCalcWin()"><button class="dg-sz-btn" onclick="dgSetAmt(\'min\')">MIN</button><button class="dg-sz-btn" onclick="dgSetAmt(\'half\')">1/2</button><button class="dg-sz-btn" onclick="dgSetAmt(\'2x\')">2x</button><button class="dg-sz-btn" onclick="dgSetAmt(\'max\')">MAX</button></div></div>';
 h+='<div id="dgManualSec"><button class="dg-roll-btn" id="dgRollBtn" onclick="dgRoll()">Roll Now</button></div>';
 h+='<div id="dgAutoSec" style="display:none">';
@@ -1259,10 +1257,7 @@ hex.style.left=rollPos+'px';
 hex.textContent=roll.toFixed(2);
 hex.className='hex-bubble '+(win?'hex-win':'hex-lose');
 setTimeout(function(){
-hex.style.transition='left 0.3s ease';
-hex.className='hex-bubble';
-hex.textContent=document.getElementById('dgRollVal').value;
-dgHexPos();
+// bubble stays at roll position - no reset
 },1600);
 }
 if(win)addBal(bet*payout);

@@ -207,3 +207,20 @@
 .mn-mines-sel{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 0;}
 .mn-cell.mn-hidden{background:linear-gradient(135deg,#1e2a45,#162038);border:1px solid rgba(100,130,200,.15);}
 .mn-cell.mn-hidden:empty{cursor:pointer;}
+
+/* ── DICE GAME: Single column layout (no left/right split) ── */
+.dg-layout-v {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.dg-layout-v .dg-display { width: 100%; }
+.dg-layout-v .dg-amount-sec { width: 100%; margin-top: 16px; }
+.dg-layout-v .dg-win-row { margin-top: 10px; }
+
+/* Keep the bet/auto sections full width */
+.dg-layout-v #dgManualSec,
+.dg-layout-v #dgAutoSec { width: 100%; }
+
+/* Override old left/right layout when using v layout */
+.dg-layout-v .dg-right { all: unset; display: contents; }
