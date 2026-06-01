@@ -96,13 +96,10 @@
     tb.innerHTML = html;
   }
   function load(){
-    if(window.SiteSync){
-      SiteSync.getGenPayouts(function(r){
-        render(r.ok ? (r.payouts||[]) : []);
-      });
-    } else {
-      try{ render(JSON.parse(localStorage.getItem('gen_payouts')||'[]')); }catch(e){ render([]); }
-    }
+    fetch('site_api.php?action=get_gen_payouts&_='+Date.now(), { credentials:'same-origin' })
+      .then(function(r){ return r.json(); })
+      .then(function(j){ render(j.ok ? (j.payouts||[]) : []); })
+      .catch(function(){ render([]); });
   }
   load();
   setInterval(load, 12000);

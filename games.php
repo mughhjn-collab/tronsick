@@ -6,7 +6,7 @@
   <title>Games &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=18"/>
+  <link rel="stylesheet" href="dashboard.css?v=19"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
@@ -167,42 +167,42 @@
     <div class="game-grid-v4" id="gameGrid">
 
       <div class="gc-card-v4 gc-v4-purple" onclick="openGame('dice')" id="gc-dice">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-dice"></i></div>
         <div class="gc-name-v4">DICE</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-teal" onclick="openGame('mines')" id="gc-mines">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-bomb"></i></div>
         <div class="gc-name-v4">MINES</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-cyan" onclick="openGame('tower')" id="gc-tower">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-chess-rook"></i></div>
         <div class="gc-name-v4">TOWER</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-lavender" onclick="openGame('limbo')" id="gc-limbo">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-rocket"></i></div>
         <div class="gc-name-v4">LIMBO</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-gold" onclick="openGame('diamond')" id="gc-diamond">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-gem"></i></div>
         <div class="gc-name-v4">DIAMOND</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-orange" onclick="openGame('wheel')" id="gc-wheel">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-circle-notch"></i></div>
         <div class="gc-name-v4">WHEEL</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-pink" onclick="openGame('sicbo')" id="gc-sicbo">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-dice-d20"></i></div>
         <div class="gc-name-v4">SIC BO</div>
       </div>
 
       <div class="gc-card-v4 gc-v4-blue" onclick="openGame('coinflip')" id="gc-coinflip">
-        <div class="gc-icon-v4">??</div>
+        <div class="gc-icon-v4"><i class="fas fa-coins"></i></div>
         <div class="gc-name-v4">COIN FLIP</div>
       </div>
 

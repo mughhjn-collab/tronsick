@@ -231,9 +231,9 @@ window.SiteSync = (function(){
     queueSetting: queueSetting,
     flushSettings: flushSettings,
     applySettingsToLocal: applySettingsToLocal,
-    getGenPayouts: function(cb){
+    getGenPayouts: function(cb, skipLocal){
       get('get_gen_payouts', function(r){
-        if(r.ok && r.payouts){
+        if(r.ok && r.payouts && !skipLocal){
           try{ localStorage.setItem('gen_payouts', JSON.stringify(r.payouts)); }catch(e){}
         }
         if(cb) cb(r);

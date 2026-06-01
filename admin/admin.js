@@ -93,10 +93,8 @@ function showSection(btn,sec){
     SiteSync.loadAntibot(function(){
       document.getElementById('admContent').innerHTML=buildGames();
     });
-  } else if(sec==='payout_gen' && window.SiteSync){
-    SiteSync.getGenPayouts(function(){
-      document.getElementById('admContent').innerHTML=buildPayoutGen();
-    });
+  } else if(sec==='payout_gen'){
+    document.getElementById('admContent').innerHTML=buildPayoutGen();
   } else {
     document.getElementById('admContent').innerHTML=SECTIONS[sec]?SECTIONS[sec]():'';
     if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
@@ -1190,7 +1188,6 @@ window.addEventListener('DOMContentLoaded', function(){
   }
   if(window.SiteSync){
     SiteSync.loadSettings(function(){ initDash(); });
-    SiteSync.getGenPayouts();
   } else initDash();
   setInterval(function(){
     var d = new Date();
@@ -1224,14 +1221,14 @@ SECTIONS.payout_gen = buildPayoutGen;
 TITLES.payout_gen = 'Payout Generator';
 
 function buildPayoutGen(){
-  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+  var payouts = _getPayoutDraft();
   var rows = payouts.slice().reverse().map(function(p){
     return '<tr><td>'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.5)">'+p.txid.substr(0,16)+'...</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.address.substr(0,14)+'...</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
   }).join('') || '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No generated payouts yet</td></tr>';
 
-  return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Generate fake payout records that appear on the site payout page live.</p></div>'+
+  return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Create payout records, then click <strong>Save Live to Site</strong> to publish on Payout Proof page.</p></div>'+
   card('Generate Payout','money-bill-wave',null,
-    '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generated payouts appear live on site payout history page for all users to see.</div>'+
+    '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generate payouts here first. They go live on site only after you click <strong>Save Live to Site</strong>.</div>'+
     '<div class="form-row">'+
     '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
     '<div class="form-group"><label><i class="fas fa-coins"></i> Min Amount (TRX)</label><input type="number" id="pgMin" value="10" min="0.000001" step="0.000001"/></div>'+
@@ -1240,12 +1237,35 @@ function buildPayoutGen(){
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
     '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
+    '<button class="btn btn-success" id="pgLiveBtn" onclick="pushPayoutsLive()" style="background:linear-gradient(135deg,#3ecf8e,#22c55e);font-weight:800;border:none"><i class="fas fa-broadcast-tower"></i> Save Live to Site</button>'+
     '<button class="btn btn-danger" onclick="clearAllGenPayouts()"><i class="fas fa-trash"></i> Clear All</button>'+
     '</div>'
   )+
-  card('Generated Payout History','history',{cls:'badge-green',txt:payouts.length+' Records'},
+  card('Generated Payout History (Draft)','history',{cls:'badge-yellow',txt:payouts.length+' Draft'},
     '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Username</th><th>Amount</th><th>TxID</th><th>Address</th><th>Time</th><th>Del</th></tr></thead><tbody id="pgTbody">'+rows+'</tbody></table></div>'
   );
+}
+
+function _getPayoutDraft(){
+  try{
+    var d = JSON.parse(localStorage.getItem('gen_payouts_draft')||'[]');
+    if(!d.length){
+      var old = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+      if(old.length){
+        localStorage.setItem('gen_payouts_draft', JSON.stringify(old));
+        return old;
+      }
+    }
+    return d;
+  }catch(e){ return []; }
+}
+function _savePayoutDraft(list){
+  localStorage.setItem('gen_payouts_draft', JSON.stringify(list||[]));
+}
+function _staggeredDate(index){
+  var hoursBack = 0;
+  for(var i=0;i<index;i++) hoursBack += 1 + Math.random();
+  return new Date(Date.now() - hoursBack * 3600000).toISOString();
 }
 
 function _randTxid(){
@@ -1268,55 +1288,64 @@ function generateOnePayout(){
   if(mn>mx){toast('Min must be <= Max','error');return;}
   var amt = _randBetween(mn,mx).toFixed(6);
   var p = {id:'pg'+Date.now(),username:user,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date().toISOString()};
-  function done(r){
-    toast((r&&r.ok!==false)?'Payout generated ✓ Live on site!':'Payout saved locally','success');
-    document.getElementById('admContent').innerHTML=buildPayoutGen();
-  }
-  if(window.SiteSync){ SiteSync.addGenPayout(p, done); }
-  else {
-    var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
-    payouts.push(p);
-    localStorage.setItem('gen_payouts', JSON.stringify(payouts));
-    done({ok:true});
-  }
+  var payouts = _getPayoutDraft();
+  payouts.push(p);
+  _savePayoutDraft(payouts);
+  toast('Payout generated (draft). Click Save Live to Site!','success');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
 }
 
 function generateBulkPayouts(){
   var mn = parseFloat(document.getElementById('pgMin').value)||10;
   var mx = parseFloat(document.getElementById('pgMax').value)||100;
   var names=['TronUser','CryptoKing','DiamondHands','MoonWalker','TRXHunter','BlockMaster','DeFiPro','SatoshiFan','CoinFlipper','LimboPlayer'];
-  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+  var payouts = _getPayoutDraft();
+  var base = Date.now();
   for(var i=0;i<5;i++){
     var uname = names[Math.floor(Math.random()*names.length)]+(Math.floor(Math.random()*9000)+1000);
     var amt = _randBetween(mn,mx).toFixed(6);
-    payouts.push({id:'pg'+Date.now()+i,username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date(Date.now()-Math.random()*3600000).toISOString()});
+    payouts.push({id:'pg'+(base+i),username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:_staggeredDate(i)});
   }
-  function done(r){
-    toast((r&&r.ok!==false)?'5 payouts generated ✓ Live on site!':'Saved locally','success');
-    document.getElementById('admContent').innerHTML=buildPayoutGen();
-  }
-  if(window.SiteSync){ SiteSync.setGenPayouts(payouts, done); }
-  else { localStorage.setItem('gen_payouts', JSON.stringify(payouts)); done({ok:true}); }
+  _savePayoutDraft(payouts);
+  toast('5 payouts generated with 1-2hr gaps. Click Save Live to Site!','success');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
+}
+
+function pushPayoutsLive(){
+  var payouts = _getPayoutDraft();
+  if(!payouts.length){ toast('No payouts to publish. Generate some first.','error'); return; }
+  if(!window.SiteSync){ toast('SiteSync not loaded','error'); return; }
+  var btn = document.getElementById('pgLiveBtn');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Publishing...'; }
+  SiteSync.setGenPayouts(payouts, function(r){
+    if(r && r.ok){
+      toast(payouts.length+' payouts live on site! Check Payout Proof page.','success');
+    } else {
+      toast('Failed to publish: '+(r&&r.error?r.error:'Server error'),'error');
+    }
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-broadcast-tower"></i> Save Live to Site'; }
+  });
 }
 
 function deleteGenPayout(id){
-  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]').filter(function(p){return p.id!==id;});
-  function done(){
-    toast('Payout removed');
-    document.getElementById('admContent').innerHTML=buildPayoutGen();
-  }
-  if(window.SiteSync){ SiteSync.setGenPayouts(payouts, done); }
-  else { localStorage.setItem('gen_payouts', JSON.stringify(payouts)); done(); }
+  var payouts = _getPayoutDraft().filter(function(p){return p.id!==id;});
+  _savePayoutDraft(payouts);
+  toast('Payout removed from draft');
+  document.getElementById('admContent').innerHTML=buildPayoutGen();
 }
 
 function clearAllGenPayouts(){
-  if(!confirm('Clear all generated payouts?')) return;
-  function done(){
+  if(!confirm('Clear all draft payouts?')) return;
+  _savePayoutDraft([]);
+  if(window.SiteSync){
+    SiteSync.clearGenPayouts(function(r){
+      toast(r&&r.ok?'Draft cleared + removed from site':'Draft cleared locally','success');
+      document.getElementById('admContent').innerHTML=buildPayoutGen();
+    });
+  } else {
     toast('All payouts cleared');
     document.getElementById('admContent').innerHTML=buildPayoutGen();
   }
-  if(window.SiteSync){ SiteSync.clearGenPayouts(done); }
-  else { localStorage.removeItem('gen_payouts'); done(); }
 }
 
 // ═══════════════════════════════════════════════════════
