@@ -523,7 +523,7 @@
   <div class="pg active" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Live v3 2026-05-31T07:28:07 -->
+      <!-- CONTEST ENDS IN ? Live v3 2026-05-31T07:28:07 -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -748,12 +748,12 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<script src="site_sync.js?v=3"></script>
-<script src="dashboard.js?v=20"></script>
+<script src="site_sync.js?v=4"></script>
+<script src="dashboard.js?v=21"></script>
 <script>
 window._INIT_SECTION='contest';
 
-// CONTEST — 6d10h timer + live leaderboard
+// CONTEST ? 6d10h timer + live leaderboard
 document.addEventListener('DOMContentLoaded', function(){
   if(window.SiteSync){
     SiteSync.startContestTimer({}, 1000);
@@ -775,11 +775,11 @@ function renderContest(){
     var mrEl=document.getElementById('ctMyRank');
     var mwEl=document.getElementById('ctMyWager');
     if(mwEl) mwEl.textContent=myWager.toFixed(6);
-    var myRank='—';
+    var myRank='?';
     for(var i=0;i<entries.length;i++){if(entries[i].name===myName){myRank='#'+(i+1);break;}}
     if(mrEl) mrEl.textContent=myRank;
     if(!entries.length){
-      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
+      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet ? play a game to appear here!</td></tr>';
       return;
     }
     var medals=['&#129351;','&#129352;','&#129353;'];

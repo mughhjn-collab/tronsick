@@ -269,7 +269,7 @@
           </div>
         </div>
 
-        <p class="dep-note"><a href="javascript:void(0)" onclick="depForceRefresh()" class="dep-hl-green">Click here</a> if your transactions have not credited. <span class="dep-hl-red">•</span></p>
+        <p class="dep-note"><a href="javascript:void(0)" onclick="depForceRefresh()" class="dep-hl-green">Click here</a> if your transactions have not credited. <span class="dep-hl-red">?</span></p>
       </div>
 
       <!-- YOUR TRANSACTIONS -->
@@ -574,7 +574,7 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN ? Big Countdown -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -807,7 +807,7 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<script src="site_sync.js?v=3"></script>
-<script src="dashboard.js?v=20"></script>
+<script src="site_sync.js?v=4"></script>
+<script src="dashboard.js?v=21"></script>
 <script>window._INIT_SECTION='deposit';</script>
 </body></html>

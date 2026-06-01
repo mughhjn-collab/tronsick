@@ -160,17 +160,17 @@
     <div class="bonus-hero">
       <span class="bonus-hero-icon">??</span>
       <h1 class="bonus-hero-title">Deposit Bonus</h1>
-      <p class="bonus-hero-sub">Deposit TRX and earn instant bonus rewards — unlock by wagering</p>
+      <p class="bonus-hero-sub">Deposit TRX and earn instant bonus rewards ? unlock by wagering</p>
     </div>
 
     <!-- HOW IT WORKS -->
     <div class="bonus-how">
       <div class="bonus-how-title">How It Works</div>
       <div class="how-steps">
-        <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Deposit TRX</strong> — Make your first deposit to qualify for a bonus tier</div></div>
-        <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Bonus is Added</strong> — Your bonus is credited automatically but stays <strong>locked</strong></div></div>
-        <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Wager to Unlock</strong> — Play games to meet the wager requirement and unlock your bonus</div></div>
-        <div class="how-step"><div class="how-num">4</div><div class="how-text"><strong>Claim</strong> — Once wagering is complete, click Claim to add bonus to your balance</div></div>
+        <div class="how-step"><div class="how-num">1</div><div class="how-text"><strong>Deposit TRX</strong> ? Make your first deposit to qualify for a bonus tier</div></div>
+        <div class="how-step"><div class="how-num">2</div><div class="how-text"><strong>Bonus is Added</strong> ? Your bonus is credited automatically but stays <strong>locked</strong></div></div>
+        <div class="how-step"><div class="how-num">3</div><div class="how-text"><strong>Wager to Unlock</strong> ? Play games to meet the wager requirement and unlock your bonus</div></div>
+        <div class="how-step"><div class="how-num">4</div><div class="how-text"><strong>Claim</strong> ? Once wagering is complete, click Claim to add bonus to your balance</div></div>
       </div>
     </div>
 
@@ -186,8 +186,8 @@
 <div class="bonus-toast" id="bonusToast"></div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<script src="site_sync.js?v=3"></script>
-<script src="dashboard.js?v=20"></script>
+<script src="site_sync.js?v=4"></script>
+<script src="dashboard.js?v=21"></script>
 <script>
 // -------------------------------------------
 // BONUS SYSTEM
@@ -301,7 +301,7 @@ function renderBonus(){
         statusBadge = '<span class="tier-status ts-unlocked"><i class="fas fa-unlock"></i> Ready to Claim!</span>';
         claimBtn = '<button class="claim-btn cb-unlocked" onclick="claimBonus(\''+t.id+'\')"><i class="fas fa-gift"></i> Claim '+bonusAmt+' TRX</button>';
       } else {
-        statusBadge = '<span class="tier-status ts-locked"><i class="fas fa-lock"></i> Locked — '+remaining+' TRX wager left</span>';
+        statusBadge = '<span class="tier-status ts-locked"><i class="fas fa-lock"></i> Locked ? '+remaining+' TRX wager left</span>';
         claimBtn = '<button class="claim-btn cb-locked" disabled>Wager to Unlock</button>';
       }
 

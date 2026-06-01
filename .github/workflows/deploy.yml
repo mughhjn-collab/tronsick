@@ -40,3 +40,4 @@ jobs:
             **/data/users.json
             **/data/contest_wagers.json
             **/data/antibot.json
+            **/data/site_settings.json

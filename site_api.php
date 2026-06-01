@@ -12,9 +12,10 @@ if (!is_dir($dataDir)) {
     @mkdir($dataDir, 0755, true);
 }
 
-$usersFile   = $dataDir . '/users.json';
-$antibotFile = $dataDir . '/antibot.json';
-$contestFile = $dataDir . '/contest_wagers.json';
+$usersFile     = $dataDir . '/users.json';
+$antibotFile   = $dataDir . '/antibot.json';
+$contestFile   = $dataDir . '/contest_wagers.json';
+$settingsFile  = $dataDir . '/site_settings.json';
 
 function readJson($file, $default = []) {
     if (!file_exists($file)) return $default;
@@ -174,6 +175,36 @@ switch ($action) {
             jsonFail('Cannot reset contest wagers.');
         }
         echo json_encode(['ok' => true, 'message' => 'Contest leaderboard cleared', 'wagers' => []]);
+        break;
+
+    case 'get_site_settings':
+        $stored = readJson($settingsFile, []);
+        $configured = isset($stored['_saved']) && ($stored['_saved'] === '1' || $stored['_saved'] === 1);
+        echo json_encode(['ok' => true, 'configured' => $configured, 'settings' => $stored]);
+        break;
+
+    case 'save_site_settings':
+        requireAdmin();
+        $data = readJson($settingsFile, []);
+        if (isset($_POST['settings'])) {
+            $incoming = json_decode($_POST['settings'], true);
+            if (is_array($incoming)) {
+                foreach ($incoming as $k => $v) {
+                    if (strpos($k, '_') !== 0) $data[$k] = is_scalar($v) ? trim((string)$v) : $v;
+                }
+            }
+        }
+        foreach ($_POST as $k => $v) {
+            if (in_array($k, ['action', 'auth', 'settings'], true)) continue;
+            if (strpos($k, '_') === 0) continue;
+            $data[$k] = trim((string)$v);
+        }
+        $data['_saved'] = '1';
+        $data['_updated'] = date('c');
+        if (!writeJson($settingsFile, $data)) {
+            jsonFail('Cannot write site settings. Check data/ folder permissions.');
+        }
+        echo json_encode(['ok' => true, 'settings' => $data]);
         break;
 
     default:

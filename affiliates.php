@@ -523,7 +523,7 @@
   <div class="pg" id="sec-contest">
     <div class="ct-wrap">
 
-      <!-- CONTEST ENDS IN — Big Countdown -->
+      <!-- CONTEST ENDS IN ? Big Countdown -->
       <div class="ct-countdown-wrap">
         <div class="ct-ends-lbl">CONTEST ENDS IN</div>
         <div class="ct-clock">
@@ -756,8 +756,8 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<script src="site_sync.js?v=3"></script>
-<script src="dashboard.js?v=20"></script>
+<script src="site_sync.js?v=4"></script>
+<script src="dashboard.js?v=21"></script>
 <script>window._INIT_SECTION='affiliates';</script>
 </body>
 </html>

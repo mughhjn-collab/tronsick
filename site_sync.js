@@ -1,5 +1,5 @@
 /**
- * TronSick server sync — antibot, users, contest wagers
+ * TronSick server sync — antibot, site settings, users, contest wagers
  */
 window.SiteSync = (function(){
   var ADMIN_AUTH = 'TronSick@Admin2024';
@@ -9,6 +9,8 @@ window.SiteSync = (function(){
   })();
 
   var AB_KEYS = ['ab1_on','ab1_amount','ab1_mode','ab2_on','ab2_amount','ab2_wins','ab3_on'];
+  var _settingsQueue = {};
+  var _flushTimer = null;
 
   function post(action, data, cb){
     var fd = new FormData();
@@ -35,10 +37,21 @@ window.SiteSync = (function(){
 
   function applyAntibotToLocal(data){
     if(!data || !isConfigured(data)) return false;
+    window._SITE_AB = data;
     AB_KEYS.forEach(function(k){
       if(data[k] !== undefined && data[k] !== null) {
         localStorage.setItem(k, String(data[k]));
       }
+    });
+    return true;
+  }
+
+  function applySettingsToLocal(data){
+    if(!data || !isConfigured(data)) return false;
+    window._SITE_SETTINGS = data;
+    Object.keys(data).forEach(function(k){
+      if(k.charAt(0)==='_') return;
+      if(data[k] != null) try{ localStorage.setItem(k, String(data[k])); }catch(e){}
     });
     return true;
   }
@@ -53,6 +66,25 @@ window.SiteSync = (function(){
       ab2_wins: localStorage.getItem('ab2_wins') || '6',
       ab3_on: localStorage.getItem('ab3_on') || '0'
     };
+  }
+
+  function queueSetting(key, val){
+    _settingsQueue[key] = val;
+    clearTimeout(_flushTimer);
+    _flushTimer = setTimeout(function(){ flushSettings(); }, 800);
+  }
+
+  function flushSettings(cb){
+    clearTimeout(_flushTimer);
+    var keys = Object.keys(_settingsQueue);
+    if(!keys.length){ if(cb) cb({ok:true}); return; }
+    var payload = {};
+    keys.forEach(function(k){ payload[k] = _settingsQueue[k]; });
+    _settingsQueue = {};
+    post('save_site_settings', { auth: ADMIN_AUTH, settings: JSON.stringify(payload) }, function(r){
+      if(r.ok && r.settings) applySettingsToLocal(r.settings);
+      if(cb) cb(r);
+    });
   }
 
   /** Contest end = most recent Monday 10:00 UTC + 6 days 10 hours (rolls forward if cycle ended) */
@@ -188,16 +220,43 @@ window.SiteSync = (function(){
         if(cb) cb(r);
       });
     },
+    loadSettings: function(cb){
+      get('get_site_settings', function(r){
+        if(r.ok && r.settings && isConfigured(r.settings)){
+          applySettingsToLocal(r.settings);
+        }
+        if(cb) cb(r);
+      });
+    },
+    queueSetting: queueSetting,
+    flushSettings: flushSettings,
+    applySettingsToLocal: applySettingsToLocal,
     getContestEnd: getContestEnd,
     tickContestTimer: tickContestTimer,
     startContestTimer: startContestTimer
   };
 })();
 
-// Site pages: load antibot from server + refresh every 20s
+// Site pages: load antibot + settings from server, refresh periodically
 (function(){
   if((window.location.pathname || '').indexOf('/admin/') !== -1) return;
   if(!window.SiteSync) return;
   SiteSync.loadAntibot();
+  function showMaintenanceOverlay(){
+    if(document.getElementById('siteMaintOverlay')) return;
+    if(localStorage.getItem('maintenance_mode')!=='1') return;
+    var d=document.createElement('div');
+    d.id='siteMaintOverlay';
+    d.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-family:Inter,sans-serif;text-align:center;padding:24px';
+    d.innerHTML='<div style="font-size:48px;margin-bottom:16px">⚠️</div><h2 style="margin:0 0 8px;font-size:24px">Under Maintenance</h2><p style="color:rgba(255,255,255,.6);max-width:360px">Site is temporarily unavailable. Please check back soon.</p>';
+    document.body.appendChild(d);
+  }
+  SiteSync.loadSettings(function(){ showMaintenanceOverlay(); });
   setInterval(function(){ SiteSync.loadAntibot(); }, 20000);
+  setInterval(function(){
+    SiteSync.loadSettings(function(){
+      if(localStorage.getItem('maintenance_mode')==='1') showMaintenanceOverlay();
+      else{ var o=document.getElementById('siteMaintOverlay'); if(o) o.remove(); }
+    });
+  }, 30000);
 })();

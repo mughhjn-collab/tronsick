@@ -105,7 +105,19 @@ function doLogout(){
   window.location.href='index.php';
 }
 
-function save(key,val){localStorage.setItem(key,val);}
+function save(key,val){
+  localStorage.setItem(key,val);
+  if(window.SiteSync) SiteSync.queueSetting(key,val);
+}
+
+function saveLiveToast(msg, cb){
+  if(window.SiteSync){
+    SiteSync.flushSettings(function(r){
+      toast(msg+(r&&r.ok?' ✓ Live on site!':' (saved locally)'), r&&r.ok?'success':'error');
+      if(cb) cb(r);
+    });
+  } else toast(msg);
+}
 
 function toast(msg,type){
   var t=document.createElement('div');
@@ -128,7 +140,7 @@ function togRow(id,label,desc,stateKey,saveKey){
 function toggleSetting(stateKey,saveKey,val){
   S[stateKey]=val;
   save(saveKey,val?'1':'0');
-  toast(stateKey+' updated!');
+  saveLiveToast((stateKey.replace(/([A-Z])/g,' $1'))+' updated');
 }
 
 function fld(label,id,val,type,extra){
@@ -174,8 +186,9 @@ function buildDashboard(){
 function toggleMaintenance(){
   S.maintenanceMode=!S.maintenanceMode;
   save('maintenance_mode',S.maintenanceMode?'1':'0');
-  toast('Maintenance mode '+(S.maintenanceMode?'ENABLED':'DISABLED'),'success');
-  document.getElementById('admContent').innerHTML=buildDashboard();
+  saveLiveToast('Maintenance mode '+(S.maintenanceMode?'ENABLED':'DISABLED'), function(){
+    document.getElementById('admContent').innerHTML=buildDashboard();
+  });
 }
 
 function showSectionByKey(key){
@@ -220,7 +233,7 @@ function saveFaucet(){
     var el=document.getElementById('fc_'+l);
     if(el) save('fp_'+l,el.value);
   });
-  toast('Faucet settings saved!');
+  saveLiveToast('Faucet settings saved');
 }
 
 // â”€â”€ BONUS â”€â”€
@@ -248,7 +261,7 @@ function saveBonus(){
   ['r1','r2','r3','r4','r5','jk'].forEach(function(r){
     var el=document.getElementById('bp_'+r); if(el) save('bp_'+r,el.value);
   });
-  toast('Bonus settings saved!');
+  saveLiveToast('Bonus settings saved');
 }
 
 // -- GAMES + 3 ANTIBOT SYSTEM --
@@ -307,8 +320,8 @@ function saveAb3(){
   _syncAntibot({ab3_on:on},'Antibot 3 saved!');
 }
 function updateGameRate(el,key){var s=document.getElementById('gwrv_'+key);if(s)s.textContent=el.value+'%';}
-function saveHouseEdge(){var v=document.getElementById('gHouseEdge').value;save('game_house_edge',v);S.gameHouseEdge=parseFloat(v);toast('House edge saved!');}
-function saveGameRates(){['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'].forEach(function(g){var key='game_win_'+g.toLowerCase().replace(/ /g,'');var el=document.getElementById('gwr_'+key);if(el)save(key,el.value);});toast('Game rates saved!');}
+function saveHouseEdge(){var v=document.getElementById('gHouseEdge').value;save('game_house_edge',v);S.gameHouseEdge=parseFloat(v);saveLiveToast('House edge saved');}
+function saveGameRates(){['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'].forEach(function(g){var key='game_win_'+g.toLowerCase().replace(/ /g,'');var el=document.getElementById('gwr_'+key);if(el)save(key,el.value);});saveLiveToast('Game rates saved');}
 
 // â”€â”€ CONTEST â”€â”€
 function buildContest(){
@@ -403,7 +416,7 @@ function saveContest(){
   save('contest_prize3',document.getElementById('cp3').value);
   save('contest_prize4',document.getElementById('cp4').value);
   save('contest_day',document.getElementById('cpDay').value);
-  toast('Contest settings saved!');
+  saveLiveToast('Contest settings saved');
 }
 
 // â”€â”€ CASHBACK â”€â”€
@@ -429,7 +442,7 @@ function saveCashback(){
   ['stone','iron','bronze','silver','gold','platinum','diamond','master'].forEach(function(l){
     var el=document.getElementById('cb_rate_'+l); if(el) save('cb_rate_'+l,el.value);
   });
-  toast('Cashback rates saved!');
+  saveLiveToast('Cashback rates saved');
 }
 
 // â”€â”€ GIFTS â”€â”€
@@ -509,7 +522,7 @@ function saveAffiliate(){
   ['faucet','bonus','games','surveys'].forEach(function(k){
     var el=document.getElementById('af_'+k); if(el) save('af_'+k,el.value);
   });
-  toast('Affiliate rates saved!');
+  saveLiveToast('Affiliate rates saved');
 }
 
 // â”€â”€ WITHDRAWALS â”€â”€
@@ -540,7 +553,7 @@ function saveWdSettings(){
   save('min_withdraw',document.getElementById('wd_min').value);
   save('max_withdraw',document.getElementById('wd_max').value);
   save('withdraw_fee',document.getElementById('wd_fee').value);
-  toast('Withdrawal settings saved!');
+  saveLiveToast('Withdrawal settings saved');
 }
 
 function approveWd(id){
@@ -604,7 +617,7 @@ function buildDeposit(){
 function saveDepSettings(){
   save('deposit_min_conf',document.getElementById('dep_conf').value);
   save('deposit_bonus',document.getElementById('dep_bonus').value);
-  toast('Deposit settings saved!');
+  saveLiveToast('Deposit settings saved');
 }
 
 function addDemoDep(){
@@ -658,7 +671,7 @@ function saveOxaPay(){
   save('oxa_merchant',document.getElementById('oxaMerchant').value);
   save('oxa_currency',document.getElementById('oxaCurrency').value);
   save('oxa_enabled','1');
-  toast('OxaPay settings saved!');
+  saveLiveToast('OxaPay settings saved');
 }
 function saveOxaPayToServer(){
   var key=document.getElementById('oxaKey').value;
@@ -1162,13 +1175,18 @@ function saveSiteSettings(){
   save('site_balance',document.getElementById('ss_bal').value);
   save('admin_email',document.getElementById('ss_email').value);
   save('max_attempts',document.getElementById('ss_attempts').value);
-  toast('Site settings saved!');
+  saveLiveToast('Site settings saved');
 }
 
-// Init â€” load dashboard
+// Init — load settings from server then dashboard
 window.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('admContent').innerHTML = buildDashboard();
-  refreshServerUserCount();
+  function initDash(){
+    document.getElementById('admContent').innerHTML = buildDashboard();
+    refreshServerUserCount();
+  }
+  if(window.SiteSync){
+    SiteSync.loadSettings(function(){ initDash(); });
+  } else initDash();
   setInterval(function(){
     var d = new Date();
     var el = document.getElementById('tbTime');

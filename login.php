@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Sign Up – TronSick | Free TRX Faucet & Casino</title>
+  <title>Login / Sign Up ? TronSick | Free TRX Faucet & Casino</title>
   <meta name="description" content="Log in or create your free TronSick account. Claim free TRX every 40 minutes, compete in weekly contests, earn daily cashback, and play 9 provably fair games."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
@@ -176,9 +176,9 @@
         </div>
       </div>
 
-      <!-- 2FA field — hidden by default, shows only if user has 2FA enabled -->
+      <!-- 2FA field ? hidden by default, shows only if user has 2FA enabled -->
       <div class="ff ff-plain" id="twofa-wrap">
-        <label>2FA Code <span class="opt-label">(Optional — only if 2FA is enabled)</span></label>
+        <label>2FA Code <span class="opt-label">(Optional ? only if 2FA is enabled)</span></label>
         <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
       </div>
 
@@ -255,7 +255,7 @@
 
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<script src="site_sync.js?v=3"></script>
+<script src="site_sync.js?v=4"></script>
 <script>
 // -- TAB SWITCH ------------------------------
 function switchTab(tab){
@@ -327,7 +327,7 @@ function sendResetLink(){
   }
 
   var btn = document.getElementById('forgotBtn');
-  btn.textContent='Sending…'; btn.disabled=true;
+  btn.textContent='Sending?'; btn.disabled=true;
 
   // Generate reset token
   var token = Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);
@@ -344,7 +344,7 @@ function sendResetLink(){
     body:'email='+encodeURIComponent(email)+'&token='+encodeURIComponent(token)+'&link='+encodeURIComponent(resetLink)
   }).catch(function(){});
 
-  // Show clean success message — no backup link shown
+  // Show clean success message ? no backup link shown
   setTimeout(function(){
     document.getElementById('forgotEmailWrap').style.display='none';
     btn.style.display='none';
@@ -398,7 +398,7 @@ async function verifyTOTP(secret,code){
   return false;
 }
 
-// Check if username has 2FA enabled — show field if so
+// Check if username has 2FA enabled ? show field if so
 function check2FAField(){
   var id=document.getElementById('lId').value.trim();
   var uname=id.includes('@')?id.split('@')[0]:id;
@@ -419,7 +419,7 @@ function handleLogin(e){
   if(!id||!pw){ err.style.display='block'; err.textContent='Please enter your username/email and password.'; return; }
   err.style.display='none';
   var btn = document.getElementById('loginBtn');
-  btn.textContent='Logging in…'; btn.disabled=true;
+  btn.textContent='Logging in?'; btn.disabled=true;
 
   // Check 2FA before proceeding
   var uname0 = id.includes('@') ? id.split('@')[0] : id;
@@ -505,11 +505,11 @@ function handleReg(e){
   if(!/^[a-zA-Z0-9_]+$/.test(u)) return show('Username: letters, numbers, and underscores only.');
   if(!em||!em.includes('@')||!em.includes('.')) return show('Please enter a valid email address.');
   if(pw.length<8) return show('Password must be at least 8 characters.');
-  if(pw!==pw2) return show('Passwords do not match — please re-enter.');
+  if(pw!==pw2) return show('Passwords do not match ? please re-enter.');
   err.style.display='none';
 
   var btn=document.getElementById('regBtn');
-  btn.textContent='Creating Account…'; btn.disabled=true;
+  btn.textContent='Creating Account?'; btn.disabled=true;
 
   setTimeout(function(){
     var uid='u_'+u.toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -523,7 +523,7 @@ function handleReg(e){
     localStorage.setItem('userEmail',em);
     localStorage.setItem('userLoggedIn','1');
     localStorage.setItem('userId',uid);
-    // Permanent email key — survives logout
+    // Permanent email key ? survives logout
     localStorage.setItem('userRealEmail_'+u.toLowerCase(), em);
     if(ref) localStorage.setItem('userRef',ref);
 

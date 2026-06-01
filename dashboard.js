@@ -196,7 +196,19 @@ let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=2400-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
 function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn)btn.textContent='Next claim in '+m+':'+s;if(note){note.textContent='Cooldown: '+m+':'+s;note.style.color='#f59e0b';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
 var LEVEL_PAYOUTS={stone:0.005,iron:0.01,bronze:0.02,silver:0.07,gold:0.5,platinum:5.0,diamond:15.0,master:60.0};
-function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=LEVEL_PAYOUTS[lvl]||0.005;addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
+function _getLevelPayouts(){
+  return {
+    stone: parseFloat(_getSiteSetting('fp_stone','0.005'))||0.005,
+    iron: parseFloat(_getSiteSetting('fp_iron','0.01'))||0.01,
+    bronze: parseFloat(_getSiteSetting('fp_bronze','0.02'))||0.02,
+    silver: parseFloat(_getSiteSetting('fp_silver','0.07'))||0.07,
+    gold: parseFloat(_getSiteSetting('fp_gold','0.5'))||0.5,
+    platinum: parseFloat(_getSiteSetting('fp_plat','5'))||5.0,
+    diamond: parseFloat(_getSiteSetting('fp_diamond','15'))||15.0,
+    master: parseFloat(_getSiteSetting('fp_master','60'))||60.0
+  };
+}
+function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
 let rollsLeft=0;
 function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
@@ -224,6 +236,34 @@ function _getAb(key, fallback){
     return String(window._SITE_AB[key]);
   var v=localStorage.getItem(key);
   return v!=null?v:fallback;
+}
+
+function _getSiteSetting(key, fallback){
+  if(window._SITE_SETTINGS && String(window._SITE_SETTINGS._saved)==='1' && window._SITE_SETTINGS[key]!=null)
+    return String(window._SITE_SETTINGS[key]);
+  var v=localStorage.getItem(key);
+  return v!=null?v:(fallback!=null?String(fallback):'');
+}
+
+/** Random dice roll for forced win/loss — full range below/above threshold */
+function _abDiceRoll(forceWin, dir, wc){
+  wc=parseFloat(wc)||50;
+  dir=dir||'under';
+  if(dir==='under'){
+    if(forceWin){
+      var hi=Math.max(0.02, wc-0.01);
+      return parseFloat((0.01+Math.random()*(hi-0.01)).toFixed(2));
+    }
+    var lo=Math.min(99.98, wc);
+    return parseFloat((lo+Math.random()*(99.99-lo)).toFixed(2));
+  }
+  var th=100-wc;
+  if(forceWin){
+    var lo2=Math.min(99.98, th+0.01);
+    return parseFloat((lo2+Math.random()*(99.99-lo2)).toFixed(2));
+  }
+  var hi2=Math.max(0.02, th);
+  return parseFloat((0.01+Math.random()*(hi2-0.01)).toFixed(2));
 }
 
 function _abAmtMatch(betAmt, triggerAmt){
@@ -345,7 +385,15 @@ function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getE
 // CONTEST SYSTEM
 // ═══════════════════════════════════════
 var _ctTimer=null;
-var CT_PRIZES=[500,250,100,25,25,25,25,25,25,25];
+function _getCTPRizes(){
+  var p4=parseFloat(_getSiteSetting('contest_prize4','25'))||25;
+  return [
+    parseFloat(_getSiteSetting('contest_prize1','500'))||500,
+    parseFloat(_getSiteSetting('contest_prize2','250'))||250,
+    parseFloat(_getSiteSetting('contest_prize3','100'))||100,
+    p4,p4,p4,p4,p4,p4,p4
+  ];
+}
 
 function initContest(){
   _ctStartCountdown();
@@ -407,7 +455,7 @@ function _ctRenderLeaderboard(){
     list.slice(0,10).forEach(function(item,i){
       var rank=i+1;
       var rankStr=rank===1?'&#129351;':rank===2?'&#129352;':rank===3?'&#129353;':'#'+rank;
-      var prize=CT_PRIZES[i]||0;
+      var prize=_getCTPRizes()[i]||0;
       var cls='';
       if(rank===1)cls=' ct-pos-1';
       if(rank===2)cls=' ct-pos-2';
@@ -441,7 +489,7 @@ function _ctUpdateMyStats(){
     var rankEl=document.getElementById('ctMyRank');
     if(rankEl)rankEl.textContent=rank>0?'#'+rank:'—';
     var prizeEl=document.getElementById('ctMyReward');
-    if(prizeEl)prizeEl.textContent=rank>0&&CT_PRIZES[rank-1]?CT_PRIZES[rank-1]+' TRX':'—';
+    if(prizeEl)prizeEl.textContent=rank>0&&_getCTPRizes()[rank-1]?_getCTPRizes()[rank-1]+' TRX':'—';
   }
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ update(r.ok?(r.wagers||{}):{}); });
   else try{ update(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ update({}); }
@@ -1173,12 +1221,10 @@ var roll=parseFloat((Math.random()*100).toFixed(2));var _abR=_abCheckWin(bet,wc,
 var win=(dgDir==='under'&&roll<wc)||(dgDir==='over'&&roll>(100-wc));
 if(_abR===false){
   win=false;
-  if(dgDir==='under') roll=Math.min(99.99, wc+1+Math.random()*10);
-  else roll=Math.max(0.01, (100-wc)-1-Math.random()*10);
+  roll=_abDiceRoll(false,dgDir,wc);
 }else if(_abR===true){
   win=true;
-  if(dgDir==='under') roll=Math.max(0.01, wc-1-Math.random()*10);
-  else roll=Math.min(99.99, (100-wc)+1+Math.random()*10);
+  roll=_abDiceRoll(true,dgDir,wc);
 }
 var sl=document.getElementById('dgSlider');
 var hex=document.getElementById('hexBubble');
