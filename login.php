@@ -457,16 +457,43 @@ function handleLogin(e){
     if(!code2fa){ err.style.display='block'; err.textContent='Please enter your 2FA code from your authenticator app.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
     verifyTOTP(secret2fa, code2fa).then(function(valid){
       if(!valid){ err.style.display='block'; err.textContent='Invalid 2FA code. Please check your authenticator app and try again.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
-      doLoginFinish(id, btn);
+      doLoginFinish(id, pw, btn);
     });
   } else {
-    setTimeout(function(){ doLoginFinish(id, btn); }, 1200);
+    // Extra admin block at handleLogin level
+    var _adminUser = localStorage.getItem('adminUser') || 'admin';
+    var _uname0 = id.includes('@') ? id.split('@')[0] : id;
+    if(_uname0.toLowerCase() === _adminUser.toLowerCase()){
+      err.style.display='block';
+      err.textContent='Invalid username or password.';
+      btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false;
+      return;
+    }
+    setTimeout(function(){ doLoginFinish(id, pw, btn); }, 1200);
   }
 }
-function doLoginFinish(id, btn){
+function doLoginFinish(id, pw_input, btn){
   setTimeout(function(){
     var uname = id.includes('@') ? id.split('@')[0] : id;
     var uemail = id.includes('@') ? id : '';
+
+    // ── SECURITY: Block admin username from user login ──
+    var adminUser = localStorage.getItem('adminUser') || 'admin';
+    if(uname.toLowerCase() === adminUser.toLowerCase()){
+      var err = document.getElementById('loginErr');
+      if(err){ err.style.display='block'; err.textContent='Invalid username or password.'; }
+      if(btn){ btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; }
+      return;
+    }
+
+    // ── SECURITY: Verify password against stored hash ──
+    var storedPw = localStorage.getItem('userPw_' + uname.toLowerCase());
+    if(storedPw && storedPw !== pw_input){
+      var err2 = document.getElementById('loginErr');
+      if(err2){ err2.style.display='block'; err2.textContent='Incorrect password. Please try again.'; }
+      if(btn){ btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; }
+      return;
+    }
 
     // Priority 1: dedicated real-email key
     var realKey = localStorage.getItem('userRealEmail_'+uname.toLowerCase());
@@ -547,6 +574,8 @@ function handleReg(e){
     localStorage.setItem('newUserBonus','0');
     localStorage.setItem('regUser',u);
     localStorage.setItem('userName',u);
+    // Save password for login verification
+    localStorage.setItem('userPw_'+u.toLowerCase(), pw);
     localStorage.setItem('userEmail',em);
     localStorage.setItem('userLoggedIn','1');
     localStorage.setItem('userId',uid);
