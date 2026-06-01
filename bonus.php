@@ -185,8 +185,9 @@
 <!-- BONUS TOAST -->
 <div class="bonus-toast" id="bonusToast"></div>
 
-<script src="site_sync.js?v=2"></script>
-<script src="dashboard.js?v=19"></script>
+<?php include __DIR__ . '/site_inject.php'; ?>
+<script src="site_sync.js?v=3"></script>
+<script src="dashboard.js?v=20"></script>
 <script>
 // -------------------------------------------
 // BONUS SYSTEM

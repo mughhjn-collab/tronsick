@@ -764,8 +764,9 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=2"></script>
-<script src="dashboard.js?v=19"></script>
+<?php include __DIR__ . '/site_inject.php'; ?>
+<script src="site_sync.js?v=3"></script>
+<script src="dashboard.js?v=20"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}

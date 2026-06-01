@@ -752,8 +752,9 @@
   </div>
 </div>
 
-<script src="site_sync.js?v=2"></script>
-<script src="dashboard.js?v=19"></script>
+<?php include __DIR__ . '/site_inject.php'; ?>
+<script src="site_sync.js?v=3"></script>
+<script src="dashboard.js?v=20"></script>
 <script>window._INIT_SECTION='settings';</script>
 <script>
 // -- SETTINGS GUARANTEED INLINE INIT --

@@ -254,7 +254,8 @@
 </div>
 
 
-<script src="site_sync.js?v=2"></script>
+<?php include __DIR__ . '/site_inject.php'; ?>
+<script src="site_sync.js?v=3"></script>
 <script>
 // -- TAB SWITCH ------------------------------
 function switchTab(tab){
