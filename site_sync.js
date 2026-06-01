@@ -55,7 +55,7 @@ window.SiteSync = (function(){
     };
   }
 
-  /** Contest end = most recent Monday 10:00 UTC + 6 days 10 hours */
+  /** Contest end = most recent Monday 10:00 UTC + 6 days 10 hours (rolls forward if cycle ended) */
   function getContestEnd(){
     var now = new Date();
     var d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 10, 0, 0, 0));
@@ -63,7 +63,12 @@ window.SiteSync = (function(){
     var daysBack = dow === 0 ? 6 : dow - 1;
     d.setUTCDate(d.getUTCDate() - daysBack);
     if(d > now) d.setUTCDate(d.getUTCDate() - 7);
-    return new Date(d.getTime() + 554400000);
+    var end = new Date(d.getTime() + 554400000);
+    while(end <= now){
+      d.setUTCDate(d.getUTCDate() + 7);
+      end = new Date(d.getTime() + 554400000);
+    }
+    return end;
   }
 
   function pad2(n){ return n < 10 ? '0' + n : '' + n; }

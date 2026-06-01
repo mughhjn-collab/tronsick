@@ -341,7 +341,9 @@ function _ctGetWeekEnd(){
   var daysBack=dow===0?6:dow-1;
   d.setUTCDate(d.getUTCDate()-daysBack);
   if(d>now) d.setUTCDate(d.getUTCDate()-7);
-  return d.getTime()+554400000;
+  var end=new Date(d.getTime()+554400000);
+  while(end<=now){ d.setUTCDate(d.getUTCDate()+7); end=new Date(d.getTime()+554400000); }
+  return end.getTime();
 }
 
 function _ctStartCountdown(){

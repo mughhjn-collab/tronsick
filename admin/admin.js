@@ -382,14 +382,16 @@ function buildAdmContestLb(){
 
 function refreshServerUserCount(){
   if(!window.SiteSync) return;
+  var el = document.querySelector('.stat-grid .stat-card .stat-val');
+  if(el) el.textContent = '…';
   SiteSync.syncLocalUsers(function(){
     SiteSync.getUsers(function(r){
       if(!r||!r.ok){
         if(r&&r.error) toast('User count: '+r.error,'error');
+        if(el) el.textContent = S.users.length;
         return;
       }
       S.users = r.users || [];
-      var el = document.querySelector('.stat-grid .stat-card .stat-val');
       if(el) el.textContent = r.count || S.users.length;
     });
   });
