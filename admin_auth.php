@@ -22,7 +22,11 @@ $pass = (string)($_POST['pass'] ?? '');
 $validUser = $settings['admin_user'] ?? $settings['adminUser'] ?? 'admin';
 $validPass = $settings['admin_pass'] ?? $settings['adminPass'] ?? 'TronSick@2024';
 
-if ($user === $validUser && $pass === $validPass) {
+$okUser = (strcasecmp($user, $validUser) === 0);
+$okPass = ($pass === $validPass);
+
+if ($okUser && $okPass) {
+    session_regenerate_id(true);
     $_SESSION['admin_auth'] = bin2hex(random_bytes(16));
     $_SESSION['admin_user'] = $user;
     $_SESSION['admin_login'] = time();

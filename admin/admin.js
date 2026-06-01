@@ -1,7 +1,7 @@
 ﻿// TronSick Admin Panel v2.2 — 2026-05-31T14:57:19.268Z — 2026-05-31 06:44
 
-// Auth guard â€” localStorage so it persists across tabs and refreshes
-if(!localStorage.getItem('adminAuth')){window.location.href='index.php';}
+// Auth guard — redirect to staff login (NOT /admin/ which is blocked)
+if(!localStorage.getItem('adminAuth')){window.location.href='/login.php?staff=1';}
 
 // State
 var S={
@@ -104,7 +104,9 @@ function showSection(btn,sec){
 
 function doLogout(){
   localStorage.removeItem('adminAuth');
-  window.location.href='../admin_logout.php';
+  fetch('../admin_logout.php',{credentials:'same-origin'}).finally(function(){
+    window.location.href='/login.php?staff=1';
+  });
 }
 
 function save(key,val){
