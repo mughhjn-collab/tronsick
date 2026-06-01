@@ -1,7 +1,7 @@
 ﻿// TronSick Admin Panel v2.2 — 2026-05-31T14:57:19.268Z — 2026-05-31 06:44
 
 // Auth guard — redirect to staff login (NOT /admin/ which is blocked)
-if(!localStorage.getItem('adminAuth')){window.location.href='/login.php?staff=1';}
+if(!localStorage.getItem('adminAuth')){window.location.href='/panel-login.php';}
 
 // State
 var S={
@@ -105,7 +105,7 @@ function showSection(btn,sec){
 function doLogout(){
   localStorage.removeItem('adminAuth');
   fetch('../admin_logout.php',{credentials:'same-origin'}).finally(function(){
-    window.location.href='/login.php?staff=1';
+    window.location.href='/panel-login.php';
   });
 }
 

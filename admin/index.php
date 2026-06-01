@@ -21,7 +21,7 @@ body{min-height:100vh;display:flex;align-items:center;justify-content:center;bac
   <div class="err-code">404</div>
   <h1 class="err-title">Page Not Found</h1>
   <p class="err-msg">This URL is not available. If you are looking for your account, please use the regular login page.</p>
-  <a class="err-btn" href="/login.php">Go to Login</a>
+  <a class="err-btn" href="/panel-login.php">Staff Login</a>
 </div>
 </body>
 </html>

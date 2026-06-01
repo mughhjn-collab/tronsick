@@ -8,6 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <script>
+    if(window.location.search.indexOf('staff=1')!==-1){
+      window.location.replace('panel-login.php');
+    }
     // If already logged in as user, go to faucet ? but NOT on staff admin login page
     if(localStorage.getItem('userLoggedIn')==='1' && localStorage.getItem('userName')){
       if(window.location.search.indexOf('staff=1')===-1){
