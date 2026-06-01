@@ -410,6 +410,7 @@ function buildAdmContestLb(){
 }
 
 function refreshServerUserCount(){
+  if(!window.SiteSync){ console.warn('SiteSync not loaded'); return; }
   if(!window.SiteSync) return;
   var el = document.querySelector('.stat-grid .stat-card .stat-val');
   if(el) el.textContent = '…';
