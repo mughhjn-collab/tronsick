@@ -90,6 +90,8 @@ function showSection(btn,sec){
   btn.classList.add('active');
   document.getElementById('tbTitle').textContent=TITLES[sec]||sec;
   document.getElementById('admContent').innerHTML=SECTIONS[sec]?SECTIONS[sec]():'';
+  if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
+  if(sec==='dashboard') refreshServerUserCount();
 }
 
 function doLogout(){
@@ -260,10 +262,41 @@ function buildGames(){
   card('Antibot 2 - High Win Chance Pattern (96%-65%)','shield-halved',{cls:ab2On?'badge-green':'badge-red',txt:ab2On?'ACTIVE':'OFF'},'<div class="adm-alert alert-warn"><i class="fas fa-circle-info"></i> Works on Dice, Limbo, Mines. When user uses 96%-65% win chance AND bets set amount:<br><b>1st bet = LOSS</b> then N wins then 1 LOSS repeating. Below 65%: AB1 takes over.</div><div class="toggle-row"><div class="toggle-info"><strong>Enable Antibot 2</strong><span>Win chance pattern control</span></div><label class="toggle-sw"><input type="checkbox" id="ab2Check" '+(ab2On?'checked':'')+' onchange="abToggle(2,this.checked)"><span class="slider"></span></label></div><div class="form-row" style="margin-top:14px"><div class="form-group"><label>Trigger Bet Amount (TRX)</label><input type="number" id="ab2Amount" value="'+ab2Amt+'" step="0.000001" min="0" placeholder="e.g. 0.001"/></div><div class="form-group"><label>Wins Between Each Loss</label><select id="ab2Wins" style="'+ss+'">'+winOpts+'</select></div></div><button class="btn btn-primary" onclick="saveAb2()"><i class="fas fa-save"></i> Save Antibot 2</button>')+
   card('Antibot 3 - High Payout Cycles (4x to 9700x)','fire',{cls:ab3On?'badge-green':'badge-red',txt:ab3On?'ACTIVE':'OFF'},'<div class="adm-alert alert-warn"><i class="fas fa-circle-info"></i> Controls high-payout bets in Dice, Limbo.<br><b>4x:</b> 3 losses then 1 win then random 4 losses then 1 win.<br><b>5x:</b> 5 losses then 1 win then random 6-7 losses then 1 win.<br>Higher payout = more losses. If user increases bet after win: cycle resets from start.</div><div class="toggle-row"><div class="toggle-info"><strong>Enable Antibot 3</strong><span>High payout cycle control</span></div><label class="toggle-sw"><input type="checkbox" id="ab3Check" '+(ab3On?'checked':'')+' onchange="abToggle(3,this.checked)"><span class="slider"></span></label></div><div style="margin-top:14px"><button class="btn btn-primary" onclick="saveAb3()"><i class="fas fa-save"></i> Save Antibot 3</button></div>');
 }
-function abToggle(n,val){localStorage.setItem('ab'+n+'_on',val?'1':'0');toast('Antibot '+n+' '+(val?'ENABLED':'DISABLED'),(val?'success':'error'));}
-function saveAb1(){var on=document.getElementById('ab1Check').checked;localStorage.setItem('ab1_on',on?'1':'0');localStorage.setItem('ab1_amount',document.getElementById('ab1Amount').value);localStorage.setItem('ab1_mode',document.getElementById('ab1Mode').value);toast('Antibot 1 saved!');}
-function saveAb2(){var on=document.getElementById('ab2Check').checked;localStorage.setItem('ab2_on',on?'1':'0');localStorage.setItem('ab2_amount',document.getElementById('ab2Amount').value);localStorage.setItem('ab2_wins',document.getElementById('ab2Wins').value);toast('Antibot 2 saved!');}
-function saveAb3(){localStorage.setItem('ab3_on',document.getElementById('ab3Check').checked?'1':'0');toast('Antibot 3 saved!');}
+function abToggle(n,val){
+  localStorage.setItem('ab'+n+'_on',val?'1':'0');
+  var payload={};
+  payload['ab'+n+'_on']=val?'1':'0';
+  if(window.SiteSync) SiteSync.saveAntibot(payload);
+  toast('Antibot '+n+' '+(val?'ENABLED':'DISABLED'),(val?'success':'error'));
+}
+function _syncAntibot(payload,msg){
+  if(window.SiteSync){
+    SiteSync.saveAntibot(payload,function(r){
+      toast(r&&r.ok?msg+' (live on site)':msg+' (local only)',r&&r.ok?'success':'error');
+    });
+  } else toast(msg);
+}
+function saveAb1(){
+  var on=document.getElementById('ab1Check').checked;
+  var payload={ab1_on:on?'1':'0',ab1_amount:document.getElementById('ab1Amount').value,ab1_mode:document.getElementById('ab1Mode').value};
+  localStorage.setItem('ab1_on',payload.ab1_on);
+  localStorage.setItem('ab1_amount',payload.ab1_amount);
+  localStorage.setItem('ab1_mode',payload.ab1_mode);
+  _syncAntibot(payload,'Antibot 1 saved!');
+}
+function saveAb2(){
+  var on=document.getElementById('ab2Check').checked;
+  var payload={ab2_on:on?'1':'0',ab2_amount:document.getElementById('ab2Amount').value,ab2_wins:document.getElementById('ab2Wins').value};
+  localStorage.setItem('ab2_on',payload.ab2_on);
+  localStorage.setItem('ab2_amount',payload.ab2_amount);
+  localStorage.setItem('ab2_wins',payload.ab2_wins);
+  _syncAntibot(payload,'Antibot 2 saved!');
+}
+function saveAb3(){
+  var on=document.getElementById('ab3Check').checked?'1':'0';
+  localStorage.setItem('ab3_on',on);
+  _syncAntibot({ab3_on:on},'Antibot 3 saved!');
+}
 function updateGameRate(el,key){var s=document.getElementById('gwrv_'+key);if(s)s.textContent=el.value+'%';}
 function saveHouseEdge(){var v=document.getElementById('gHouseEdge').value;save('game_house_edge',v);S.gameHouseEdge=parseFloat(v);toast('House edge saved!');}
 function saveGameRates(){['Dice','Limbo','Wheel','Mines','Sic Bo','Diamond','Tower','Coin Flip'].forEach(function(g){var key='game_win_'+g.toLowerCase().replace(/ /g,'');var el=document.getElementById('gwr_'+key);if(el)save(key,el.value);});toast('Game rates saved!');}
@@ -295,18 +328,26 @@ function buildContest(){
 
 
 function resetContestLeaderboard(){
-  if(!confirm('Clear ALL contest leaderboard entries?')) return;
-  localStorage.removeItem('contest_wagers');
-  toast('Leaderboard reset! All entries cleared.','success');
-  document.getElementById('admContent').innerHTML = buildContest();
-  setTimeout(function(){ buildAdmContestLb(); }, 80);
+  if(!confirm('Clear ALL contest leaderboard entries on the live site?')) return;
+  function done(){
+    toast('Leaderboard reset! All wagers cleared on site.','success');
+    document.getElementById('admContent').innerHTML = buildContest();
+    setTimeout(function(){ buildAdmContestLb(); }, 80);
+  }
+  if(window.SiteSync){
+    SiteSync.resetContest(function(r){ if(r&&r.ok) done(); else toast('Reset failed','error'); });
+  } else {
+    localStorage.removeItem('contest_wagers');
+    done();
+  }
 }
 
 function buildAdmContestLb(){
   var wrap = document.getElementById('admCtLbWrap');
   if(!wrap) return;
-  var cw = {};
-  try{ cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}'); }catch(e){}
+  wrap.innerHTML = '<p style="color:rgba(255,255,255,.3);padding:16px;font-size:13px">Loading leaderboard...</p>';
+  function render(cw){
+  cw = cw || {};
   var entries = Object.keys(cw).map(function(u){ return {name:u,wager:parseFloat(cw[u])||0}; });
   entries.sort(function(a,b){ return b.wager-a.wager; });
   if(!entries.length){
@@ -320,6 +361,24 @@ function buildAdmContestLb(){
     '<td><button class="btn btn-sm btn-danger" onclick="removeCtEntry(\'' + e.name + '\');buildAdmContestLb()"><i class="fas fa-trash"></i></button></td></tr>';
   }).join('');
   wrap.innerHTML = '<div class="adm-tbl-wrap"><table class="adm-tbl"><thead><tr><th>Rank</th><th>Username</th><th>Wagered (TRX)</th><th>Remove</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+  if(window.SiteSync){
+    SiteSync.getContestWagers(function(r){ render(r.ok ? (r.wagers||{}) : {}); });
+  } else {
+    var cw={};
+    try{ cw=JSON.parse(localStorage.getItem('contest_wagers')||'{}'); }catch(e){}
+    render(cw);
+  }
+}
+
+function refreshServerUserCount(){
+  if(!window.SiteSync) return;
+  SiteSync.getUsers(function(r){
+    if(!r||!r.ok) return;
+    S.users = r.users || [];
+    var el = document.querySelector('.stat-grid .stat-card .stat-val');
+    if(el) el.textContent = r.count || S.users.length;
+  });
 }
 
 function saveContest(){
@@ -1093,6 +1152,8 @@ function saveSiteSettings(){
 // Init â€” load dashboard
 window.addEventListener('DOMContentLoaded', function(){
   document.getElementById('admContent').innerHTML = buildDashboard();
+  refreshServerUserCount();
+  if(window.SiteSync) SiteSync.loadAntibot();
   setInterval(function(){
     var d = new Date();
     var el = document.getElementById('tbTime');
@@ -1231,7 +1292,7 @@ function buildContestGen(){
     '<button class="btn btn-primary" onclick="saveCtEntries()"><i class="fas fa-save"></i> Save & Apply to Leaderboard</button>'+
     '<button class="btn btn-success" onclick="startCtAuto()"><i class="fas fa-play"></i> Start Auto-Wager</button>'+
     '<button class="btn btn-danger" onclick="stopCtAuto()"><i class="fas fa-stop"></i> Stop Auto</button>'+
-    '<button class="btn btn-warning" onclick="if(confirm(\'Clear all contest entries?\')) {localStorage.removeItem(\'contest_wagers\');document.getElementById(\'admContent\').innerHTML=buildContestGen();}"><i class="fas fa-trash"></i> Clear All</button>'+
+    '<button class="btn btn-warning" onclick="if(confirm(\'Clear all contest entries on live site?\')) { if(window.SiteSync){SiteSync.resetContest(function(r){if(r&&r.ok){document.getElementById(\'admContent\').innerHTML=buildContestGen();toast(\'Cleared\');}});} else {localStorage.removeItem(\'contest_wagers\');document.getElementById(\'admContent\').innerHTML=buildContestGen();}}"><i class="fas fa-trash"></i> Clear All</button>'+
     '</div>'
   )+
   card('Live Leaderboard Preview','list-ol',{cls:'badge-green',txt:entries.length+' Players'},
@@ -1252,8 +1313,9 @@ function saveCtEntries(){
     }
   }
   localStorage.setItem('contest_wagers',JSON.stringify(cw));
-  toast('Contest entries saved to live leaderboard!');
-  document.getElementById('admContent').innerHTML=buildContestGen();
+  function done(){ toast('Contest entries saved to live leaderboard!'); document.getElementById('admContent').innerHTML=buildContestGen(); }
+  if(window.SiteSync) SiteSync.setContestWagers(cw, function(r){ if(r&&r.ok) done(); else toast('Save failed','error'); });
+  else done();
 }
 
 function startCtAuto(){
@@ -1272,6 +1334,7 @@ function startCtAuto(){
         var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
         cw[uname] = (parseFloat(cw[uname])||0) + addAmt;
         localStorage.setItem('contest_wagers',JSON.stringify(cw));
+        if(window.SiteSync) SiteSync.setContestWagers(cw);
       }, interval*1000);
       _ctAutoTimers.push(timer);
     })(i);
@@ -1287,11 +1350,15 @@ function stopCtAuto(){
 }
 
 function removeCtEntry(uname){
-  var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
-  delete cw[uname];
-  localStorage.setItem('contest_wagers',JSON.stringify(cw));
-  toast(uname+' removed from leaderboard');
-  document.getElementById('admContent').innerHTML=buildContestGen();
+  function done(){ toast(uname+' removed from leaderboard'); if(document.getElementById('admContent')) document.getElementById('admContent').innerHTML=buildContestGen(); buildAdmContestLb(); }
+  if(window.SiteSync){
+    SiteSync.removeContestEntry(uname, function(r){ if(r&&r.ok) done(); else toast('Remove failed','error'); });
+  } else {
+    var cw = JSON.parse(localStorage.getItem('contest_wagers')||'{}');
+    delete cw[uname];
+    localStorage.setItem('contest_wagers',JSON.stringify(cw));
+    done();
+  }
 }
 
 // ═══════════════════════════════════════════════════════

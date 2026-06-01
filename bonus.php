@@ -185,7 +185,8 @@
 <!-- BONUS TOAST -->
 <div class="bonus-toast" id="bonusToast"></div>
 
-<script src="dashboard.js?v=17"></script>
+<script src="site_sync.js?v=1"></script>
+<script src="dashboard.js?v=18"></script>
 <script>
 // ═══════════════════════════════════════════
 // BONUS SYSTEM

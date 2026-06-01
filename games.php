@@ -242,42 +242,6 @@
       <button class="back-btn" onclick="closeGame()">&#8592; Back to Games</button>
       <div class="game-frame" id="gameFrame"></div>
     </div>
-
-    <!-- MY ALL BETS -->
-    <div class="all-bets-section" id="allBetsSection">
-      <div class="all-bets-hd">
-        <span>&#127922; Bets</span>
-        <button class="all-bets-refresh" onclick="abRefresh()">&#8635; Refresh</button>
-      </div>
-      <!-- Two main tabs: My Bets / All Bets -->
-      <div class="ab-main-tabs">
-        <button class="ab-main-tab ab-main-act" id="abMainMy" onclick="abMainSwitch('my')">My Bets</button>
-        <button class="ab-main-tab" id="abMainAll" onclick="abMainSwitch('all')">All Bets</button>
-      </div>
-      <!-- My Bets panel -->
-      <div id="abMyPanel">
-        <div class="all-bets-tabs">
-          <button class="ab-tab ab-tab-act" id="abTabAll" onclick="abSetTab('all')">All Games</button>
-          <button class="ab-tab" id="abTabDice" onclick="abSetTab('dice')">&#127922; Dice</button>
-          <button class="ab-tab" id="abTabLimbo" onclick="abSetTab('limbo')">&#128640; Limbo</button>
-          <button class="ab-tab" id="abTabWheel" onclick="abSetTab('wheel')">&#127905; Wheel</button>
-          <button class="ab-tab" id="abTabMines" onclick="abSetTab('mines')">&#128163; Mines</button>
-          <button class="ab-tab" id="abTabSicbo" onclick="abSetTab('sicbo')">&#127922; Sic Bo</button>
-          <button class="ab-tab" id="abTabDiamond" onclick="abSetTab('diamond')">&#9670; Diamond</button>
-          <button class="ab-tab" id="abTabTower" onclick="abSetTab('tower')">Tower</button>
-          <button class="ab-tab" id="abTabCoinflip" onclick="abSetTab('coinflip')">Coin Flip</button>
-        </div>
-        <div class="all-bets-body" id="allBetsBody">
-          <div class="dg-no-bets">No bets yet. Play a game to see your history here!</div>
-        </div>
-      </div>
-      <!-- All Bets panel (simulated live feed) -->
-      <div id="abAllPanel" style="display:none">
-        <div class="all-bets-body" id="allBetsLiveBody">
-          <div class="dg-no-bets">Loading live bets...</div>
-        </div>
-      </div>
-    </div>
   </div>
 
 
@@ -800,45 +764,14 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=17"></script>
+<script src="site_sync.js?v=1"></script>
+<script src="dashboard.js?v=18"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
 if(typeof syncBal!=='function'){window.syncBal=function(){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
 if(typeof updateWager!=='function'){window.updateWager=function(){};}
 if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
-// My All Bets logic
-var _abTab='all';
-function abSetTab(t){_abTab=t;['all','dice','limbo','wheel','mines','sicbo','diamond','tower','coinflip'].forEach(function(k){var el=document.getElementById('abTab'+k.charAt(0).toUpperCase()+k.slice(1));if(el)el.classList.toggle('ab-tab-act',k===t);});renderAllBets();}
-function renderAllBets(){
-  var keys={dice:'diceHistory',limbo:'limboHistory',wheel:'wheelHistory',mines:'mnHistory',sicbo:'sbHistory',diamond:'dmHistory',tower:'twHistory',coinflip:'cfHistory'};
-  var gameNames={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#127922; Sic Bo',diamond:'&#9670; Diamond',tower:'&#127959; Tower',coinflip:'&#x1FA99; Coin Flip'};
-  var all=[];
-  var filter=_abTab==='all'?Object.keys(keys):[_abTab];
-  filter.forEach(function(g){
-    try{var d=JSON.parse(localStorage.getItem(keys[g])||'[]');d.forEach(function(b){b._game=g;b._gname=gameNames[g]||g;});all=all.concat(d);}catch(e){}
-  });
-  all.sort(function(a,b){return (b.id||0)-(a.id||0);});
-  var body=document.getElementById('allBetsBody');
-  if(!body)return;
-  if(!all.length){body.innerHTML='<div class="dg-no-bets">No bets yet. Play a game to see your history here!</div>';return;}
-  var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Result</th><th>Profit</th></tr></thead><tbody>';
-  all.slice(0,100).forEach(function(b){
-    var mult=b.mult!=null?b.mult:b.payout!=null?b.payout:b.result!=null?b.result:null;
-    var multStr=mult!=null?(b.win?parseFloat(mult).toFixed(2)+'x':'LOSE'):(b.win?'WIN':'LOSE');
-    var profit=b.profit!=null?b.profit:(b.win?(b.bet||0)*((mult||1)-1):-(b.bet||0));
-    html+='<tr class="dg-hist-row">';
-    html+='<td class="dg-tc-time">'+(b.ts||'--')+'</td>';
-    html+='<td>'+b._gname+'</td>';
-    html+='<td>'+(parseFloat(b.bet||b.betAmt||0).toFixed(6))+'</td>';
-    html+='<td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+multStr+'</td>';
-    html+='<td class="'+(profit>=0?'dg-pos':'dg-neg')+'">'+(profit>=0?'+':'')+parseFloat(profit).toFixed(6)+'</td>';
-    html+='</tr>';
-  });
-  html+='</tbody></table>';
-  body.innerHTML=html;
-}
-document.addEventListener('DOMContentLoaded',function(){renderAllBets();});
 </script>
 </body>
 </html>

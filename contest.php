@@ -747,81 +747,53 @@
   </div>
 </div>
 
-<script src="dashboard.js?v=17"></script>
+<script src="site_sync.js?v=1"></script>
+<script src="dashboard.js?v=18"></script>
 <script>
 window._INIT_SECTION='contest';
 
-// LIVE COUNTDOWN — 6d10h cycle from most recent Monday 10:00 UTC
-(function contestTimer(){
-  function pad(n){return n<10?'0'+n:''+n;}
-  function getEnd(){
-    var now = new Date();
-    // Get today at 10:00 UTC
-    var d = new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),10,0,0,0));
-    // Go back to most recent Monday
-    var dow = d.getUTCDay(); // 0=Sun,1=Mon,...,6=Sat
-    var daysBack = dow === 0 ? 6 : dow - 1;
-    d.setUTCDate(d.getUTCDate() - daysBack);
-    // If that Monday 10:00 is in the future, go back one more week
-    if(d > now) d.setUTCDate(d.getUTCDate() - 7);
-    // Contest ends 6 days 10 hours after that Monday
-    return new Date(d.getTime() + 554400000);
-  }
-  function tick(){
-    var end = getEnd();
-    var ms = end - Date.now();
-    if(ms < 0) ms = 0;
-    var totalMins = Math.floor(ms / 60000);
-    var days  = Math.floor(totalMins / 1440);
-    var hours = Math.floor(totalMins / 60) % 24;
-    var mins  = totalMins % 60;
-    var dEl=document.getElementById('ctCkDays');
-    var hEl=document.getElementById('ctCkHours');
-    var mEl=document.getElementById('ctCkMins');
-    if(dEl) dEl.textContent=pad(days);
-    if(hEl) hEl.textContent=pad(hours);
-    if(mEl) mEl.textContent=pad(mins);
-  }
-  tick();
-  setInterval(tick,60000);
-})();
+// LIVE COUNTDOWN — 6d10h from most recent Monday 10:00 UTC
+SiteSync.startContestTimer({
+  daysEl: document.getElementById('ctCkDays'),
+  hoursEl: document.getElementById('ctCkHours'),
+  minsEl: document.getElementById('ctCkMins')
+}, 60000);
 
-// LIVE LEADERBOARD — only real game plays
+// LIVE LEADERBOARD — server-synced real wagers only
 function renderContest(){
   var tbody=document.getElementById('ctLeaderboard');
   if(!tbody) return;
-  var cw={};
-  try{cw=JSON.parse(localStorage.getItem('contest_wagers')||'{}');}catch(e){}
-  var entries=[];
-  for(var u in cw){if(cw.hasOwnProperty(u)) entries.push({name:u,wager:parseFloat(cw[u])||0});}
-  entries.sort(function(a,b){return b.wager-a.wager;});
-
-  var myName=localStorage.getItem('userName')||'';
-  var myWager=parseFloat(localStorage.getItem('totalWagered')||'0');
-
-  // update my stats
-  var mrEl=document.getElementById('ctMyRank');
-  var mwEl=document.getElementById('ctMyWager');
-  if(mwEl) mwEl.textContent=myWager.toFixed(6);
-  var myRank='—';
-  for(var i=0;i<entries.length;i++){if(entries[i].name===myName){myRank='#'+(i+1);break;}}
-  if(mrEl) mrEl.textContent=myRank;
-
-  if(!entries.length){
-    tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
-    return;
+  function draw(cw){
+    cw=cw||{};
+    var entries=[];
+    for(var u in cw){ if(cw.hasOwnProperty(u)) entries.push({name:u,wager:parseFloat(cw[u])||0}); }
+    entries.sort(function(a,b){return b.wager-a.wager;});
+    var myName=localStorage.getItem('userName')||'';
+    var myWager=parseFloat(cw[myName])||parseFloat(localStorage.getItem('totalWagered')||'0');
+    var mrEl=document.getElementById('ctMyRank');
+    var mwEl=document.getElementById('ctMyWager');
+    if(mwEl) mwEl.textContent=myWager.toFixed(6);
+    var myRank='—';
+    for(var i=0;i<entries.length;i++){if(entries[i].name===myName){myRank='#'+(i+1);break;}}
+    if(mrEl) mrEl.textContent=myRank;
+    if(!entries.length){
+      tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
+      return;
+    }
+    var medals=['&#129351;','&#129352;','&#129353;'];
+    var html='';
+    for(var j=0;j<entries.length;j++){
+      var isMe=entries[j].name===myName;
+      html+='<tr'+(isMe?' style="background:rgba(163,230,53,.06);font-weight:700"':'')+'>'+
+        '<td>'+(medals[j]||'')+(j+1)+'</td>'+
+        '<td>'+(isMe?'<strong>'+entries[j].name+'</strong>':entries[j].name)+'</td>'+
+        '<td>'+entries[j].wager.toFixed(6)+' TRX</td>'+
+        '</tr>';
+    }
+    tbody.innerHTML=html;
   }
-  var medals=['&#129351;','&#129352;','&#129353;'];
-  var html='';
-  for(var j=0;j<entries.length;j++){
-    var isMe=entries[j].name===myName;
-    html+='<tr'+(isMe?' style="background:rgba(163,230,53,.06);font-weight:700"':'')+'>'+
-      '<td>'+(medals[j]||'')+(j+1)+'</td>'+
-      '<td>'+(isMe?'<strong>'+entries[j].name+'</strong>':entries[j].name)+'</td>'+
-      '<td>'+entries[j].wager.toFixed(6)+' TRX</td>'+
-      '</tr>';
-  }
-  tbody.innerHTML=html;
+  if(window.SiteSync) SiteSync.getContestWagers(function(r){ draw(r.ok?(r.wagers||{}):{}); });
+  else try{ draw(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ draw({}); }
 }
 renderContest();
 setInterval(renderContest,10000);

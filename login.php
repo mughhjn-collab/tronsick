@@ -254,6 +254,7 @@
 </div>
 
 
+<script src="site_sync.js?v=1"></script>
 <script>
 // ── TAB SWITCH ──────────────────────────────
 function switchTab(tab){
@@ -478,6 +479,7 @@ function doLoginFinish(id, btn){
     localStorage.setItem('userEmail', uemail);
     localStorage.setItem('userLoggedIn','1');
     localStorage.setItem('userId','u_'+uname.toLowerCase().replace(/[^a-z0-9]/g,''));
+    if(window.SiteSync) SiteSync.registerUser(uname, uemail);
     if(!localStorage.getItem('bonusRollsGiven_'+uname)){
       localStorage.setItem('bonusRolls','3');
       localStorage.setItem('bonusRollsGiven_'+uname,'1');
@@ -541,6 +543,9 @@ function handleReg(e){
         localStorage.setItem('adm_users',JSON.stringify(au));
       }
     }catch(ex){}
+
+    // Register on server for admin user count
+    if(window.SiteSync) SiteSync.registerUser(u, em);
 
     window.location.href='faucet.php';
   }, 1200);
