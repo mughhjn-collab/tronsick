@@ -460,14 +460,7 @@ function handleLogin(e){
       doLoginFinish(id, pw, btn);
     });
   } else {
-    // Extra admin block at handleLogin level
-  // Block admin username - redirect to admin login page instead
-  var _adminUser2 = localStorage.getItem('adminUser') || 'admin';
-  if(_uname0.toLowerCase() === _adminUser2.toLowerCase()){
-    showErr('Use <a href="/panel-login.php" style="color:#3ecf8e">Admin Login</a> for admin access.');
-    if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
-    return; // STOP - never call doLoginFinish for admin
-  }
+    // Admin username check is handled in doLoginFinish below
 }
 function doLoginFinish(id, pw_input, btn){
   setTimeout(function(){
