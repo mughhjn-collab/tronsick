@@ -460,8 +460,11 @@ function handleLogin(e){
       doLoginFinish(id, pw, btn);
     });
   } else {
-    // Admin username check is handled in doLoginFinish below
+    // No 2FA — proceed directly to login
+    doLoginFinish(id, pw, btn);
+  }
 }
+
 function doLoginFinish(id, pw_input, btn){
   setTimeout(function(){
     var uname = id.includes('@') ? id.split('@')[0] : id;
