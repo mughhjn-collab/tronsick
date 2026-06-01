@@ -1277,12 +1277,16 @@ TITLES.payout_gen = 'Payout Generator';
 function buildPayoutGen(){
   var payouts = _getPayoutDraft();
   var rows = payouts.slice().reverse().map(function(p){
-    return '<tr><td>'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.5)">'+p.txid.substr(0,16)+'...</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.address.substr(0,14)+'...</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
+    var txDisplay = p.isDemo 
+      ? '<span style="color:#f59e0b;font-size:11px">⚠ DEMO: '+p.txid.substr(0,12)+'...</span>'
+      : '<a href="https://tronscan.org/#/transaction/'+p.txid+'" target="_blank" style="color:#3ecf8e;font-family:monospace;font-size:11px">'+p.txid.substr(0,16)+'... <i class="fas fa-external-link-alt" style="font-size:9px"></i></a>';
+    return '<tr><td>'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td>'+txDisplay+'</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.address.substr(0,14)+'...</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
   }).join('') || '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No generated payouts yet</td></tr>';
 
   return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Create payout records, then click <strong>Save Live to Site</strong> to publish on Payout Proof page.</p></div>'+
   card('Generate Payout','money-bill-wave',null,
     '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generate payouts here first. They go live on site only after you click <strong>Save Live to Site</strong>.</div>'+
+    '<div class="adm-alert alert-error" style="margin-bottom:12px"><i class="fas fa-triangle-exclamation"></i> <strong>Important:</strong> For payouts that show correctly on <a href="https://tronscan.org" target="_blank" style="color:#f87171">Tronscan.org</a>, you MUST enter a <strong>real TxID</strong> from your actual TRX wallet transaction. The "Generate 5 Random" button creates DEMO entries with fake TxIDs that will NOT appear on Tronscan.</div>'+
     '<div class="form-row">'+
     '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
     '<div class="form-group"><label><i class="fas fa-coins"></i> Amount (TRX)</label><input type="number" id="pgAmt" value="10" min="0.000001" step="0.000001" placeholder="Exact TRX amount"/></div>'+
@@ -1352,18 +1356,18 @@ function generateOnePayout(){
 }
 
 function generateBulkPayouts(){
-  var mn = parseFloat(document.getElementById('pgMin').value)||10;
-  var mx = parseFloat(document.getElementById('pgMax').value)||100;
+  // NOTE: Bulk random payouts use FAKE txids for display only.
+  // For real Tronscan verification, use single payout with real TxID.
   var names=['TronUser','CryptoKing','DiamondHands','MoonWalker','TRXHunter','BlockMaster','DeFiPro','SatoshiFan','CoinFlipper','LimboPlayer'];
   var payouts = _getPayoutDraft();
   var base = Date.now();
   for(var i=0;i<5;i++){
     var uname = names[Math.floor(Math.random()*names.length)]+(Math.floor(Math.random()*9000)+1000);
-    var amt = _randBetween(mn,mx).toFixed(6);
-    payouts.push({id:'pg'+(base+i),username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:_staggeredDate(i)});
+    var amt = _randBetween(10,100).toFixed(6);
+    payouts.push({id:'pg'+(base+i),username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:_staggeredDate(i),isDemo:true});
   }
   _savePayoutDraft(payouts);
-  toast('5 payouts generated with 1-2hr gaps. Click Save Live to Site!','success');
+  toast('5 demo payouts generated. ⚠️ These use fake TxIDs — for demo only!','success');
   document.getElementById('admContent').innerHTML=buildPayoutGen();
 }
 
