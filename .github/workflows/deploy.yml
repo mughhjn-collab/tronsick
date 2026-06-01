@@ -37,3 +37,6 @@ jobs:
             **/add_*.js
             **/verify_*.js
             **/deploy_*.js
+            **/data/users.json
+            **/data/contest_wagers.json
+            **/data/antibot.json
