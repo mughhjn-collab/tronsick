@@ -151,8 +151,8 @@ function rebuildUserTable(){
     '<td><span class="tbl-badge '+(u.banned?'tbl-red':'tbl-green')+'">'+(u.banned?'🔴 Banned':'🟢 Active')+'</span></td>'+
     '<td>'+new Date(u.joined||Date.now()).toLocaleDateString()+'</td>'+
     '<td style="white-space:nowrap">'+
-    '<button class="btn btn-sm btn-primary" onclick="editUserModal(''+u.id+'')"><i class="fas fa-edit"></i> Edit</button> '+
-    '<button class="btn btn-sm '+(u.banned?'btn-success':'btn-danger')+'" onclick="banUser(''+u.id+'')"><i class="fas fa-'+(u.banned?'unlock':'ban')+'"></i> '+(u.banned?'Unban':'Ban')+'</button>'+
+    '<button class="btn btn-sm btn-primary" onclick="editUserModal(\'' + u.id + '\')"><i class="fas fa-edit"></i> Edit</button> '+
+    '<button class="btn btn-sm '+(u.banned?'btn-success':'btn-danger')+'" onclick="banUser(\'' + u.id + '\')"><i class="fas fa-'+(u.banned?'unlock':'ban')+'"></i> '+(u.banned?'Unban':'Ban')+'</button>'+
     '</td></tr>';
   }).join('');
   // Update count badge
