@@ -145,6 +145,13 @@ try{
   var pctStr=pct.toFixed(1)+'%';
   // Update all wager display elements
   ['wagered','gWagered'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=w.toFixed(6);});
+      // Update target and level labels
+      var tgt2=document.getElementById('progTarget');
+      if(tgt2)tgt2.textContent=(lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1])+' TRX';
+      var pfrom2=document.getElementById('progFrom');
+      if(pfrom2)pfrom2.textContent=curLvl||'Master';
+      var pto2=document.getElementById('progTo');
+      if(pto2)pto2.textContent=nextLvl||'Master';
   // Update progress bars
   var fills=document.querySelectorAll('.prog-fill, #gProgFill');
   fills.forEach(function(el){el.style.width=pctStr;});

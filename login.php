@@ -389,6 +389,13 @@ function sendResetLink(){
 (function(){
   var p = new URLSearchParams(window.location.search);
   if(p.get('tab')==='register') switchTab('register');
+  // Auto-fill referrer from ?ref= URL param or stored pendingRef
+  var pendingRef = p.get('ref') || localStorage.getItem('pendingRef') || '';
+  if(pendingRef){
+    var rRefEl = document.getElementById('rRef');
+    if(rRefEl) rRefEl.value = pendingRef;
+    if(p.get('ref')) switchTab('register'); // auto-switch to register if ?ref= in URL
+  }
 })();
 
 // ----------------------------------------------
@@ -575,6 +582,7 @@ function handleReg(e){
     // Permanent email key ? survives logout
     localStorage.setItem('userRealEmail_'+u.toLowerCase(), em);
     if(ref) localStorage.setItem('userRef',ref);
+    localStorage.removeItem('pendingRef'); // Clear after use
 
     // site_registered_users
     try{

@@ -17,6 +17,17 @@
       if(localStorage.getItem('userLoggedIn')==='1'&&localStorage.getItem('userName')){window.location.replace('faucet.php');}
     }
   </script>
+
+<script>
+// Capture ?ref= from URL and store for signup auto-fill
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var ref = p.get('ref');
+  if (ref && ref.trim()) {
+    localStorage.setItem('pendingRef', ref.trim());
+  }
+})();
+</script>
 </head>
 <body>
 

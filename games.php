@@ -163,7 +163,7 @@
     </div>
 
     <!-- Games Grid -->
-    <p class="games-fair-note">Every game uses a cryptographic server seed + client seed system. Verify any result independently ? outcomes cannot be manipulated. Every game has just 1% house edge. Earn daily cashback on every bet ? win or lose!</p>
+    <!-- games-fair-note hidden -->
     <div class="game-grid-v4" id="gameGrid">
 
       <div class="gc-card-v4 gc-v4-purple" onclick="openGame('dice')" id="gc-dice">
