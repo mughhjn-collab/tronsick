@@ -256,6 +256,42 @@ switch ($action) {
         echo json_encode(['ok' => true, 'payouts' => []]);
         break;
 
+
+    case 'update_user_balance':
+        requireAdmin();
+        $name    = trim($_POST['name'] ?? '');
+        $balance = (string)floatval($_POST['balance'] ?? 0);
+        $email   = trim($_POST['email'] ?? '');
+        if(!$name){ jsonFail('Missing username', 400); }
+        $users = readJson($usersFile, []);
+        $found = false;
+        foreach($users as &$u){
+            if(strcasecmp($u['name'] ?? '', $name) === 0){
+                $u['balance'] = $balance;
+                if($email) $u['email'] = $email;
+                $u['balance_updated'] = date('c');
+                $found = true;
+                break;
+            }
+        }
+        unset($u);
+        if(!$found){
+            // Create user record if doesn't exist
+            $users[] = [
+                'id'      => 'u_'.preg_replace('/[^a-z0-9]/', '', strtolower($name)),
+                'name'    => $name,
+                'email'   => $email ?: ($name.'@tronsick.io'),
+                'balance' => $balance,
+                'joined'  => date('c'),
+                'balance_updated' => date('c')
+            ];
+        }
+        if(!writeJson($usersFile, $users)){
+            jsonFail('Cannot write users file.');
+        }
+        echo json_encode(['ok' => true, 'name' => $name, 'balance' => $balance]);
+        break;
+
     default:
         jsonFail('Unknown action', 400);
 }

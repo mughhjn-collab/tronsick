@@ -160,6 +160,80 @@ function rebuildUserTable(){
   if(badge) badge.textContent = users.length + ' Total';
 }
 
+
+function editUserModal(uid){
+  var users = JSON.parse(localStorage.getItem('adm_users')||'[]');
+  var u = users.find(function(x){return x.id===uid;});
+  if(!u){toast('User not found','error');return;}
+  // Remove existing modal
+  var existing = document.getElementById('_editUserModal');
+  if(existing) existing.remove();
+  var modal = document.createElement('div');
+  modal.id = '_editUserModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = '<div style="background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:480px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.6)">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'+
+    '<div style="font-size:16px;font-weight:800;color:#fff"><i class="fas fa-user-edit" style="color:#3ecf8e;margin-right:8px"></i>Edit User: <span style="color:#3ecf8e">'+u.name+'</span></div>'+
+    '<button onclick="document.getElementById('_editUserModal').remove()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">&times;</button>'+
+    '</div>'+
+    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:16px;font-size:12px"><i class="fas fa-circle-info"></i> Balance will be saved to server and reflected in user's account.</div>'+
+    '<div class="form-group" style="margin-bottom:14px"><label style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);display:block;margin-bottom:6px">Current Balance (TRX)</label>'+
+    '<input type="number" id="_euBal" value="'+parseFloat(u.balance||0).toFixed(6)+'" step="0.000001" min="0" style="width:100%;background:#0a0f1a;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:15px;font-weight:700;color:#3ecf8e"/></div>'+
+    '<div class="form-group" style="margin-bottom:14px"><label style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);display:block;margin-bottom:6px">Email</label>'+
+    '<input type="email" id="_euEmail" value="'+(u.email||'')+'" style="width:100%;background:#0a0f1a;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px"/></div>'+
+    '<div style="display:flex;gap:10px;margin-top:20px">'+
+    '<button onclick="saveUserEdit(''+uid+'')" class="btn btn-primary" style="flex:1"><i class="fas fa-save"></i> Save Changes</button>'+
+    '<button onclick="document.getElementById('_editUserModal').remove()" class="btn btn-secondary">Cancel</button>'+
+    '</div></div>';
+  document.body.appendChild(modal);
+}
+
+function saveUserEdit(uid){
+  var users = JSON.parse(localStorage.getItem('adm_users')||'[]');
+  var idx = users.findIndex(function(x){return x.id===uid;});
+  if(idx===-1){toast('User not found','error');return;}
+  var balEl = document.getElementById('_euBal');
+  var emailEl = document.getElementById('_euEmail');
+  var newBal = parseFloat(balEl?balEl.value:0)||0;
+  var newEmail = emailEl?emailEl.value.trim():'';
+  users[idx].balance = newBal.toFixed(6);
+  if(newEmail) users[idx].email = newEmail;
+  localStorage.setItem('adm_users', JSON.stringify(users));
+  S.users = users;
+  // Push to server via SiteSync
+  if(window.SiteSync){
+    // Save balance update to server
+    var fd = new FormData();
+    fd.append('auth','TronSick@Admin2024');
+    fd.append('action','update_user_balance');
+    fd.append('name', users[idx].name);
+    fd.append('balance', newBal.toFixed(6));
+    if(newEmail) fd.append('email', newEmail);
+    fetch('/site_api.php', {method:'POST', body:fd, credentials:'same-origin'})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok) toast('✅ Balance updated to '+newBal.toFixed(4)+' TRX — Live on site!','success');
+        else toast('Saved locally. Server: '+(d.error||'?'),'error');
+      })
+      .catch(function(){ toast('Balance saved locally (server unreachable)','error'); });
+  } else {
+    toast('Balance updated to '+newBal.toFixed(4)+' TRX (locally)','success');
+  }
+  document.getElementById('_editUserModal').remove();
+  rebuildUserTable();
+}
+
+function banUser(uid){
+  var users = JSON.parse(localStorage.getItem('adm_users')||'[]');
+  var u = users.find(function(x){return x.id===uid;});
+  if(!u) return;
+  u.banned = !u.banned;
+  localStorage.setItem('adm_users', JSON.stringify(users));
+  S.users = users;
+  toast(u.name+(u.banned?' banned'>' unbanned'));
+  rebuildUserTable();
+}
+
 function save(key,val){
   localStorage.setItem(key,val);
   if(window.SiteSync) SiteSync.queueSetting(key,val);
@@ -1066,86 +1140,6 @@ function buildUsers(){
   );
 }
 
-function editUserModal(id){
-  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
-  var u=users.find(function(x){return x.id===id;});
-  if(!u) return;
-  document.getElementById('euId').value=u.id;
-  document.getElementById('euName').value=u.name;
-  document.getElementById('euEmail').value=u.email;
-  document.getElementById('euBalance').value=parseFloat(u.balance||0).toFixed(6);
-  document.getElementById('euAdjust').value='';
-  var modal=document.getElementById('editUserModal');
-  if(modal){ modal.style.display='flex'; }
-}
-function applyBalAdj(){
-  var adj=parseFloat(document.getElementById('euAdjust').value||'0');
-  if(isNaN(adj)){ toast('Enter a valid amount'); return; }
-  var cur=parseFloat(document.getElementById('euBalance').value||'0');
-  document.getElementById('euBalance').value=Math.max(0,cur+adj).toFixed(6);
-  document.getElementById('euAdjust').value='';
-  toast('Balance updated — click Save to confirm');
-}
-function saveEditUser(){
-  var id=document.getElementById('euId').value;
-  var name=document.getElementById('euName').value.trim();
-  var email=document.getElementById('euEmail').value.trim();
-  var bal=parseFloat(document.getElementById('euBalance').value||'0');
-  if(!name||!email){ toast('Name and email required'); return; }
-  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
-  users.forEach(function(u){
-    if(u.id===id){ u.name=name; u.email=email; u.balance=bal.toFixed(6); }
-  });
-  localStorage.setItem('adm_users',JSON.stringify(users));
-
-  // ── KEY FIX: Write balance to user-specific key so dashboard picks it up ──
-  // Store as pending credit — when user opens site, syncBal() applies it
-  var pendKey = 'adm_bal_' + name.toLowerCase();
-  localStorage.setItem(pendKey, bal.toFixed(6));
-
-  // Also try to write directly to userBalance if this user is currently logged in
-  var curUser = localStorage.getItem('userName')||'';
-  if(curUser.toLowerCase() === name.toLowerCase()){
-    localStorage.setItem('userBalance', bal.toFixed(6));
-    // Update visible balance element if on same browser
-    var el=document.getElementById('userBalance');
-    if(el) el.textContent=bal.toFixed(6);
-    toast('User saved ✅ — Balance updated live!');
-  } else {
-    toast('User saved ✅ — Balance will apply on their next login.');
-  }
-
-  closeEditUser();
-  document.getElementById('admContent').innerHTML=buildUsers();
-}
-function closeEditUser(){
-  var m=document.getElementById('editUserModal');
-  if(m) m.style.display='none';
-}
-function showAddUserModal(){
-  document.getElementById('auName').value='';
-  document.getElementById('auEmail').value='';
-  document.getElementById('auBalance').value='0';
-  var m=document.getElementById('addUserModal');
-  if(m) m.style.display='flex';
-}
-function saveNewUser(){
-  var name=document.getElementById('auName').value.trim();
-  var email=document.getElementById('auEmail').value.trim();
-  var bal=parseFloat(document.getElementById('auBalance').value||'0');
-  if(!name||!email){ toast('Name and email required'); return; }
-  var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
-  users.push({id:'u'+Date.now(),name:name,email:email,balance:bal.toFixed(6),banned:false,joined:new Date().toISOString()});
-  localStorage.setItem('adm_users',JSON.stringify(users));
-  toast('User added ✅');
-  closeAddUser();
-  document.getElementById('admContent').innerHTML=buildUsers();
-}
-function closeAddUser(){
-  var m=document.getElementById('addUserModal');
-  if(m) m.style.display='none';
-}
-
 function banUser(id){
   var users=JSON.parse(localStorage.getItem('adm_users')||'[]');
   users.forEach(function(u){if(u.id===id) u.banned=!u.banned;});
@@ -1285,14 +1279,14 @@ function buildPayoutGen(){
 
   return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Create payout records, then click <strong>Save Live to Site</strong> to publish on Payout Proof page.</p></div>'+
   card('Generate Payout','money-bill-wave',null,
-    '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generate payouts here first. They go live on site only after you click <strong>Save Live to Site</strong>.</div>'+
-    '<div class="adm-alert alert-error" style="margin-bottom:12px"><i class="fas fa-triangle-exclamation"></i> <strong>Important:</strong> For payouts that show correctly on <a href="https://tronscan.org" target="_blank" style="color:#f87171">Tronscan.org</a>, you MUST enter a <strong>real TxID</strong> from your actual TRX wallet transaction. The "Generate 5 Random" button creates DEMO entries with fake TxIDs that will NOT appear on Tronscan.</div>'+
+    
+    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:12px"><i class="fas fa-circle-info"></i> Enter username, amount, and the real TxID from your TRX wallet. Then click <strong>Generate Payout</strong> → <strong>Save Live to Site</strong>.</div>'+
     '<div class="form-row">'+
     '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
-    '<div class="form-group"><label><i class="fas fa-coins"></i> Amount (TRX)</label><input type="number" id="pgAmt" value="10" min="0.000001" step="0.000001" placeholder="Exact TRX amount"/></div>'+
-    '<div class="form-group"><label><i class="fas fa-wallet"></i> Recipient Address</label><input type="text" id="pgAddr" placeholder="TXXX... (TRX wallet address)"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Amount (TRX)</label><input type="number" id="pgAmt" value="10" min="0.000001" step="0.000001" placeholder="e.g. 25.5"/></div>'+
     '</div>'+
-    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-link"></i> Real TxID <span style="color:#f59e0b;font-size:11px">(Copy from TronScan/your wallet — must be a real 64-char hash)</span></label><input type="text" id="pgTxid" placeholder="e.g. a1b2c3d4e5f6... (64 hex characters)" style="font-family:monospace;font-size:12px"/></div>'+
+    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-link"></i> Real TxID <span style="color:#a3e635;font-size:11px">(Paste from TronScan or your TRX wallet — this will open on Tronscan when clicked)</span></label><input type="text" id="pgTxid" placeholder="Paste real TxID here..." style="font-family:monospace;font-size:12px"/></div>'+
+    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-wallet"></i> Recipient Address <span style="color:rgba(255,255,255,.4);font-size:11px">(optional — leave blank to auto-fill)</span></label><input type="text" id="pgAddr" placeholder="Optional: TRX wallet address (T...)"/></div>'+
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
     '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
@@ -1345,8 +1339,10 @@ function generateOnePayout(){
   var txid = (document.getElementById('pgTxid')?document.getElementById('pgTxid').value:'').trim();
   var addr = (document.getElementById('pgAddr')?document.getElementById('pgAddr').value:'').trim()||_randTronAddr();
   if(!user){toast('Enter a username','error');return;}
-  if(!txid||txid.length<60){toast('❌ Enter a real 64-char TxID from your TRX wallet!','error');return;}
-  if(!addr.startsWith('T')){toast('Enter a valid TRX address (starts with T)','error');return;}
+  if(!txid||txid.length<10){toast('❌ Paste the real TxID from your TRX wallet!','error');return;}
+  // addr is optional
+  if(addr && !addr.startsWith('T')){ addr = _randTronAddr(); }
+  if(!addr){ addr = _randTronAddr(); }
   var p = {id:'pg'+Date.now(),username:user,amount:amt.toFixed(6),txid:txid,address:addr,date:new Date().toISOString()};
   var payouts = _getPayoutDraft();
   payouts.push(p);
