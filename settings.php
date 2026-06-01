@@ -47,6 +47,7 @@
 
 <!-- TOPBAR -->
 <header class="topbar">
+  <button class="burger" onclick="toggleSidebar()" style="order:-1;flex-shrink:0"><span></span><span></span><span></span></button>
   <div class="tb-bal">
     <img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="trx-hdr-logo" alt="TRX">
     <span class="tb-val" id="userBalance">0.000000</span>

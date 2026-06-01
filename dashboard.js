@@ -1,4 +1,4 @@
-﻿// Strip any hash fragment from URL on load
+// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // ── LOGOUT ──
@@ -62,6 +62,11 @@ try{
     var pct=lvlIdx>=LEVEL_TARGETS.length?100:Math.min(100,((w-prevT)/(nextT-prevT))*100);
     var pctStr=pct.toFixed(1)+'%';
     ['wagered','gWagered'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=w.toFixed(6);});
+    ['curLevelLabel','gCurLevelLabel'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=LEVEL_NAMES[lvlIdx];});
+    var tgtVal2=(lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1])+' TRX';
+    ['progTarget','gProgTarget'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=tgtVal2;});
+    ['progFrom','gProgFrom'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=LEVEL_NAMES[lvlIdx];});
+    ['progTo','gProgTo'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=LEVEL_NAMES[Math.min(lvlIdx+1,7)];});
     var fills=document.querySelectorAll('.prog-fill, #gProgFill');
     fills.forEach(function(e){e.style.width=pctStr;});
     var pcts=document.querySelectorAll('.prog-pct, #gProgPct');
@@ -145,6 +150,11 @@ try{
   var pctStr=pct.toFixed(1)+'%';
   // Update all wager display elements
   ['wagered','gWagered'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=w.toFixed(6);});
+  // Update level labels
+  ['curLevelLabel','gCurLevelLabel'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=curLvl;});
+  // Update target amounts
+  var tgtVal=(lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1])+' TRX';
+  ['progTarget','gProgTarget'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=tgtVal;});
       // Update target and level labels
       var tgt2=document.getElementById('progTarget');
       if(tgt2)tgt2.textContent=(lvlIdx<LEVEL_TARGETS.length?LEVEL_TARGETS[lvlIdx]:LEVEL_TARGETS[LEVEL_TARGETS.length-1])+' TRX';
