@@ -93,6 +93,10 @@ function showSection(btn,sec){
     SiteSync.loadAntibot(function(){
       document.getElementById('admContent').innerHTML=buildGames();
     });
+  } else if(sec==='payout_gen' && window.SiteSync){
+    SiteSync.getGenPayouts(function(){
+      document.getElementById('admContent').innerHTML=buildPayoutGen();
+    });
   } else {
     document.getElementById('admContent').innerHTML=SECTIONS[sec]?SECTIONS[sec]():'';
     if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
@@ -102,7 +106,7 @@ function showSection(btn,sec){
 
 function doLogout(){
   localStorage.removeItem('adminAuth');
-  window.location.href='index.php';
+  window.location.href='../admin_logout.php';
 }
 
 function save(key,val){
@@ -1164,8 +1168,8 @@ function changeAdminCreds(){
   if(newPw&&newPw.length<8){err.style.display='block';err.textContent='New password must be at least 8 characters';return;}
   if(newPw&&newPw!==conf){err.style.display='block';err.textContent='Passwords do not match';return;}
   err.style.display='none';
-  if(newUser) {save('adminUser',newUser);}
-  if(newPw)   {save('adminPass',newPw);}
+  if(newUser) {save('adminUser',newUser); save('admin_user',newUser);}
+  if(newPw)   {save('adminPass',newPw); save('admin_pass',newPw);}
   toast('Admin credentials updated! Please login again.');
   setTimeout(function(){doLogout();},2000);
 }
@@ -1186,6 +1190,7 @@ window.addEventListener('DOMContentLoaded', function(){
   }
   if(window.SiteSync){
     SiteSync.loadSettings(function(){ initDash(); });
+    SiteSync.getGenPayouts();
   } else initDash();
   setInterval(function(){
     var d = new Date();
@@ -1235,7 +1240,7 @@ function buildPayoutGen(){
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
     '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
-    '<button class="btn btn-danger" onclick="if(confirm(\'Clear all generated payouts?\')) {localStorage.removeItem(\'gen_payouts\');document.getElementById(\'admContent\').innerHTML=buildPayoutGen();}"><i class="fas fa-trash"></i> Clear All</button>'+
+    '<button class="btn btn-danger" onclick="clearAllGenPayouts()"><i class="fas fa-trash"></i> Clear All</button>'+
     '</div>'
   )+
   card('Generated Payout History','history',{cls:'badge-green',txt:payouts.length+' Records'},
@@ -1263,11 +1268,17 @@ function generateOnePayout(){
   if(mn>mx){toast('Min must be <= Max','error');return;}
   var amt = _randBetween(mn,mx).toFixed(6);
   var p = {id:'pg'+Date.now(),username:user,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date().toISOString()};
-  var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
-  payouts.push(p);
-  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
-  toast('Payout generated: '+user+' +'+amt+' TRX');
-  document.getElementById('admContent').innerHTML=buildPayoutGen();
+  function done(r){
+    toast((r&&r.ok!==false)?'Payout generated ✓ Live on site!':'Payout saved locally','success');
+    document.getElementById('admContent').innerHTML=buildPayoutGen();
+  }
+  if(window.SiteSync){ SiteSync.addGenPayout(p, done); }
+  else {
+    var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]');
+    payouts.push(p);
+    localStorage.setItem('gen_payouts', JSON.stringify(payouts));
+    done({ok:true});
+  }
 }
 
 function generateBulkPayouts(){
@@ -1280,16 +1291,32 @@ function generateBulkPayouts(){
     var amt = _randBetween(mn,mx).toFixed(6);
     payouts.push({id:'pg'+Date.now()+i,username:uname,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date(Date.now()-Math.random()*3600000).toISOString()});
   }
-  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
-  toast('5 random payouts generated!');
-  document.getElementById('admContent').innerHTML=buildPayoutGen();
+  function done(r){
+    toast((r&&r.ok!==false)?'5 payouts generated ✓ Live on site!':'Saved locally','success');
+    document.getElementById('admContent').innerHTML=buildPayoutGen();
+  }
+  if(window.SiteSync){ SiteSync.setGenPayouts(payouts, done); }
+  else { localStorage.setItem('gen_payouts', JSON.stringify(payouts)); done({ok:true}); }
 }
 
 function deleteGenPayout(id){
   var payouts = JSON.parse(localStorage.getItem('gen_payouts')||'[]').filter(function(p){return p.id!==id;});
-  localStorage.setItem('gen_payouts',JSON.stringify(payouts));
-  toast('Payout removed');
-  document.getElementById('admContent').innerHTML=buildPayoutGen();
+  function done(){
+    toast('Payout removed');
+    document.getElementById('admContent').innerHTML=buildPayoutGen();
+  }
+  if(window.SiteSync){ SiteSync.setGenPayouts(payouts, done); }
+  else { localStorage.setItem('gen_payouts', JSON.stringify(payouts)); done(); }
+}
+
+function clearAllGenPayouts(){
+  if(!confirm('Clear all generated payouts?')) return;
+  function done(){
+    toast('All payouts cleared');
+    document.getElementById('admContent').innerHTML=buildPayoutGen();
+  }
+  if(window.SiteSync){ SiteSync.clearGenPayouts(done); }
+  else { localStorage.removeItem('gen_payouts'); done(); }
 }
 
 // ═══════════════════════════════════════════════════════

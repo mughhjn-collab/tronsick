@@ -231,6 +231,38 @@ window.SiteSync = (function(){
     queueSetting: queueSetting,
     flushSettings: flushSettings,
     applySettingsToLocal: applySettingsToLocal,
+    getGenPayouts: function(cb){
+      get('get_gen_payouts', function(r){
+        if(r.ok && r.payouts){
+          try{ localStorage.setItem('gen_payouts', JSON.stringify(r.payouts)); }catch(e){}
+        }
+        if(cb) cb(r);
+      });
+    },
+    addGenPayout: function(payout, cb){
+      post('add_gen_payout', { auth: ADMIN_AUTH, payout: JSON.stringify(payout) }, function(r){
+        if(r.ok && r.payouts){
+          try{ localStorage.setItem('gen_payouts', JSON.stringify(r.payouts)); }catch(e){}
+        }
+        if(cb) cb(r);
+      });
+    },
+    setGenPayouts: function(payouts, cb){
+      post('set_gen_payouts', { auth: ADMIN_AUTH, payouts: JSON.stringify(payouts || []) }, function(r){
+        if(r.ok && r.payouts){
+          try{ localStorage.setItem('gen_payouts', JSON.stringify(r.payouts)); }catch(e){}
+        }
+        if(cb) cb(r);
+      });
+    },
+    clearGenPayouts: function(cb){
+      post('clear_gen_payouts', { auth: ADMIN_AUTH }, function(r){
+        if(r.ok){
+          try{ localStorage.setItem('gen_payouts', '[]'); }catch(e){}
+        }
+        if(cb) cb(r);
+      });
+    },
     getContestEnd: getContestEnd,
     tickContestTimer: tickContestTimer,
     startContestTimer: startContestTimer

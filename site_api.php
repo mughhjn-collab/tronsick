@@ -16,6 +16,7 @@ $usersFile     = $dataDir . '/users.json';
 $antibotFile   = $dataDir . '/antibot.json';
 $contestFile   = $dataDir . '/contest_wagers.json';
 $settingsFile  = $dataDir . '/site_settings.json';
+$payoutsFile   = $dataDir . '/gen_payouts.json';
 
 function readJson($file, $default = []) {
     if (!file_exists($file)) return $default;
@@ -205,6 +206,54 @@ switch ($action) {
             jsonFail('Cannot write site settings. Check data/ folder permissions.');
         }
         echo json_encode(['ok' => true, 'settings' => $data]);
+        break;
+
+    case 'get_gen_payouts':
+        $payouts = readJson($payoutsFile, []);
+        if (!is_array($payouts)) $payouts = [];
+        echo json_encode(['ok' => true, 'payouts' => $payouts]);
+        break;
+
+    case 'add_gen_payout':
+        requireAdmin();
+        $raw = $_POST['payout'] ?? '';
+        $p = json_decode($raw, true);
+        if (!is_array($p) || empty($p['username']) || empty($p['txid'])) {
+            jsonFail('Invalid payout data', 400);
+        }
+        $payouts = readJson($payoutsFile, []);
+        if (!is_array($payouts)) $payouts = [];
+        $payouts[] = [
+            'id'       => $p['id'] ?? ('pg' . time()),
+            'username' => trim($p['username']),
+            'amount'   => (string)$p['amount'],
+            'txid'     => trim($p['txid']),
+            'address'  => trim($p['address'] ?? ''),
+            'date'     => $p['date'] ?? date('c')
+        ];
+        if (!writeJson($payoutsFile, $payouts)) {
+            jsonFail('Cannot write payouts file.');
+        }
+        echo json_encode(['ok' => true, 'payouts' => $payouts]);
+        break;
+
+    case 'set_gen_payouts':
+        requireAdmin();
+        $raw = $_POST['payouts'] ?? '[]';
+        $payouts = json_decode($raw, true);
+        if (!is_array($payouts)) $payouts = [];
+        if (!writeJson($payoutsFile, $payouts)) {
+            jsonFail('Cannot write payouts file.');
+        }
+        echo json_encode(['ok' => true, 'payouts' => $payouts]);
+        break;
+
+    case 'clear_gen_payouts':
+        requireAdmin();
+        if (!writeJson($payoutsFile, [])) {
+            jsonFail('Cannot clear payouts file.');
+        }
+        echo json_encode(['ok' => true, 'payouts' => []]);
         break;
 
     default:

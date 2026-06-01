@@ -250,6 +250,28 @@
       <div class="auth-switch">Already have an account? <button type="button" onclick="switchTab('login')">Log In ?</button></div>
     </form>
 
+    <!-- ---------- STAFF LOGIN (login.php?staff=1 only) ---------- -->
+    <form class="auth-form" id="formStaff" onsubmit="handleStaffLogin(event)">
+      <div class="auth-err" id="staffErr"></div>
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">Staff Access</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.45)">Authorized personnel only. Enter your staff credentials.</div>
+      </div>
+      <div class="ff ff-plain">
+        <label>Username</label>
+        <div class="ff-iw"><input type="text" id="stUser" placeholder="Staff username" autocomplete="username"/></div>
+      </div>
+      <div class="ff">
+        <label>Password</label>
+        <div class="ff-iw">
+          <input type="password" id="stPw" placeholder="Staff password" autocomplete="current-password"/>
+          <button type="button" class="ff-eye" onclick="toggleVis('stPw',this)">??</button>
+        </div>
+      </div>
+      <button type="submit" class="auth-btn" id="staffBtn">STAFF LOGIN</button>
+      <div class="auth-switch"><a href="login.php">? Back to User Login</a></div>
+    </form>
+
   </div>
 </div>
 
@@ -551,6 +573,61 @@ function handleReg(e){
     window.location.href='faucet.php';
   }, 1200);
 }
+
+// -- STAFF LOGIN (?staff=1) -------------------
+function initStaffMode(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('staff') !== '1') return;
+  var tabs = document.querySelector('.auth-tabs');
+  if(tabs) tabs.style.display = 'none';
+  ['formLogin','formReg','formForgot'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.classList.remove('active');
+  });
+  var sf = document.getElementById('formStaff');
+  if(sf) sf.classList.add('active');
+}
+
+function handleStaffLogin(e){
+  e.preventDefault();
+  var err = document.getElementById('staffErr');
+  var btn = document.getElementById('staffBtn');
+  var user = (document.getElementById('stUser').value||'').trim();
+  var pass = document.getElementById('stPw').value||'';
+  err.style.display = 'none';
+  if(!user || !pass){
+    err.style.display = 'block';
+    err.textContent = 'Enter username and password.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  var fd = new FormData();
+  fd.append('user', user);
+  fd.append('pass', pass);
+  fetch('admin_auth.php', { method:'POST', body:fd, credentials:'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(j.ok){
+        localStorage.setItem('adminAuth', btoa(user+':'+Date.now()));
+        localStorage.setItem('adminUser', user);
+        window.location.href = '/admin/dashboard.php';
+      } else {
+        err.style.display = 'block';
+        err.textContent = j.error || 'Invalid credentials.';
+        btn.disabled = false;
+        btn.textContent = 'STAFF LOGIN';
+      }
+    })
+    .catch(function(){
+      err.style.display = 'block';
+      err.textContent = 'Network error. Try again.';
+      btn.disabled = false;
+      btn.textContent = 'STAFF LOGIN';
+    });
+}
+
+initStaffMode();
 </script>
 
 <!-- FOOTER -->
@@ -560,7 +637,7 @@ function handleReg(e){
     <a href="index.php?landing=1#features">Features</a>
     <a href="index.php?landing=1#games">Games</a>
     <a href="index.php?landing=1#faq">FAQ</a>
-    <a href="index.php?landing=1#payouts">Payouts</a>
+    <a href="/payouts.php">Payout Proof</a>
   </div>
   <div class="auth-footer-copy">&copy; 2026 TronSick.io &mdash; Free TRX Faucet &amp; Casino</div>
 </footer>

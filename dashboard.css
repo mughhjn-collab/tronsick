@@ -343,14 +343,17 @@ button{cursor:pointer}
 /* ======= GAME SECTION STATE CONTROL ======= */
 /* Default state: show grid, hide panel */
 #sec-games .game-grid-single,
-#sec-games .game-grid-new { display: grid; }
+#sec-games .game-grid-new,
+#sec-games .game-grid-v4 { display: grid; }
 #sec-games .games-level-bar { display: block; }
 #sec-games .all-bets-section { display: block; }
 #sec-games .game-panel { display: none !important; }
 
 /* game-open state: hide grid + level bar + all-bets, show panel */
 #sec-games.game-open .game-grid-single,
-#sec-games.game-open .game-grid-new { display: none !important; }
+#sec-games.game-open .game-grid-new,
+#sec-games.game-open .game-grid-v4,
+#sec-games.game-open .games-fair-note { display: none !important; }
 #sec-games.game-open .games-level-bar { display: none !important; }
 #sec-games.game-open .all-bets-section { display: none !important; }
 #sec-games.game-open .game-panel { display: block !important; }
@@ -863,6 +866,52 @@ button{cursor:pointer}
 /* Game name label - below card */
 .gc-label2{padding:10px 14px;font-size:13px;font-weight:700;color:rgba(232,240,235,.75);letter-spacing:.3px;background:#0f1520;border-top:1px solid rgba(255,255,255,.06);text-align:left}
 .gc-wrap2:hover .gc-label2{color:#3ecf8e}
+
+/* ══════════════════════════════════════
+   GAME CARDS v4 — Image-style 3x3 grid
+   ══════════════════════════════════════ */
+.games-fair-note{font-size:12px;color:rgba(232,240,235,.45);line-height:1.65;text-align:center;max-width:920px;margin:0 auto 18px;padding:0 12px}
+.game-grid-v4{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:8px 0 20px;max-width:920px;margin:0 auto}
+@media(max-width:768px){.game-grid-v4{grid-template-columns:repeat(2,1fr);gap:10px}}
+@media(max-width:480px){.game-grid-v4{grid-template-columns:repeat(2,1fr);gap:8px}}
+
+.gc-card-v4{border-radius:16px;cursor:pointer;min-height:148px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px 14px 18px;transition:transform .2s,box-shadow .2s;border:2px solid rgba(0,0,0,.15);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.gc-card-v4:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(0,0,0,.4)}
+.gc-icon-v4{font-size:52px;line-height:1;filter:drop-shadow(0 3px 8px rgba(0,0,0,.25))}
+.gc-name-v4{font-size:15px;font-weight:900;color:#fff;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+.gc-v4-purple{background:linear-gradient(145deg,#9b59b6,#7d3c98)}
+.gc-v4-teal{background:linear-gradient(145deg,#1abc9c,#16a085)}
+.gc-v4-cyan{background:linear-gradient(145deg,#3498db,#2980b9)}
+.gc-v4-lavender{background:linear-gradient(145deg,#a29bfe,#6c5ce7)}
+.gc-v4-gold{background:linear-gradient(145deg,#f1c40f,#e67e22)}
+.gc-v4-orange{background:linear-gradient(145deg,#f39c12,#e74c3c)}
+.gc-v4-pink{background:linear-gradient(145deg,#fd79a8,#e84393)}
+.gc-v4-blue{background:linear-gradient(145deg,#3498db,#2c3e50)}
+
+/* Payout proof link on withdraw */
+.wd-proof-link{display:inline-flex;align-items:center;gap:8px;color:#3ecf8e;font-weight:700;font-size:13px;text-decoration:none;padding:10px 16px;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25);border-radius:10px;transition:all .2s}
+.wd-proof-link:hover{background:rgba(62,207,142,.15);transform:translateY(-1px)}
+
+/* Payout proof page */
+.po-wrap{max-width:980px;margin:0 auto;padding:24px 16px 48px}
+.po-hdr{text-align:center;margin-bottom:24px}
+.po-hdr h1{font-size:28px;font-weight:900;color:#fff;margin-bottom:8px}
+.po-hdr p{font-size:14px;color:rgba(232,240,235,.5)}
+.po-live{display:inline-flex;align-items:center;gap:8px;background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.25);color:#3ecf8e;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;margin-top:12px}
+.po-live-dot{width:8px;height:8px;border-radius:50%;background:#3ecf8e;animation:poPulse 1.5s ease-in-out infinite}
+@keyframes poPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.po-tbl-wrap{background:#141c2a;border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden}
+.po-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.po-tbl thead{background:rgba(0,0,0,.25)}
+.po-tbl th{padding:14px 16px;text-align:left;font-size:11px;font-weight:800;color:rgba(232,240,235,.45);text-transform:uppercase;letter-spacing:.5px}
+.po-tbl td{padding:14px 16px;border-top:1px solid rgba(255,255,255,.05);color:rgba(232,240,235,.85)}
+.po-tbl tr:hover td{background:rgba(255,255,255,.02)}
+.po-amt{color:#3ecf8e;font-weight:800;font-family:'JetBrains Mono',monospace}
+.po-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(232,240,235,.45);user-select:all;cursor:default}
+.po-txid a{color:#60a5fa;font-family:'JetBrains Mono',monospace;font-size:11px;text-decoration:none;font-weight:600}
+.po-txid a:hover{text-decoration:underline;color:#93c5fd}
+.po-empty{text-align:center;padding:48px 20px;color:rgba(232,240,235,.35)}
 
 /* Verify button as link */
 .bm-verify-btn{display:inline-block;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#061a0f!important;border:none;border-radius:8px;padding:12px 32px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:all .2s;text-decoration:none!important;margin-top:4px}

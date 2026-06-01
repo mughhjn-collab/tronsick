@@ -726,7 +726,7 @@
       <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 40 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
       <div class="fc"><h4>Account</h4><a href="/settings.php">Settings</a><a href="/withdraw.php">Withdraw</a><a href="/deposit.php">Deposit</a></div>
       <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
-      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="/payouts.php">Payout Proof</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
     <div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
   </footer>

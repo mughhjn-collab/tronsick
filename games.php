@@ -6,7 +6,7 @@
   <title>Games &ndash; TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=17"/>
+  <link rel="stylesheet" href="dashboard.css?v=18"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
@@ -163,77 +163,47 @@
     </div>
 
     <!-- Games Grid -->
-    <div class="game-grid-new" id="gameGrid">
+    <p class="games-fair-note">Every game uses a cryptographic server seed + client seed system. Verify any result independently ? outcomes cannot be manipulated. Every game has just 1% house edge. Earn daily cashback on every bet ? win or lose!</p>
+    <div class="game-grid-v4" id="gameGrid">
 
-      <div class="gc-wrap2" onclick="openGame('dice')" id="gc-dice">
-        <div class="gc-art gc-art-dice">
-          <div class="dice-dots-3d">
-            <span></span><span></span><span></span>
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-        <div class="gc-label2">Dice</div>
+      <div class="gc-card-v4 gc-v4-purple" onclick="openGame('dice')" id="gc-dice">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">DICE</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('limbo')" id="gc-limbo">
-        <div class="gc-art gc-art-limbo">
-          <div class="limbo-rocket-3d">&#x1F680;</div>
-          <div class="limbo-mult-3d">1.00x</div>
-        </div>
-        <div class="gc-label2">Limbo</div>
+      <div class="gc-card-v4 gc-v4-teal" onclick="openGame('mines')" id="gc-mines">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">MINES</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('wheel')" id="gc-wheel">
-        <div class="gc-art gc-art-wheel">
-          <div class="wheel-icon-3d">&#x1F3A1;</div>
-          <div class="wheel-modes-3d"><span>LOW</span><span>MED</span><span>HIGH</span></div>
-        </div>
-        <div class="gc-label2">Wheel</div>
+      <div class="gc-card-v4 gc-v4-cyan" onclick="openGame('tower')" id="gc-tower">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">TOWER</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('mines')" id="gc-mines">
-        <div class="gc-art gc-art-mines">
-          <div class="mines-bomb-3d">&#x1F4A3;</div>
-          <div class="mines-gems-3d">&#x1F48E;&#x1F48E;&#x1F48E;</div>
-        </div>
-        <div class="gc-label2">Mines</div>
+      <div class="gc-card-v4 gc-v4-lavender" onclick="openGame('limbo')" id="gc-limbo">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">LIMBO</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('sicbo')" id="gc-sicbo">
-        <div class="gc-art gc-art-sicbo">
-          <div class="sicbo-dice-3d">&#9861;&#9858;&#9859;</div>
-          <div class="sicbo-tag-3d">SMALL &bull; BIG</div>
-        </div>
-        <div class="gc-label2">Sic Bo</div>
+      <div class="gc-card-v4 gc-v4-gold" onclick="openGame('diamond')" id="gc-diamond">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">DIAMOND</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('diamond')" id="gc-diamond">
-        <div class="gc-art gc-art-diamond">
-          <div class="diamond-gems-3d">&#9830;&#9830;&#9830;</div>
-          <div class="diamond-mult-3d">40.00x</div>
-        </div>
-        <div class="gc-label2">Diamond</div>
+      <div class="gc-card-v4 gc-v4-orange" onclick="openGame('wheel')" id="gc-wheel">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">WHEEL</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('tower')" id="gc-tower">
-        <div class="gc-art gc-art-tower">
-          <div class="tower-icon-3d">&#x1F3D7;</div>
-          <div class="tower-diff-3d">EASY &bull; HARD</div>
-        </div>
-        <div class="gc-label2">Tower</div>
+      <div class="gc-card-v4 gc-v4-pink" onclick="openGame('sicbo')" id="gc-sicbo">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">SIC BO</div>
       </div>
 
-      <div class="gc-wrap2" onclick="openGame('coinflip')" id="gc-coinflip">
-        <div class="gc-art gc-art-coinflip">
-          <div class="cf-coin-3d-art">
-            <div class="cf-coin-inner">
-              <div class="cf-coin-face cf-coin-h">H</div>
-              <div class="cf-coin-face cf-coin-t">T</div>
-            </div>
-          </div>
-          <div class="cf-card-label">HEAD &bull; TAIL</div>
-        </div>
-        <div class="gc-label2">Coin Flip</div>
+      <div class="gc-card-v4 gc-v4-blue" onclick="openGame('coinflip')" id="gc-coinflip">
+        <div class="gc-icon-v4">??</div>
+        <div class="gc-name-v4">COIN FLIP</div>
       </div>
 
     </div>
@@ -743,7 +713,7 @@
       <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 40 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
       <div class="fc"><h4>Account</h4><a href="/settings.php">Settings</a><a href="/withdraw.php">Withdraw</a><a href="/deposit.php">Deposit</a></div>
       <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
-      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="/payouts.php">Payout Proof</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
     <div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
   </footer>
