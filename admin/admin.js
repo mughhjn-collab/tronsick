@@ -108,6 +108,7 @@ function showSection(btn,sec){
     if(sec==='contest') setTimeout(function(){ buildAdmContestLb(); }, 50);
   }
   if(sec==='dashboard') refreshServerUserCount();
+  if(sec==='users') refreshServerUsers();
 }
 
 function doLogout(){
@@ -116,6 +117,47 @@ function doLogout(){
     localStorage.removeItem(k);
   });
   window.location.href = '/panel-login.php';
+}
+
+function refreshServerUsers(){
+  if(!window.SiteSync){ rebuildUserTable(); return; }
+  SiteSync.getUsers(function(r){
+    if(r && r.users && r.users.length > 0){
+      // Merge server users with local
+      var serverUsers = r.users;
+      var localUsers = JSON.parse(localStorage.getItem('adm_users')||'[]');
+      serverUsers.forEach(function(su){
+        if(!localUsers.find(function(lu){return lu.name===su.name||lu.id===su.id;})){
+          localUsers.push(su);
+        }
+      });
+      S.users = localUsers;
+      localStorage.setItem('adm_users', JSON.stringify(localUsers));
+    }
+    rebuildUserTable();
+  });
+}
+
+function rebuildUserTable(){
+  var tbody = document.getElementById('userTbody');
+  if(!tbody) return;
+  var users = JSON.parse(localStorage.getItem('adm_users')||'[]');
+  if(!users.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No registered users yet.</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u){
+    return '<tr>'+
+    '<td><strong>'+u.name+'</strong></td>'+
+    '<td style="color:rgba(255,255,255,.6)">'+(u.email||'-')+'</td>'+
+    '<td style="color:#3ecf8e;font-weight:700">'+parseFloat(u.balance||0).toFixed(4)+' TRX</td>'+
+    '<td><span class="tbl-badge '+(u.banned?'tbl-red':'tbl-green')+'">'+(u.banned?'🔴 Banned':'🟢 Active')+'</span></td>'+
+    '<td>'+new Date(u.joined||Date.now()).toLocaleDateString()+'</td>'+
+    '<td style="white-space:nowrap">'+
+    '<button class="btn btn-sm btn-primary" onclick="editUserModal(''+u.id+'')"><i class="fas fa-edit"></i> Edit</button> '+
+    '<button class="btn btn-sm '+(u.banned?'btn-success':'btn-danger')+'" onclick="banUser(''+u.id+'')"><i class="fas fa-'+(u.banned?'unlock':'ban')+'"></i> '+(u.banned?'Unban':'Ban')+'</button>'+
+    '</td></tr>';
+  }).join('');
+  // Update count badge
+  var badge = document.querySelector('.badge-blue');
+  if(badge) badge.textContent = users.length + ' Total';
 }
 
 function save(key,val){
@@ -1243,9 +1285,10 @@ function buildPayoutGen(){
     '<div class="adm-alert" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#f59e0b;margin-bottom:16px"><i class="fas fa-circle-info"></i> Generate payouts here first. They go live on site only after you click <strong>Save Live to Site</strong>.</div>'+
     '<div class="form-row">'+
     '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
-    '<div class="form-group"><label><i class="fas fa-coins"></i> Min Amount (TRX)</label><input type="number" id="pgMin" value="10" min="0.000001" step="0.000001"/></div>'+
-    '<div class="form-group"><label><i class="fas fa-coins"></i> Max Amount (TRX)</label><input type="number" id="pgMax" value="100" min="0.000001" step="0.000001"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Amount (TRX)</label><input type="number" id="pgAmt" value="10" min="0.000001" step="0.000001" placeholder="Exact TRX amount"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-wallet"></i> Recipient Address</label><input type="text" id="pgAddr" placeholder="TXXX... (TRX wallet address)"/></div>'+
     '</div>'+
+    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-link"></i> Real TxID <span style="color:#f59e0b;font-size:11px">(Copy from TronScan/your wallet — must be a real 64-char hash)</span></label><input type="text" id="pgTxid" placeholder="e.g. a1b2c3d4e5f6... (64 hex characters)" style="font-family:monospace;font-size:12px"/></div>'+
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
     '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
     '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
@@ -1294,12 +1337,13 @@ function _randBetween(min,max){ return (Math.random()*(max-min)+min); }
 
 function generateOnePayout(){
   var user = (document.getElementById('pgUser').value||'').trim();
-  var mn = parseFloat(document.getElementById('pgMin').value)||10;
-  var mx = parseFloat(document.getElementById('pgMax').value)||100;
+  var amt = parseFloat(document.getElementById('pgAmt')?document.getElementById('pgAmt').value:document.getElementById('pgMin')?document.getElementById('pgMin').value:10)||10;
+  var txid = (document.getElementById('pgTxid')?document.getElementById('pgTxid').value:'').trim();
+  var addr = (document.getElementById('pgAddr')?document.getElementById('pgAddr').value:'').trim()||_randTronAddr();
   if(!user){toast('Enter a username','error');return;}
-  if(mn>mx){toast('Min must be <= Max','error');return;}
-  var amt = _randBetween(mn,mx).toFixed(6);
-  var p = {id:'pg'+Date.now(),username:user,amount:amt,txid:_randTxid(),address:_randTronAddr(),date:new Date().toISOString()};
+  if(!txid||txid.length<60){toast('❌ Enter a real 64-char TxID from your TRX wallet!','error');return;}
+  if(!addr.startsWith('T')){toast('Enter a valid TRX address (starts with T)','error');return;}
+  var p = {id:'pg'+Date.now(),username:user,amount:amt.toFixed(6),txid:txid,address:addr,date:new Date().toISOString()};
   var payouts = _getPayoutDraft();
   payouts.push(p);
   _savePayoutDraft(payouts);
