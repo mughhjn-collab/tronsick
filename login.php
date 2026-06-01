@@ -461,15 +461,12 @@ function handleLogin(e){
     });
   } else {
     // Extra admin block at handleLogin level
-    var _adminUser = localStorage.getItem('adminUser') || 'admin';
-    var _uname0 = id.includes('@') ? id.split('@')[0] : id;
-    if(_uname0.toLowerCase() === _adminUser.toLowerCase()){
-      err.style.display='block';
-      err.textContent='Invalid username or password.';
-      btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false;
-      return;
-    }
-    setTimeout(function(){ doLoginFinish(id, pw, btn); }, 1200);
+  // Block admin username - redirect to admin login page instead
+  var _adminUser2 = localStorage.getItem('adminUser') || 'admin';
+  if(_uname0.toLowerCase() === _adminUser2.toLowerCase()){
+    showErr('Use <a href="/panel-login.php" style="color:#3ecf8e">Admin Login</a> for admin access.');
+    if(btn){ btn.disabled=false; btn.textContent='LOGIN'; }
+    return; // STOP - never call doLoginFinish for admin
   }
 }
 function doLoginFinish(id, pw_input, btn){

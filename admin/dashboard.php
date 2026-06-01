@@ -13,4 +13,4 @@
     localStorage.setItem('adminAuthTime', String(Date.now()));
   }
 })();
-</script><script src="../site_sync.js?v=6"></script><script src="admin.js"></script></body></html>
+</script><!-- site_sync.js removed from admin panel --><script src="admin.js"></script></body></html>
