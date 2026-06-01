@@ -184,7 +184,11 @@ function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0')
 // ── END BALANCE HELPERS ──
 document.addEventListener('DOMContentLoaded',()=>{
 // deposit address is loaded by initDeposit() via OxaPay API
-const aff=document.getElementById('affLink');if(aff)aff.value='https://tronsick.io/ref/'+Math.random().toString(36).substr(2,8);
+// Referral link uses USERNAME - format: https://tronsick.io/?ref=USERNAME
+const _refUname = localStorage.getItem('userName') || '';
+const aff=document.getElementById('affLink');
+if(aff && _refUname) aff.value='https://tronsick.io/?ref='+_refUname;
+else if(aff) aff.value='https://tronsick.io/?ref='+(_refUname||'');
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
 if(window.SiteSync){
