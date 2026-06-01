@@ -1,4 +1,4 @@
-﻿// TronSick Admin Panel v2.2 — 2026-05-31T14:57:19.268Z — 2026-05-31 06:44
+// TronSick Admin Panel v2.2 — 2026-05-31T14:57:19.268Z — 2026-05-31 06:44
 
 // Auth guard — redirect to staff login (NOT /admin/ which is blocked)
 (function(){
@@ -170,20 +170,21 @@ function editUserModal(uid){
   if(existing) existing.remove();
   var modal = document.createElement('div');
   modal.id = '_editUserModal';
+  modal.className = 'eu-modal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
   modal.innerHTML = '<div style="background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:480px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.6)">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">'+
     '<div style="font-size:16px;font-weight:800;color:#fff"><i class="fas fa-user-edit" style="color:#3ecf8e;margin-right:8px"></i>Edit User: <span style="color:#3ecf8e">'+u.name+'</span></div>'+
-    '<button onclick="document.getElementById('_editUserModal').remove()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">&times;</button>'+
+    '<button onclick="document.getElementById(\'_editUserModal\').remove()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px">&times;</button>'+
     '</div>'+
-    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:16px;font-size:12px"><i class="fas fa-circle-info"></i> Balance will be saved to server and reflected in user's account.</div>'+
+    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:16px;font-size:12px"><i class="fas fa-circle-info"></i> Balance will be saved to server and reflected in user\'s account.</div>'+
     '<div class="form-group" style="margin-bottom:14px"><label style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);display:block;margin-bottom:6px">Current Balance (TRX)</label>'+
     '<input type="number" id="_euBal" value="'+parseFloat(u.balance||0).toFixed(6)+'" step="0.000001" min="0" style="width:100%;background:#0a0f1a;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:15px;font-weight:700;color:#3ecf8e"/></div>'+
     '<div class="form-group" style="margin-bottom:14px"><label style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);display:block;margin-bottom:6px">Email</label>'+
     '<input type="email" id="_euEmail" value="'+(u.email||'')+'" style="width:100%;background:#0a0f1a;border:1.5px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px"/></div>'+
     '<div style="display:flex;gap:10px;margin-top:20px">'+
-    '<button onclick="saveUserEdit(''+uid+'')" class="btn btn-primary" style="flex:1"><i class="fas fa-save"></i> Save Changes</button>'+
-    '<button onclick="document.getElementById('_editUserModal').remove()" class="btn btn-secondary">Cancel</button>'+
+    '<button onclick="saveUserEdit(\''+uid+'\')" class="btn btn-primary" style="flex:1"><i class="fas fa-save"></i> Save Changes</button>'+
+    '<button onclick="document.getElementById(\'_editUserModal\').remove()" class="btn btn-secondary">Cancel</button>'+
     '</div></div>';
   document.body.appendChild(modal);
 }
@@ -230,7 +231,7 @@ function banUser(uid){
   u.banned = !u.banned;
   localStorage.setItem('adm_users', JSON.stringify(users));
   S.users = users;
-  toast(u.name+(u.banned?' banned'>' unbanned'));
+  toast(u.name+(u.banned?' banned':' unbanned'));
   rebuildUserTable();
 }
 
