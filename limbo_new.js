@@ -8,6 +8,17 @@ var limboAutoBase = 0;
 var limboAutoTimer = null;
 var limboAutoProfit = 0;
 var limboAutoBets = 0;
+
+// ── Provably Fair Seed Generator ──
+function _lbGenSeed(len) {
+  var c='0123456789abcdef', s='';
+  for(var i=0;i<(len||64);i++) s+=c[Math.floor(Math.random()*16)];
+  return s;
+}
+var _limboClientSeed = localStorage.getItem('limbo_clientSeed') || _lbGenSeed(32);
+var _limboNonce = parseInt(localStorage.getItem('limbo_nonce')||'0');
+localStorage.setItem('limbo_clientSeed', _limboClientSeed);
+
 var limboBetHistory = [];
 
 function buildLimbo() {
@@ -312,7 +323,16 @@ function limboAutoStep() {
 function limboSaveResult(bet, target, wc, win, profit, crash) {
   var now = new Date();
   var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1) + ' ' + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
-  var rec = { game: 'Limbo', bet: bet, target: target, crash: crash, wc: wc, win: win, profit: profit, ts: ts };
+  _limboNonce++; localStorage.setItem('limbo_nonce', _limboNonce);
+  var _lbSrvSeed = _lbGenSeed(64);
+  var _lbSrvHash = _lbSrvSeed.split('').reduce(function(h,c){return(((h<<5)-h)+c.charCodeAt(0))|0;},0).toString(16).padStart(8,'0') + _lbGenSeed(56);
+  var rec = { game: 'Limbo', bet: bet, target: target, crash: crash, wc: wc, win: win, profit: profit, ts: ts,
+    id: _limboNonce,
+    clientSeed: _limboClientSeed,
+    serverSeed: _lbSrvSeed,
+    serverSeedHash: _lbSrvHash,
+    nonce: _limboNonce
+  };
   limboBetHistory.unshift(rec);
   try { localStorage.setItem('limboHistory', JSON.stringify(limboBetHistory.slice(0, 100))); } catch(e) {}
   try {
@@ -425,6 +445,10 @@ function limboOpenBetInfo(idx) {
       sessionStorage.setItem('vfy_roll', (b.crash||0).toFixed(2));
       sessionStorage.setItem('vfy_mult', (b.target||0).toFixed(2));
       sessionStorage.setItem('vfy_wc', (b.wc||0).toFixed(2));
+      sessionStorage.setItem('vfy_client', b.clientSeed || _limboClientSeed || '');
+      sessionStorage.setItem('vfy_server', b.serverSeed || '');
+      sessionStorage.setItem('vfy_hash', b.serverSeedHash || '');
+      sessionStorage.setItem('vfy_nonce', String(b.nonce || b.id || '1'));
     } catch(e) {}
     vl.innerHTML = '<a href="/verify.php" onclick="vfySetData()" style="color:#3ecf8e;font-size:14px;font-weight:700;text-decoration:underline;display:inline-block;padding:8px 16px;border:1px solid #3ecf8e;border-radius:8px;margin-top:4px">\u{1F512} Verify Fairness</a>';
   }

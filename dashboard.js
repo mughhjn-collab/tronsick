@@ -292,7 +292,11 @@ var _ab={
   ab3CycleTarget:0,     // losses required before next win in this cycle
   ab3Phase:'initial',   // 'initial' | 'cycle'
   ab3LastPayout:0,      // last payout multiplier (detect change)
-  ab3WinCount:0         // total wins in this session (for cycle randomness)
+  ab3WinCount:0,        // total wins in this session (for cycle randomness)
+  // AB4: low payout (1.01x-2x)
+  ab4WinCount:0,        // wins so far in this streak
+  ab4WinTarget:0,       // how many wins before next forced loss
+  ab4LastPayout:0       // last payout in ab4 range
 };
 
 /**
@@ -362,6 +366,8 @@ function _abCheckWin(betAmt, winPct, payout){
   var ab2Amt    = parseFloat(_getAb('ab2_amount','0'));
   var ab2Wins   = parseInt(_getAb('ab2_wins','6'));
   var ab3On     = _getAb('ab3_on','0')==='1';
+  // AB4 piggybacks on AB3 being enabled — applies to low payout range 1.01x-2x
+  var ab4On     = ab3On; // same toggle as AB3
 
   var amtMatch1 = ab1On && _abAmtMatch(betAmt, ab1Amt);
   var amtMatch2 = ab2On && _abAmtMatch(betAmt, ab2Amt);
@@ -484,6 +490,25 @@ function _abCheckWin(betAmt, winPct, payout){
     _ab.ab3LastBet = 0;
     _ab.ab3LastPayout = 0;
   }
+
+  // ANTIBOT 4: Low Payout Control (1.01x - 2.99x)
+  if(ab4On && payout >= 1.01 && payout < 3){
+    if(_ab.ab4LastPayout > 0 && Math.abs(payout - _ab.ab4LastPayout) > 0.15){
+      _ab.ab4WinCount = 0; _ab.ab4WinTarget = 0;
+    }
+    _ab.ab4LastPayout = payout;
+    _ab.ab4WinCount++;
+    if(_ab.ab4WinTarget <= 0){
+      _ab.ab4WinTarget = (payout < 1.11) ? (10 + Math.floor(Math.random()*11)) : (3 + Math.floor(Math.random()*6));
+    }
+    if(_ab.ab4WinCount >= _ab.ab4WinTarget){
+      _ab.ab4WinCount = 0;
+      _ab.ab4WinTarget = (payout < 1.11) ? (10 + Math.floor(Math.random()*11)) : (3 + Math.floor(Math.random()*6));
+      return false;
+    }
+    return true;
+  }
+  if(payout < 1.01 || payout >= 3){ _ab.ab4WinCount=0; _ab.ab4WinTarget=0; _ab.ab4LastPayout=0; }
 
   // ── ANTIBOT 1 ──
   if(ab1On){

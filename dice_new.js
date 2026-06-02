@@ -9,6 +9,17 @@ var diceAutoBase = 0;
 var diceAutoTimer = null;
 var diceAutoProfit = 0;
 var diceAutoBets = 0;
+
+// ── Provably Fair Seed Generator ──
+function _genSeed(len) {
+  var c='0123456789abcdef', s='';
+  for(var i=0;i<(len||64);i++) s+=c[Math.floor(Math.random()*16)];
+  return s;
+}
+var _diceClientSeed = localStorage.getItem('dice_clientSeed') || _genSeed(32);
+var _diceNonce = parseInt(localStorage.getItem('dice_nonce')||'0');
+localStorage.setItem('dice_clientSeed', _diceClientSeed);
+
 var diceBetHistory = [];
 
 function buildDice() {
@@ -378,7 +389,16 @@ function diceShowRollPoint(roll, win) {
 function diceSaveResult(bet, mult, wc, win, profit, roll) {
   var now = new Date();
   var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1) + ' ' + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
-  var rec = { game: 'Dice', bet: bet, mult: mult, wc: wc, win: win, profit: profit, roll: roll, ts: ts };
+  _diceNonce++; localStorage.setItem('dice_nonce', _diceNonce);
+  var _diceSrvSeed = _genSeed(64);
+  var _diceSrvHash = _diceSrvSeed.split('').reduce(function(h,c){return(((h<<5)-h)+c.charCodeAt(0))|0;},0).toString(16).padStart(8,'0') + _genSeed(56);
+  var rec = { game: 'Dice', bet: bet, mult: mult, wc: wc, win: win, profit: profit, roll: roll, ts: ts,
+    id: _diceNonce,
+    clientSeed: _diceClientSeed,
+    serverSeed: _diceSrvSeed,
+    serverSeedHash: _diceSrvHash,
+    nonce: _diceNonce
+  };
   diceBetHistory.unshift(rec);
   try { localStorage.setItem('diceHistory', JSON.stringify(diceBetHistory.slice(0, 100))); } catch(e) {}
   try {
@@ -493,6 +513,10 @@ function diceOpenBetInfo(idx) {
       sessionStorage.setItem('vfy_roll', (b.roll||0).toFixed(2));
       sessionStorage.setItem('vfy_mult', (b.mult||0).toFixed(2));
       sessionStorage.setItem('vfy_wc', (b.wc||0).toFixed(2));
+      sessionStorage.setItem('vfy_client', b.clientSeed || _diceClientSeed || '');
+      sessionStorage.setItem('vfy_server', b.serverSeed || '');
+      sessionStorage.setItem('vfy_hash', b.serverSeedHash || '');
+      sessionStorage.setItem('vfy_nonce', b.nonce || b.id || '0');
     } catch(e) {}
     vl.innerHTML = '<a href="/verify.php" onclick="vfySetData()" style="color:#3ecf8e;font-size:14px;font-weight:700;text-decoration:underline;display:inline-block;padding:8px 16px;border:1px solid #3ecf8e;border-radius:8px;margin-top:4px">\u{1F512} Verify Fairness</a>';
   }

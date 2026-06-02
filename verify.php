@@ -47,30 +47,64 @@ body{font-family:'Inter',sans-serif;background:#0f1520;color:#e8f0eb;min-height:
 </div>
 <script>
 var p=new URLSearchParams(window.location.search);
-var game=p.get('game')||'';
-var win=p.get('win')==='1';
-var profit=parseFloat(p.get('profit')||0);
-var bet=parseFloat(p.get('bet')||0);
-var seed=p.get('seed')||'';
-var hash=p.get('hash')||'';
-var client=p.get('client')||'';
-var nonce=p.get('nonce')||'0';
-var gameLabels={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#9861; Sic Bo',diamond:'&#9830; Diamond',tower:'Tower',coinflip:'Coin Flip'};
 
-var gameName=gameLabels[game]||game||'Game';
+// ── Load from sessionStorage first (set by game's Bet Info modal) ──
+var ss = {};
+try {
+  ss.game    = sessionStorage.getItem('vfy_game') || '';
+  ss.win     = sessionStorage.getItem('vfy_win') === '1';
+  ss.bet     = parseFloat(sessionStorage.getItem('vfy_bet') || 0);
+  ss.profit  = parseFloat(sessionStorage.getItem('vfy_profit') || 0);
+  ss.roll    = parseFloat(sessionStorage.getItem('vfy_roll') || 0);
+  ss.mult    = parseFloat(sessionStorage.getItem('vfy_mult') || 0);
+  ss.wc      = parseFloat(sessionStorage.getItem('vfy_wc') || 0);
+  ss.client  = sessionStorage.getItem('vfy_client') || '';
+  ss.server  = sessionStorage.getItem('vfy_server') || '';
+  ss.hash    = sessionStorage.getItem('vfy_hash') || '';
+  ss.nonce   = sessionStorage.getItem('vfy_nonce') || '1';
+} catch(e) {}
+
+var game   = ss.game || p.get('game') || '';
+var win    = ss.game ? ss.win : p.get('win')==='1';
+var profit = ss.game ? ss.profit : parseFloat(p.get('profit')||0);
+var bet    = ss.game ? ss.bet : parseFloat(p.get('bet')||0);
+var seed   = ss.server || p.get('seed') || '';
+var hash   = ss.hash   || p.get('hash') || '';
+var client = ss.client || p.get('client') || '';
+var nonce  = ss.nonce  || p.get('nonce') || '1';
+var roll   = ss.roll   || parseFloat(p.get('roll')||0);
+var mult   = ss.mult   || parseFloat(p.get('mult')||0);
+var wc     = ss.wc     || parseFloat(p.get('wc')||0);
+
+var gameLabels={dice:'&#127922; Dice',limbo:'&#128640; Limbo',wheel:'&#127905; Wheel',mines:'&#128163; Mines',sicbo:'&#9861; Sic Bo',diamond:'&#9830; Diamond',tower:'Tower',coinflip:'Coin Flip'};
+var gameName = gameLabels[game.toLowerCase()] || game || 'Game';
 
 // Extra params per game
 var extraInfo='';
-if(game==='sicbo'){var sm=parseFloat(p.get('sum')||0);extraInfo='<div class="vf-row"><div class="vf-lbl">Dice Sum</div><div class="vf-val">'+sm+'</div></div>';}
-if(game==='tower'){var mode=p.get('mode')||'';extraInfo='<div class="vf-row"><div class="vf-lbl">Difficulty</div><div class="vf-val">'+mode+'</div></div>';}
-if(game==='mines'){var mines=p.get('mines')||'';var picks=p.get('picks')||'';extraInfo='<div class="vf-row"><div class="vf-lbl">Mines / Picks</div><div class="vf-val">'+mines+' mines / '+picks+' picks</div></div>';}
+if(game.toLowerCase()==='sicbo'){var sm=parseFloat(p.get('sum')||0);extraInfo='<div class="vf-row"><div class="vf-lbl">Dice Sum</div><div class="vf-val">'+sm+'</div></div>';}
+if(game.toLowerCase()==='tower'){var mode=p.get('mode')||'';extraInfo='<div class="vf-row"><div class="vf-lbl">Difficulty</div><div class="vf-val">'+mode+'</div></div>';}
+if(game.toLowerCase()==='mines'){var mines=p.get('mines')||'';var picks=p.get('picks')||'';extraInfo='<div class="vf-row"><div class="vf-lbl">Mines / Picks</div><div class="vf-val">'+mines+' mines / '+picks+' picks</div></div>';}
+if(game.toLowerCase()==='dice'||game.toLowerCase()==='limbo'){
+  extraInfo+='<div class="vf-row"><div class="vf-lbl">Roll Result</div><div class="vf-val">'+roll.toFixed(2)+'</div></div>';
+  extraInfo+='<div class="vf-row"><div class="vf-lbl">Payout Multiplier</div><div class="vf-val">'+mult.toFixed(2)+'x</div></div>';
+  extraInfo+='<div class="vf-row"><div class="vf-lbl">Win Chance</div><div class="vf-val">'+wc.toFixed(2)+'%</div></div>';
+}
 
-// Use localStorage dice data if game=dice and no URL params
+// Fallback: localStorage dice data
 var lsData=null;
-if(game==='dice'||game===''){try{lsData=JSON.parse(localStorage.getItem('dgVerifyData'));}catch(e){}}
+if((game==='dice'||game==='') && !ss.game){try{lsData=JSON.parse(localStorage.getItem('dgVerifyData'));}catch(e){}}
 if(lsData&&lsData.bet){win=lsData.bet.win;profit=lsData.bet.profit;bet=lsData.bet.bet;seed=lsData.serverSeed||seed;hash=lsData.serverSeedHash||hash;client=lsData.clientSeed||client;nonce=(lsData.bet.id||nonce);}
 
+// If no data at all, show helpful message
+if(!ss.game && !lsData && !p.get('game')) {
+  document.getElementById('resultCard').innerHTML = '<div class="vf-hd">No Bet Data</div><p style="color:rgba(255,255,255,.5);font-size:14px;text-align:center;padding:20px">Open a game, place a bet, click <strong>Bet Info</strong>, then click <strong>Verify Fairness</strong>.</p>';
+  document.getElementById('seedCard').innerHTML = '';
+  // Don't render below
+  document.currentScript && (document.currentScript._skip = true);
+}
+
 // Result card
+if(ss.game || lsData || p.get('game')) {
 var profitStr=(profit>=0?'+':'')+profit.toFixed(6)+' TRX';
 document.getElementById('resultCard').innerHTML=
 '<div class="vf-hd">'+gameName+' &mdash; Bet Result</div>'+
@@ -84,11 +118,15 @@ document.getElementById('resultCard').innerHTML=
 // Seed card
 document.getElementById('seedCard').innerHTML=
 '<div class="vf-hd">Seed Information</div>'+
-'<div class="vf-row"><div class="vf-lbl">Client Seed</div><div class="vf-val">'+client+'</div></div>'+
-'<div class="vf-row"><div class="vf-lbl">Server Seed Hash</div><div class="vf-val gold">'+hash+'</div></div>'+
-'<div class="vf-row"><div class="vf-lbl">Server Seed (revealed)</div><div class="vf-val">'+seed+'</div></div>'+
+'<div class="vf-row"><div class="vf-lbl">Client Seed</div><div class="vf-val">'+(client||'—')+'</div></div>'+
+'<div class="vf-row"><div class="vf-lbl">Server Seed Hash</div><div class="vf-val gold">'+(hash||'—')+'</div></div>'+
+'<div class="vf-row"><div class="vf-lbl">Server Seed (revealed)</div><div class="vf-val">'+(seed||'—')+'</div></div>'+
 extraInfo+
 '<div class="vf-notice">&#128274; The server seed was committed BEFORE your bet was placed. The hash proves the seed was not changed after your bet.</div>';
+}
+
+// Seed card rendered above with resultCard
+}
 </script>
 </body>
 </html>
