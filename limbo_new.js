@@ -330,9 +330,15 @@ function limboRenderMyBets() {
   if(!limboBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Press BET to start!</div>'; return; }
   var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Target</th><th>Result</th><th>Profit</th></tr></thead><tbody>';
   limboBetHistory.slice(0, 50).forEach(function(b, i) {
-    var cls = b.win ? 'tp-win' : 'tp-lose';
-    var p = (b.profit >= 0 ? '+' : '') + b.profit.toFixed(6);
-    h += '<tr style="cursor:pointer" onclick="limboOpenBetInfo(' + i + ')" title="Click for Bet Info"><td>' + b.ts + '</td><td>\u{1F680} Limbo</td><td>' + b.bet.toFixed(6) + '</td><td>' + b.target.toFixed(2) + 'x</td><td class="' + cls + '">' + b.crash.toFixed(2) + 'x</td><td class="' + cls + '">' + p + '</td></tr>';
+    try {
+      var cls = b.win ? 'tp-win' : 'tp-lose';
+      var profit = parseFloat(b.profit) || 0;
+      var bet = parseFloat(b.bet) || 0;
+      var target = parseFloat(b.target) || 0;
+      var crash = parseFloat(b.crash) || 0;
+      var p = (profit >= 0 ? '+' : '') + profit.toFixed(6);
+      h += '<tr style="cursor:pointer" onclick="limboOpenBetInfo(' + i + ')" title="Click for Bet Info"><td>' + (b.ts||'') + '</td><td>\u{1F680} Limbo</td><td>' + bet.toFixed(6) + '</td><td>' + target.toFixed(2) + 'x</td><td class="' + cls + '">' + crash.toFixed(2) + 'x</td><td class="' + cls + '">' + p + '</td></tr>';
+    } catch(er) {}
   });
   h += '</tbody></table>';
   list.innerHTML = h;

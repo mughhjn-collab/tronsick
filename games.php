@@ -744,12 +744,12 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<link rel="stylesheet" href="games_tp.css?v=7">
+<link rel="stylesheet" href="games_tp.css?v=8">
 <script src="site_sync.js?v=4"></script>
 <script src="dashboard.js?v=25"></script>
-<script src="dice_new.js?v=7"></script>
-<script src="limbo_new.js?v=7"></script>
-<script src="lucky_draw.js?v=1"></script>
+<script src="dice_new.js?v=8"></script>
+<script src="limbo_new.js?v=8"></script>
+<script src="lucky_draw.js?v=2"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
@@ -761,7 +761,7 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
 <!-- LUCKY DRAW MODAL -->
 <div id="luckyDrawModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);align-items:center;justify-content:center;overflow-y:auto">
   <div style="background:linear-gradient(135deg,#0d2137 0%,#0a1628 100%);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px 24px;max-width:480px;width:95%;margin:20px auto;position:relative">
-    <button onclick="document.getElementById('luckyDrawModal').style.display='none'" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:20px">&#215;</button>
+    <button onclick="document.getElementById('luckyDrawModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:#e74c3c;border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:22px;font-weight:900;line-height:1;z-index:10">&#215;</button>
     <div style="text-align:center;margin-bottom:20px">
       <div style="font-size:40px">&#127381;</div>
       <h2 style="color:#3ecf8e;font-size:22px;margin:6px 0">Lucky Draw</h2>
@@ -779,10 +779,8 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
       <div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:10px;padding:14px;margin-bottom:16px">
         <div style="color:#3ecf8e;font-weight:700;font-size:13px;margin-bottom:8px">&#127381; FREE DRAW — 1 Time Only</div>
         <div style="color:rgba(232,240,235,.75);font-size:12px;line-height:1.6">
-          Spin once for free! Possible prizes:<br>
-          &#129695; <b style="color:#a0aab0">Iron Level</b> — upgrade your account level<br>
-          &#128176; <b style="color:#3ecf8e">0.05 TRX</b> — added to your balance<br>
-          <span style="color:rgba(232,240,235,.4);font-size:11px">(Other slots shown for display only)</span>
+          Spin once for free!<br>
+          You will win a <b style="color:#3ecf8e">random prize</b> — either <b style="color:#a0aab0">Iron Level upgrade</b> or <b style="color:#3ecf8e">0.05 TRX</b> added to balance.
         </div>
       </div>
       <div id="ldFreeStatus" style="text-align:center;margin-bottom:14px;font-size:13px"></div>

@@ -397,10 +397,15 @@ function diceRenderMyBets() {
   if(!diceBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Roll to start!</div>'; return; }
   var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
   diceBetHistory.slice(0, 50).forEach(function(b, i) {
-    var m = b.win ? b.mult.toFixed(2) + 'x' : '0.00x';
-    var p = (b.profit >= 0 ? '+' : '') + b.profit.toFixed(6);
-    var cls = b.win ? 'tp-win' : 'tp-lose';
-    h += '<tr><td>' + b.ts + '</td><td>🎲 Dice</td><td>' + b.bet.toFixed(6) + '</td><td class="' + cls + '">' + m + '</td><td class="' + cls + '">' + p + '</td></tr>';
+    try {
+      var mult = parseFloat(b.mult) || 0;
+      var profit = parseFloat(b.profit) || 0;
+      var bet = parseFloat(b.bet) || 0;
+      var m = b.win ? mult.toFixed(2) + 'x' : '0.00x';
+      var p = (profit >= 0 ? '+' : '') + profit.toFixed(6);
+      var cls = b.win ? 'tp-win' : 'tp-lose';
+      h += '<tr style="cursor:pointer" onclick="diceOpenBetInfo(' + i + ')" title="Click for Bet Info"><td>' + (b.ts||'') + '</td><td>\u{1F3B2} Dice</td><td>' + bet.toFixed(6) + '</td><td class="' + cls + '">' + m + '</td><td class="' + cls + '">' + p + '</td></tr>';
+    } catch(er) {}
   });
   h += '</tbody></table>';
   list.innerHTML = h;
