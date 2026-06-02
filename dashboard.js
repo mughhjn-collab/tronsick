@@ -748,8 +748,8 @@ if(sec)sec.classList.add('game-open');
 // Build game UI
 var frame=document.getElementById('gameFrame');
 if(!frame)return;
-if(name==='dice'){frame.innerHTML=buildDiceUI();initDice();}
-else if(name==='limbo'){frame.innerHTML=buildLimboUI();initLimbo();}
+if(name==='dice'){frame.innerHTML='';if(typeof buildDice==='function')buildDice();else frame.innerHTML='<div style="color:red;padding:20px">Dice not loaded</div>';}
+else if(name==='limbo'){frame.innerHTML='';if(typeof buildLimbo==='function')buildLimbo();else frame.innerHTML='<div style="color:red;padding:20px">Limbo not loaded</div>';}
 else if(name==='wheel'){frame.innerHTML=buildWheelUI();initWheel();}
 else if(name==='mines'){frame.innerHTML=buildMinesUI();initMines();}
 else if(name==='diamond'){frame.innerHTML=buildDiamondUI();initDiamond();}
