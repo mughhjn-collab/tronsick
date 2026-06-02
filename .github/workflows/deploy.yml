@@ -1,4 +1,4 @@
-name: Deploy to Hostinger via FTP
+name: Deploy to Hostinger via FTPS
 
 on:
   push:
@@ -13,19 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via FTP to Hostinger
+      - name: Deploy via FTPS to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: 153.92.11.34
           username: u895912460
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
-          protocol: ftp
+          protocol: ftps
           local-dir: ./
           server-dir: /domains/tronsick.io/public_html/
-          timeout: 120000
+          timeout: 180000
           log-level: verbose
           dangerous-clean-slate: false
+          security: loose
           exclude: |
             **/.git*
             **/.git*/**
