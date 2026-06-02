@@ -1,9 +1,6 @@
 
 // ═══════════════════════════════════════════════════════════════
-// LIMBO GAME — Complete rebuild matching tronpick.io layout
-// Formula: WinChance = 97 / TargetMultiplier
-// NO slider - just Target Multiplier + Win Chance inputs
-// Rocket animation on result
+// LIMBO GAME — v3 — All bugs fixed
 // ═══════════════════════════════════════════════════════════════
 
 var limboAutoRunning = false;
@@ -14,31 +11,38 @@ var limboAutoBets = 0;
 var limboBetHistory = [];
 
 function buildLimbo() {
-  var h = '';
-  h += '<div class="tp-game-wrap">';
+  limboAutoRunning = false;
+  if(limboAutoTimer) { clearTimeout(limboAutoTimer); limboAutoTimer = null; }
 
-  // ── ROCKET ANIMATION AREA ──
+  var h = '<div class="tp-game-wrap">';
+
+  // ── ROCKET STAGE ──
   h += '<div class="lb-stage" id="lbStage">';
+  h +=   '<div class="lb-stars" id="lbStars"></div>';
+  h +=   '<div class="lb-result-overlay" id="lbResultOverlay" style="display:none">';
+  h +=     '<div class="lb-result-mult" id="lbResultMult">2.00x</div>';
+  h +=     '<div class="lb-result-label" id="lbResultLabel">WIN</div>';
+  h +=   '</div>';
   h +=   '<div class="lb-rocket-wrap" id="lbRocketWrap">';
-  h +=     '<div class="lb-result-val" id="lbResultVal" style="display:none"></div>';
-  h +=     '<svg class="lb-rocket" id="lbRocket" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">';
-  h +=       '<ellipse cx="40" cy="45" rx="18" ry="30" fill="#e8e8e8" stroke="#bbb" stroke-width="1.5"/>';
-  h +=       '<polygon points="40,5 25,35 55,35" fill="#e74c3c"/>';
-  h +=       '<rect x="22" y="55" width="10" height="18" rx="3" fill="#bbb"/>';
-  h +=       '<rect x="48" y="55" width="10" height="18" rx="3" fill="#bbb"/>';
-  h +=       '<ellipse cx="40" cy="42" rx="8" ry="10" fill="#87ceeb" stroke="#5ba3c9" stroke-width="1"/>';
-  h +=       '<ellipse cx="40" cy="78" rx="10" ry="6" fill="#f39c12" opacity="0.8" id="lbFlame1"/>';
-  h +=       '<ellipse cx="40" cy="84" rx="7" ry="8" fill="#e74c3c" opacity="0.6" id="lbFlame2"/>';
+  h +=     '<svg class="lb-rocket" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">';
+  h +=       '<ellipse cx="40" cy="50" rx="18" ry="28" fill="#d0d0d0" stroke="#bbb" stroke-width="1.5"/>';
+  h +=       '<polygon points="40,8 24,38 56,38" fill="#e74c3c"/>';
+  h +=       '<rect x="22" y="60" width="10" height="16" rx="3" fill="#bbb"/>';
+  h +=       '<rect x="48" y="60" width="10" height="16" rx="3" fill="#bbb"/>';
+  h +=       '<ellipse cx="40" cy="46" rx="9" ry="11" fill="#87ceeb" opacity="0.9"/>';
+  h +=       '<g id="lbFlames">';
+  h +=         '<ellipse cx="40" cy="82" rx="9" ry="7" fill="#f39c12" opacity="0.9"/>';
+  h +=         '<ellipse cx="40" cy="88" rx="6" ry="9" fill="#e74c3c" opacity="0.7"/>';
+  h +=         '<ellipse cx="40" cy="94" rx="4" ry="7" fill="#f1c40f" opacity="0.5"/>';
+  h +=       '</g>';
   h +=     '</svg>';
   h +=   '</div>';
   h += '</div>';
 
-  // ── BET ROW: Auto checkbox + BET button ──
+  // ── ACTION ROW: Auto checkbox + BET button ──
   h += '<div class="tp-action-row" style="margin-top:14px">';
-  h += '<label class="tp-auto-chk-lbl">';
-  h +=   '<input type="checkbox" id="limboAutoChk" onchange="limboToggleMode()"> Auto';
-  h += '</label>';
-  h += '<button class="tp-roll-btn" id="limboRollBtn" onclick="limboRoll()">BET</button>';
+  h +=   '<label class="tp-auto-chk-lbl"><input type="checkbox" id="limboAutoChk" onchange="limboToggleMode()"> Auto</label>';
+  h +=   '<button class="tp-roll-btn" id="limboRollBtn" onclick="limboRoll()">BET</button>';
   h += '</div>';
 
   // ── BET AMOUNT ──
@@ -74,117 +78,121 @@ function buildLimbo() {
   h += '<div id="limboAutoSec" style="display:none;margin-top:18px">';
 
   h += '<div class="tp-auto-cols">';
-
-  // On Win
   h += '<div class="tp-auto-box">';
   h +=   '<div class="tp-auto-hd">On Win</div>';
-  h +=   '<label class="tp-radio"><input type="radio" name="limboWin" value="reset" checked> <span class="tp-radio-ico tp-green">✔</span> Reset</label>';
-  h +=   '<label class="tp-radio"><input type="radio" name="limboWin" value="increase"> <span class="tp-radio-ico"></span> Increase By <input type="number" id="limboWinPct" class="tp-pct-inp" value="100"> %</label>';
+  h +=   '<label class="tp-radio"><input type="radio" name="limboWin" id="limboWinReset" value="reset" checked> <span class="tp-radio-dot tp-green-dot"></span> Reset</label>';
+  h +=   '<div class="tp-radio-inc-row"><label class="tp-radio"><input type="radio" name="limboWin" id="limboWinInc" value="increase"> <span class="tp-radio-dot"></span> Increase By</label><div class="tp-pct-box"><input type="number" id="limboWinPct" class="tp-pct-inp" value="100"> <span>%</span></div></div>';
   h += '</div>';
-
-  // On Loss
   h += '<div class="tp-auto-box">';
   h +=   '<div class="tp-auto-hd">On Loss</div>';
-  h +=   '<label class="tp-radio"><input type="radio" name="limboLoss" value="reset" checked> <span class="tp-radio-ico tp-green">✔</span> Reset</label>';
-  h +=   '<label class="tp-radio"><input type="radio" name="limboLoss" value="increase"> <span class="tp-radio-ico"></span> Increase By <input type="number" id="limboLossPct" class="tp-pct-inp" value="100"> %</label>';
+  h +=   '<label class="tp-radio"><input type="radio" name="limboLoss" id="limboLossReset" value="reset" checked> <span class="tp-radio-dot tp-green-dot"></span> Reset</label>';
+  h +=   '<div class="tp-radio-inc-row"><label class="tp-radio"><input type="radio" name="limboLoss" id="limboLossInc" value="increase"> <span class="tp-radio-dot"></span> Increase By</label><div class="tp-pct-box"><input type="number" id="limboLossPct" class="tp-pct-inp" value="100"> <span>%</span></div></div>';
   h += '</div>';
-
   h += '</div>';
 
   h += '<div class="tp-auto-stops">';
-  h += '<div class="tp-field">';
-  h +=   '<div class="tp-label tp-green">Stop On Profit</div>';
-  h +=   '<div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboStopProfit" class="tp-inp" value="0.000000" step="0.000001" min="0"></div>';
-  h += '</div>';
-  h += '<div class="tp-field">';
-  h +=   '<div class="tp-label tp-green">Stop On Loss</div>';
-  h +=   '<div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboStopLoss" class="tp-inp" value="0.000000" step="0.000001" min="0"></div>';
-  h += '</div>';
+  h += '<div class="tp-field"><div class="tp-label tp-green">Stop On Profit</div><div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboStopProfit" class="tp-inp" value="0.000000" step="0.000001" min="0"></div></div>';
+  h += '<div class="tp-field"><div class="tp-label tp-green">Stop On Loss</div><div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboStopLoss" class="tp-inp" value="0.000000" step="0.000001" min="0"></div></div>';
   h += '</div>';
 
   h += '<div class="tp-auto-stops" style="margin-top:12px">';
-  h += '<div class="tp-field">';
-  h +=   '<div class="tp-label tp-green">Rolls</div>';
-  h +=   '<div class="tp-inp-row"><input type="number" id="limboAutoRolls" class="tp-inp" value="0" min="0" step="1"></div>';
-  h += '</div>';
-  h += '<div class="tp-field">';
-  h +=   '<div class="tp-label tp-green">Total Profit</div>';
-  h +=   '<div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboAutoTotalProfit" class="tp-inp" value="0.000000" readonly></div>';
-  h += '</div>';
+  h += '<div class="tp-field"><div class="tp-label tp-green">Rolls</div><div class="tp-inp-row"><input type="number" id="limboAutoRolls" class="tp-inp" value="0" min="0" step="1"></div></div>';
+  h += '<div class="tp-field"><div class="tp-label tp-green">Total Profit</div><div class="tp-inp-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="tp-trx-ico" alt="TRX"><input type="number" id="limboAutoTotalProfit" class="tp-inp" value="0.000000" readonly></div></div>';
   h += '</div>';
 
-  h += '</div>'; // end limboAutoSec
-  h += '</div>'; // end tp-game-wrap
+  h += '</div>'; // limboAutoSec
+
+  // ── HISTORY ──
+  h += '<div style="margin-top:22px">';
+  h += '<div class="dg-bet-tabs"><button class="dg-btab dg-btab-act" id="limboTabMy" onclick="limboShowTab(\'my\')">My Bets</button><button class="dg-btab" id="limboTabAll" onclick="limboShowTab(\'all\')">All Bets</button></div>';
+  h += '<div id="limboMyBetList" class="tp-hist-wrap"></div>';
+  h += '<div id="limboAllBetList" class="tp-hist-wrap" style="display:none"></div>';
+  h += '</div>';
+
+  h += '</div>'; // tp-game-wrap
 
   document.getElementById('gameFrame').innerHTML = h;
+  limboAddStars();
   limboBetHistory = [];
   try { var s = localStorage.getItem('limboHistory'); if(s) limboBetHistory = JSON.parse(s) || []; } catch(e) {}
+  limboRenderMyBets();
+  limboRenderAllBets();
+}
+
+function limboAddStars() {
+  var c = document.getElementById('lbStars'); if(!c) return;
+  var h = '';
+  for(var i = 0; i < 30; i++) {
+    var x = Math.random() * 100;
+    var y = Math.random() * 100;
+    var s = 1 + Math.random() * 2;
+    var o = 0.3 + Math.random() * 0.7;
+    h += '<div style="position:absolute;left:' + x + '%;top:' + y + '%;width:' + s + 'px;height:' + s + 'px;border-radius:50%;background:#fff;opacity:' + o + ';animation:lb-twinkle ' + (1 + Math.random() * 2).toFixed(1) + 's ease-in-out infinite alternate"></div>';
+  }
+  c.innerHTML = h;
 }
 
 // ── CALCULATIONS ──
 function limboByMult() {
-  var m = parseFloat(document.getElementById('limboMult').value) || 2;
-  m = Math.max(1.0104, Math.min(4850, m));
-  var wc = parseFloat((97 / m).toFixed(2));
-  wc = Math.max(0.02, Math.min(96.04, wc));
+  var m = Math.max(1.0104, Math.min(4850, parseFloat(document.getElementById('limboMult').value) || 2));
+  var wc = Math.max(0.02, Math.min(96.04, parseFloat((97 / m).toFixed(2))));
   var wcEl = document.getElementById('limboWC');
   if(wcEl) wcEl.value = wc.toFixed(2);
 }
 
 function limboByWC() {
-  var wc = parseFloat(document.getElementById('limboWC').value) || 48.5;
-  wc = Math.max(0.02, Math.min(96.04, wc));
-  var m = parseFloat((97 / wc).toFixed(2));
-  m = Math.max(1.0104, Math.min(4850, m));
+  var wc = Math.max(0.02, Math.min(96.04, parseFloat(document.getElementById('limboWC').value) || 48.5));
+  var m = Math.max(1.0104, Math.min(4850, parseFloat((97 / wc).toFixed(2))));
   var mEl = document.getElementById('limboMult');
   if(mEl) mEl.value = m.toFixed(2);
 }
 
-function limboMultAmt(factor) {
+function limboMultAmt(f) {
   var el = document.getElementById('limboAmt'); if(!el) return;
-  el.value = (parseFloat(el.value || 0) * factor).toFixed(6);
+  el.value = (parseFloat(el.value || 0) * f).toFixed(6);
 }
 
-// ── MODE TOGGLE ──
 function limboToggleMode() {
-  var chk = document.getElementById('limboAutoChk');
-  var isAuto = chk && chk.checked;
+  var isAuto = (document.getElementById('limboAutoChk') || {}).checked;
   var sec = document.getElementById('limboAutoSec');
   var btn = document.getElementById('limboRollBtn');
   if(sec) sec.style.display = isAuto ? '' : 'none';
-  if(btn) btn.textContent = isAuto ? 'AUTO BET' : 'BET';
+  if(btn) { btn.textContent = isAuto ? 'AUTO BET' : 'BET'; btn.style.background = ''; }
   if(!isAuto && limboAutoRunning) limboStopAuto();
 }
 
 // ── ANIMATION ──
-function limboAnimate(win, resultMult, targetMult) {
+function limboAnimate(win, resultMult) {
   var wrap = document.getElementById('lbRocketWrap');
-  var rocket = document.getElementById('lbRocket');
-  var rv = document.getElementById('lbResultVal');
+  var overlay = document.getElementById('lbResultOverlay');
+  var multEl = document.getElementById('lbResultMult');
+  var lblEl = document.getElementById('lbResultLabel');
 
-  if(!wrap || !rocket) return;
+  if(!wrap) return;
 
-  // Animate rocket up
-  wrap.style.transition = 'transform 0.8s ease-out';
-  wrap.style.transform = 'translateY(-60px)';
+  // Rocket launch
+  wrap.style.transition = 'transform 1s cubic-bezier(0.2,0.8,0.4,1)';
+  wrap.style.transform = win ? 'translateY(-80px) scale(1.1)' : 'translateY(-20px)';
 
   setTimeout(function() {
-    if(rv) {
-      rv.style.display = 'block';
-      rv.textContent = resultMult.toFixed(2) + 'x';
-      rv.style.color = win ? '#28a745' : '#dc3545';
-      rv.style.fontSize = '28px';
-      rv.style.fontWeight = '900';
+    if(overlay) {
+      overlay.style.display = 'flex';
+      if(multEl) {
+        multEl.textContent = resultMult.toFixed(2) + 'x';
+        multEl.style.color = win ? '#2ecc71' : '#e74c3c';
+      }
+      if(lblEl) {
+        lblEl.textContent = win ? '🎉 WIN' : '❌ LOSS';
+        lblEl.style.color = win ? '#2ecc71' : '#e74c3c';
+      }
     }
-    // Flash rocket color
-    if(rocket) rocket.style.filter = win ? 'drop-shadow(0 0 12px #28a745)' : 'drop-shadow(0 0 12px #dc3545)';
     setTimeout(function() {
-      wrap.style.transition = 'transform 0.4s ease-in';
-      wrap.style.transform = 'translateY(0)';
-      if(rocket) rocket.style.filter = '';
-      if(rv) setTimeout(function(){ rv.style.display='none'; }, 1200);
-    }, 800);
-  }, 600);
+      // Reset
+      wrap.style.transition = 'transform 0.5s ease-in';
+      wrap.style.transform = 'translateY(0) scale(1)';
+      if(overlay) overlay.style.display = 'none';
+    }, 1500);
+  }, 700);
 }
 
 // ── MANUAL BET ──
@@ -195,7 +203,8 @@ function limboRoll() {
     limboStartAuto(); return;
   }
 
-  var btn = document.getElementById('limboRollBtn'); if(!btn || btn.disabled) return;
+  var btn = document.getElementById('limboRollBtn');
+  if(!btn || btn.disabled) return;
   var bet = parseFloat((document.getElementById('limboAmt') || {}).value) || 0;
   if(bet <= 0) { showToast('Enter bet amount!'); return; }
   var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
@@ -205,20 +214,22 @@ function limboRoll() {
   addBal(-bet); updateWager(bet);
 
   setTimeout(function() {
-    var target = parseFloat((document.getElementById('limboMult') || {}).value) || 2;
+    var target = Math.max(1.0104, parseFloat((document.getElementById('limboMult') || {}).value) || 2);
     var wc = parseFloat((document.getElementById('limboWC') || {}).value) || 48.5;
-    // Generate result: random 1.00x to 10000x using exponential distribution
+
+    // Exponential distribution: P(result >= target) = 97/100/target ≈ winChance%
+    // Generate crash point
     var rand = Math.random();
-    var resultMult = parseFloat((1 / (1 - rand * 0.97)).toFixed(2));
-    resultMult = Math.min(resultMult, 10000);
-    var win = resultMult >= target;
+    // crash point = 0.97 / (1 - rand) but capped
+    var crash = parseFloat((0.97 / Math.max(0.0001, 1 - rand)).toFixed(2));
+    crash = Math.max(1.00, Math.min(crash, 10000));
+    var win = crash >= target;
 
     if(win) addBal(bet * target);
     var profit = win ? bet * (target - 1) : -bet;
 
-    limboAnimate(win, resultMult, target);
-    limboSaveResult(bet, target, wc, win, profit, resultMult);
-
+    limboAnimate(win, crash);
+    limboSaveResult(bet, target, wc, win, profit, crash);
     btn.disabled = false; btn.textContent = 'BET';
   }, 500);
 }
@@ -236,7 +247,7 @@ function limboStartAuto() {
   limboAutoBets = 0;
   var tp = document.getElementById('limboAutoTotalProfit'); if(tp) tp.value = '0.000000';
   var btn = document.getElementById('limboRollBtn');
-  if(btn) { btn.textContent = 'STOP'; btn.style.background = '#dc3545'; }
+  if(btn) { btn.textContent = 'STOP AUTO'; btn.style.background = '#dc3545'; }
   limboAutoStep();
 }
 
@@ -245,7 +256,7 @@ function limboStopAuto() {
   if(limboAutoTimer) { clearTimeout(limboAutoTimer); limboAutoTimer = null; }
   var btn = document.getElementById('limboRollBtn');
   if(btn) { btn.textContent = 'AUTO BET'; btn.style.background = ''; }
-  showToast('Auto stopped. Rolls: ' + limboAutoBets);
+  showToast('Auto stopped. Rolls: ' + limboAutoBets + ' | Profit: ' + (limboAutoProfit >= 0 ? '+' : '') + limboAutoProfit.toFixed(6));
 }
 
 function limboAutoStep() {
@@ -257,18 +268,18 @@ function limboAutoStep() {
   var stopLoss = parseFloat((document.getElementById('limboStopLoss') || {}).value) || 0;
   var maxRolls = parseInt((document.getElementById('limboAutoRolls') || {}).value) || 0;
 
-  if(stopProfit > 0 && limboAutoProfit >= stopProfit) { showToast('✅ Profit target reached!'); limboStopAuto(); return; }
-  if(stopLoss > 0 && limboAutoProfit <= -stopLoss) { showToast('❌ Loss limit reached!'); limboStopAuto(); return; }
+  if(stopProfit > 0 && limboAutoProfit >= stopProfit) { showToast('✅ Profit target hit!'); limboStopAuto(); return; }
+  if(stopLoss > 0 && limboAutoProfit <= -stopLoss) { showToast('❌ Stop loss hit!'); limboStopAuto(); return; }
   if(maxRolls > 0 && limboAutoBets >= maxRolls) { showToast('✅ Roll count reached!'); limboStopAuto(); return; }
   if(bet > bal) { showToast('❌ Insufficient balance!'); limboStopAuto(); return; }
 
   addBal(-bet); updateWager(bet);
-  var target = parseFloat((document.getElementById('limboMult') || {}).value) || 2;
+  var target = Math.max(1.0104, parseFloat((document.getElementById('limboMult') || {}).value) || 2);
   var wc = parseFloat((document.getElementById('limboWC') || {}).value) || 48.5;
   var rand = Math.random();
-  var resultMult = parseFloat((1 / (1 - rand * 0.97)).toFixed(2));
-  resultMult = Math.min(resultMult, 10000);
-  var win = resultMult >= target;
+  var crash = parseFloat((0.97 / Math.max(0.0001, 1 - rand)).toFixed(2));
+  crash = Math.max(1.00, Math.min(crash, 10000));
+  var win = crash >= target;
 
   if(win) addBal(bet * target);
   var profit = win ? bet * (target - 1) : -bet;
@@ -278,15 +289,17 @@ function limboAutoStep() {
   var tp = document.getElementById('limboAutoTotalProfit');
   if(tp) tp.value = limboAutoProfit.toFixed(6);
 
-  limboSaveResult(bet, target, wc, win, profit, resultMult);
+  limboSaveResult(bet, target, wc, win, profit, crash);
 
-  // Adjust next bet
-  var winMode = (document.querySelector('[name="limboWin"]:checked') || {}).value || 'reset';
-  var lossMode = (document.querySelector('[name="limboLoss"]:checked') || {}).value || 'reset';
+  // On Win/Loss
+  var winReset = document.getElementById('limboWinReset');
+  var lossReset = document.getElementById('limboLossReset');
+  var winMode = (winReset && winReset.checked) ? 'reset' : 'increase';
+  var lossMode = (lossReset && lossReset.checked) ? 'reset' : 'increase';
   var winPct = parseFloat((document.getElementById('limboWinPct') || {}).value) || 100;
   var lossPct = parseFloat((document.getElementById('limboLossPct') || {}).value) || 100;
 
-  var nextBet = limboAutoBase;
+  var nextBet;
   if(win) { nextBet = winMode === 'increase' ? bet * (1 + winPct / 100) : limboAutoBase; }
   else { nextBet = lossMode === 'increase' ? bet * (1 + lossPct / 100) : limboAutoBase; }
 
@@ -296,17 +309,70 @@ function limboAutoStep() {
   limboAutoTimer = setTimeout(limboAutoStep, 700);
 }
 
-// ── SAVE RESULT ──
-function limboSaveResult(bet, target, wc, win, profit, resultMult) {
+// ── SAVE & RENDER ──
+function limboSaveResult(bet, target, wc, win, profit, crash) {
   var now = new Date();
-  var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1);
-  var rec = { game: 'Limbo', bet: bet, mult: target, result: resultMult, wc: wc, win: win, profit: profit, ts: ts };
+  var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1) + ' ' + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+  var rec = { game: 'Limbo', bet: bet, target: target, crash: crash, wc: wc, win: win, profit: profit, ts: ts };
   limboBetHistory.unshift(rec);
   try { localStorage.setItem('limboHistory', JSON.stringify(limboBetHistory.slice(0, 100))); } catch(e) {}
   try {
     var ab = JSON.parse(localStorage.getItem('site_all_bets') || '[]');
-    ab.unshift({ u: localStorage.getItem('userName') || '?', g: 'Limbo', b: bet, p: target, w: win, pr: profit, t: ts });
+    ab.unshift({ u: localStorage.getItem('userName') || 'Player', g: 'Limbo', b: bet, p: target, w: win, pr: profit, t: ts });
     localStorage.setItem('site_all_bets', JSON.stringify(ab.slice(0, 200)));
   } catch(e) {}
+  limboRenderMyBets();
+  limboRenderAllBets();
   try { renderGlobalBets(); } catch(e) {}
+}
+
+function limboRenderMyBets() {
+  var list = document.getElementById('limboMyBetList');
+  if(!list) return;
+  if(!limboBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Press BET to start!</div>'; return; }
+  var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Target</th><th>Result</th><th>Profit</th></tr></thead><tbody>';
+  limboBetHistory.slice(0, 50).forEach(function(b) {
+    var cls = b.win ? 'tp-win' : 'tp-lose';
+    var p = (b.profit >= 0 ? '+' : '') + b.profit.toFixed(6);
+    h += '<tr><td>' + b.ts + '</td><td>🚀 Limbo</td><td>' + b.bet.toFixed(6) + '</td><td>' + b.target.toFixed(2) + 'x</td><td class="' + cls + '">' + b.crash.toFixed(2) + 'x</td><td class="' + cls + '">' + p + '</td></tr>';
+  });
+  h += '</tbody></table>';
+  list.innerHTML = h;
+}
+
+function limboRenderAllBets() {
+  var list = document.getElementById('limboAllBetList');
+  if(!list) return;
+  try {
+    var ab = JSON.parse(localStorage.getItem('site_all_bets') || '[]');
+    if(!ab.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet.</div>'; return; }
+    var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>User</th><th>Game</th><th>Bet</th><th>Target</th><th>Profit</th></tr></thead><tbody>';
+    ab.slice(0, 50).forEach(function(b) {
+      var p = (b.pr >= 0 ? '+' : '') + parseFloat(b.pr).toFixed(6);
+      var cls = b.w ? 'tp-win' : 'tp-lose';
+      h += '<tr><td>' + b.t + '</td><td>' + b.u + '</td><td>' + b.g + '</td><td>' + parseFloat(b.b).toFixed(6) + '</td><td>' + parseFloat(b.p).toFixed(2) + 'x</td><td class="' + cls + '">' + p + '</td></tr>';
+    });
+    h += '</tbody></table>';
+    list.innerHTML = h;
+  } catch(e) { list.innerHTML = '<div class="tp-no-bets">Error loading bets.</div>'; }
+}
+
+function limboShowTab(tab) {
+  var my = document.getElementById('limboMyBetList');
+  var all = document.getElementById('limboAllBetList');
+  var tMy = document.getElementById('limboTabMy');
+  var tAll = document.getElementById('limboTabAll');
+  if(tab === 'my') {
+    if(my) my.style.display = '';
+    if(all) all.style.display = 'none';
+    if(tMy) tMy.classList.add('dg-btab-act');
+    if(tAll) tAll.classList.remove('dg-btab-act');
+    limboRenderMyBets();
+  } else {
+    if(my) my.style.display = 'none';
+    if(all) all.style.display = '';
+    if(tMy) tMy.classList.remove('dg-btab-act');
+    if(tAll) tAll.classList.add('dg-btab-act');
+    limboRenderAllBets();
+  }
 }

@@ -366,3 +366,151 @@
   border-bottom-color: #3498db;
 }
 .dg-btab:hover { color: #333; }
+
+/* ── EXTRA FIXES v3 ── */
+
+/* Radio button modern look */
+.tp-radio-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tp-green-dot {
+  background: #28a745;
+  border-color: #28a745;
+}
+.tp-green-dot::after {
+  content: '✓';
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.tp-radio-inc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tp-pct-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.tp-pct-box span { font-size: 12px; color: #666; }
+
+/* History wrap */
+.tp-hist-wrap {
+  max-height: 280px;
+  overflow-y: auto;
+}
+.tp-hist-wrap::-webkit-scrollbar { width: 4px; }
+.tp-hist-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+/* Limbo result overlay */
+.lb-result-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 10px;
+}
+.lb-result-mult {
+  font-size: 48px;
+  font-weight: 900;
+  text-shadow: 0 0 30px currentColor;
+  line-height: 1;
+}
+.lb-result-label {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+/* Stars twinkle animation */
+@keyframes lb-twinkle {
+  from { opacity: 0.2; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1.3); }
+}
+
+/* Bet history table on dark background */
+.tp-game-wrap .tp-hist-tbl th {
+  background: rgba(255,255,255,0.05);
+  color: rgba(232,240,235,0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.tp-game-wrap .tp-hist-tbl td {
+  color: rgba(232,240,235,0.9);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.tp-game-wrap .tp-hist-tbl tr:hover td {
+  background: rgba(255,255,255,0.04);
+}
+
+/* Override tp-game-wrap for dark site theme */
+.tp-game-wrap {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #e8f0eb !important;
+}
+.tp-label {
+  color: #3ecf8e !important;
+}
+.tp-inp-row {
+  background: rgba(0,0,0,0.25) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.tp-inp {
+  color: #e8f0eb !important;
+  background: transparent !important;
+}
+.tp-inp-suffix { color: rgba(232,240,235,0.5) !important; }
+.tp-sl-num { color: rgba(232,240,235,0.6) !important; }
+.tp-toggle-lbl { color: rgba(232,240,235,0.8) !important; }
+.tp-auto-box {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+.tp-auto-hd { color: #3ecf8e !important; }
+.tp-radio { color: rgba(232,240,235,0.85) !important; }
+.tp-pct-box {
+  background: rgba(0,0,0,0.2) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.tp-pct-box span { color: rgba(232,240,235,0.5) !important; }
+.tp-pct-inp {
+  background: transparent !important;
+  color: #e8f0eb !important;
+  border: none !important;
+  width: 55px !important;
+}
+.tp-no-bets { color: rgba(232,240,235,0.35) !important; }
+.tp-green { color: #3ecf8e !important; }
+
+/* Dark slider bg */
+.tp-slider-wrap {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Auto mode checkbox (limbo) */
+.tp-auto-chk-lbl { color: rgba(232,240,235,0.8) !important; }
+
+/* Icon button dark */
+.tp-icon-btn {
+  background: rgba(255,255,255,0.1) !important;
+  color: #e8f0eb !important;
+}
+.tp-icon-btn:hover { background: rgba(255,255,255,0.18) !important; }

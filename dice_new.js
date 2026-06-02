@@ -1,14 +1,9 @@
 
 // ═══════════════════════════════════════════════════════════════
-// DICE GAME — Complete rebuild matching tronpick.io layout
-// Formula: Multiplier = 97 / WinChance
-// Slider: value = Roll Over threshold (0–100)
-//   Roll Over: win if roll > threshold → WinChance = 100 - threshold
-//   Roll Under: win if roll < threshold → WinChance = threshold
-//   Left = more green (bigger win zone in Roll Over mode)
+// DICE GAME — v3 — All bugs fixed
 // ═══════════════════════════════════════════════════════════════
 
-var diceDir = 'over';          // 'over' | 'under'
+var diceDir = 'over';
 var diceAutoRunning = false;
 var diceAutoBase = 0;
 var diceAutoTimer = null;
@@ -17,8 +12,14 @@ var diceAutoBets = 0;
 var diceBetHistory = [];
 
 function buildDice() {
-  var h = '';
-  h += '<div class="tp-game-wrap">';
+  diceDir = 'over';
+  diceAutoRunning = false;
+  if(diceAutoTimer) { clearTimeout(diceAutoTimer); diceAutoTimer = null; }
+
+  var h = '<div class="tp-game-wrap">';
+
+  // ── RESULT DISPLAY ──
+  h += '<div id="diceResultBanner" style="display:none;text-align:center;padding:10px;border-radius:8px;font-size:18px;font-weight:900;margin-bottom:12px;transition:all 0.3s"></div>';
 
   // ── TOP ROW: Bet Amount | Profit On Win ──
   h += '<div class="tp-row-2">';
@@ -72,7 +73,7 @@ function buildDice() {
   // ── TOGGLE + ROLL BUTTON ──
   h += '<div class="tp-action-row" style="margin-top:16px">';
   h += '<div class="tp-toggle-wrap">';
-  h +=   '<label class="tp-toggle" id="diceToggleLabel">';
+  h +=   '<label class="tp-toggle">';
   h +=     '<input type="checkbox" id="diceAutoChk" onchange="diceToggleMode()">';
   h +=     '<span class="tp-toggle-slider"></span>';
   h +=   '</label>';
@@ -88,26 +89,30 @@ function buildDice() {
   h +=   '<span class="tp-sl-num">100</span>';
   h += '</div>';
 
-  // ── AUTO SECTION (hidden by default) ──
+  // ── AUTO SECTION ──
   h += '<div id="diceAutoSec" style="display:none;margin-top:18px">';
 
   h += '<div class="tp-auto-cols">';
 
-  // On Win
   h += '<div class="tp-auto-box">';
   h +=   '<div class="tp-auto-hd">On Win</div>';
-  h +=   '<label class="tp-radio"><input type="radio" name="diceWin" value="reset" checked onchange="diceWinMode()"> <span class="tp-radio-ico tp-green">✔</span> Reset</label>';
-  h +=   '<label class="tp-radio"><input type="radio" name="diceWin" value="increase" onchange="diceWinMode()"> <span class="tp-radio-ico"></span> Increase By <input type="number" id="diceWinPct" class="tp-pct-inp" value="100"> %</label>';
+  h +=   '<label class="tp-radio"><input type="radio" name="diceWin" id="diceWinReset" value="reset" checked> <span class="tp-radio-dot tp-green-dot"></span> Reset</label>';
+  h +=   '<div class="tp-radio-inc-row">';
+  h +=     '<label class="tp-radio"><input type="radio" name="diceWin" id="diceWinInc" value="increase"> <span class="tp-radio-dot"></span> Increase By</label>';
+  h +=     '<div class="tp-pct-box"><input type="number" id="diceWinPct" class="tp-pct-inp" value="100"> <span>%</span></div>';
+  h +=   '</div>';
   h += '</div>';
 
-  // On Loss
   h += '<div class="tp-auto-box">';
   h +=   '<div class="tp-auto-hd">On Loss</div>';
-  h +=   '<label class="tp-radio"><input type="radio" name="diceLoss" value="reset" checked onchange="diceLossMode()"> <span class="tp-radio-ico tp-green">✔</span> Reset</label>';
-  h +=   '<label class="tp-radio"><input type="radio" name="diceLoss" value="increase" onchange="diceLossMode()"> <span class="tp-radio-ico"></span> Increase By <input type="number" id="diceLossPct" class="tp-pct-inp" value="100"> %</label>';
+  h +=   '<label class="tp-radio"><input type="radio" name="diceLoss" id="diceLossReset" value="reset" checked> <span class="tp-radio-dot tp-green-dot"></span> Reset</label>';
+  h +=   '<div class="tp-radio-inc-row">';
+  h +=     '<label class="tp-radio"><input type="radio" name="diceLoss" id="diceLossInc" value="increase"> <span class="tp-radio-dot"></span> Increase By</label>';
+  h +=     '<div class="tp-pct-box"><input type="number" id="diceLossPct" class="tp-pct-inp" value="100"> <span>%</span></div>';
+  h +=   '</div>';
   h += '</div>';
 
-  h += '</div>';
+  h += '</div>'; // tp-auto-cols
 
   h += '<div class="tp-auto-stops">';
   h += '<div class="tp-field">';
@@ -131,26 +136,29 @@ function buildDice() {
   h += '</div>';
   h += '</div>';
 
-  h += '</div>'; // end diceAutoSec
+  h += '</div>'; // diceAutoSec
 
-  h += '</div>'; // end tp-game-wrap
+  // ── HISTORY TABLE inside game wrap ──
+  h += '<div style="margin-top:22px">';
+  h += '<div class="dg-bet-tabs"><button class="dg-btab dg-btab-act" id="diceTabMy" onclick="diceShowTab(\'my\')">My Bets</button><button class="dg-btab" id="diceTabAll" onclick="diceShowTab(\'all\')">All Bets</button></div>';
+  h += '<div id="diceMyBetList" class="tp-hist-wrap"></div>';
+  h += '<div id="diceAllBetList" class="tp-hist-wrap" style="display:none"></div>';
+  h += '</div>';
+
+  h += '</div>'; // tp-game-wrap
 
   document.getElementById('gameFrame').innerHTML = h;
   diceUpdate();
   diceBetHistory = [];
-  try { var s = localStorage.getItem('diceHistory'); if(s) diceBetHistory = JSON.parse(s) || []; } catch(e){}
-  diceRenderBets();
+  try { var s = localStorage.getItem('diceHistory'); if(s) diceBetHistory = JSON.parse(s) || []; } catch(e) {}
+  diceRenderMyBets();
+  diceRenderAllBets();
 }
 
 // ── CALCULATIONS ──
-function diceGetWC() {
-  var t = parseFloat(document.getElementById('diceSlider').value) || 50;
-  return diceDir === 'over' ? (100 - t) : t;
-}
-
 function diceUpdate() {
   var sl = document.getElementById('diceSlider'); if(!sl) return;
-  var t = parseFloat(sl.value); // threshold
+  var t = parseFloat(sl.value);
   var wc = diceDir === 'over' ? (100 - t) : t;
   wc = Math.max(0.02, Math.min(96.04, wc));
   var mult = parseFloat((97 / wc).toFixed(2));
@@ -166,28 +174,22 @@ function diceUpdate() {
   if(wEl) wEl.value = wc.toFixed(2);
   if(lEl) lEl.textContent = diceDir === 'over' ? 'Roll over to win' : 'Roll under to win';
 
-  // Gradient
   var gr = '#28a745', rd = '#dc3545';
   if(diceDir === 'over') {
-    // Win zone RIGHT of thumb
     sl.style.background = 'linear-gradient(to right,' + rd + ' 0%,' + rd + ' ' + t + '%,' + gr + ' ' + t + '%,' + gr + ' 100%)';
   } else {
-    // Win zone LEFT of thumb
     sl.style.background = 'linear-gradient(to right,' + gr + ' 0%,' + gr + ' ' + t + '%,' + rd + ' ' + t + '%,' + rd + ' 100%)';
   }
-
   diceCalcProfit();
 }
 
 function diceCalcProfit() {
   var amt = parseFloat((document.getElementById('diceAmt') || {}).value) || 0;
   var mult = parseFloat((document.getElementById('diceMult') || {}).value) || 1.94;
-  var profit = amt * (mult - 1);
   var pw = document.getElementById('diceProfitWin');
-  if(pw) pw.value = profit.toFixed(6);
+  if(pw) pw.value = (amt * (mult - 1)).toFixed(6);
 }
 
-// ── INPUT HANDLERS ──
 function diceBySlider() { diceUpdate(); }
 
 function diceByTarget() {
@@ -200,17 +202,14 @@ function diceByTarget() {
 function diceByMult() {
   var m = parseFloat(document.getElementById('diceMult').value) || 1.94;
   m = Math.max(1.0104, Math.min(4850, m));
-  var wc = parseFloat((97 / m).toFixed(4));
-  wc = Math.max(0.02, Math.min(96.04, wc));
-  // threshold from wc
+  var wc = Math.max(0.02, Math.min(96.04, parseFloat((97 / m).toFixed(4))));
   var t = diceDir === 'over' ? (100 - wc) : wc;
   document.getElementById('diceSlider').value = t;
   diceUpdate();
 }
 
 function diceByWC() {
-  var wc = parseFloat(document.getElementById('diceWC').value) || 50;
-  wc = Math.max(0.02, Math.min(96.04, wc));
+  var wc = Math.max(0.02, Math.min(96.04, parseFloat(document.getElementById('diceWC').value) || 50));
   var t = diceDir === 'over' ? (100 - wc) : wc;
   document.getElementById('diceSlider').value = t;
   diceUpdate();
@@ -218,43 +217,58 @@ function diceByWC() {
 
 function diceToggleDir() {
   diceDir = diceDir === 'over' ? 'under' : 'over';
-  // Keep same win chance, flip threshold
   var wc = parseFloat((document.getElementById('diceWC') || {}).value) || 50;
   var t = diceDir === 'over' ? (100 - wc) : wc;
   document.getElementById('diceSlider').value = t;
   diceUpdate();
 }
 
-function diceMultAmt(factor) {
+function diceMultAmt(f) {
   var el = document.getElementById('diceAmt'); if(!el) return;
-  var v = parseFloat(el.value) || 0;
-  el.value = (v * factor).toFixed(6);
+  el.value = (parseFloat(el.value || 0) * f).toFixed(6);
   diceCalcProfit();
 }
 
-// ── MODE TOGGLE ──
 function diceToggleMode() {
-  var chk = document.getElementById('diceAutoChk');
-  var isAuto = chk && chk.checked;
+  var isAuto = (document.getElementById('diceAutoChk') || {}).checked;
   var lbl = document.getElementById('diceModeLbl');
   var sec = document.getElementById('diceAutoSec');
   var btn = document.getElementById('diceRollBtn');
   if(lbl) lbl.textContent = isAuto ? 'Auto' : 'Manual';
   if(sec) sec.style.display = isAuto ? '' : 'none';
-  if(btn) btn.textContent = isAuto ? 'AUTO DICE' : 'ROLL DICE';
+  if(btn) { btn.textContent = isAuto ? 'AUTO DICE' : 'ROLL DICE'; btn.style.background = ''; }
   if(!isAuto && diceAutoRunning) diceStopAuto();
+}
+
+// ── SHOW RESULT BANNER ──
+function diceShowResult(win, roll, t) {
+  var b = document.getElementById('diceResultBanner'); if(!b) return;
+  var direction = diceDir === 'over' ? 'Over' : 'Under';
+  b.style.display = 'block';
+  if(win) {
+    b.style.background = 'rgba(40,167,69,0.15)';
+    b.style.border = '1px solid #28a745';
+    b.style.color = '#28a745';
+    b.textContent = '✅ WIN! Rolled ' + roll.toFixed(2) + ' (' + direction + ' ' + t.toFixed(2) + ')';
+  } else {
+    b.style.background = 'rgba(220,53,69,0.15)';
+    b.style.border = '1px solid #dc3545';
+    b.style.color = '#dc3545';
+    b.textContent = '❌ LOSS. Rolled ' + roll.toFixed(2) + ' (' + direction + ' ' + t.toFixed(2) + ')';
+  }
+  setTimeout(function() { if(b) b.style.display = 'none'; }, 3000);
 }
 
 // ── MANUAL ROLL ──
 function diceRoll() {
   var isAuto = (document.getElementById('diceAutoChk') || {}).checked;
   if(isAuto) {
-    // Start/stop auto
     if(diceAutoRunning) { diceStopAuto(); return; }
     diceStartAuto(); return;
   }
 
-  var btn = document.getElementById('diceRollBtn'); if(!btn || btn.disabled) return;
+  var btn = document.getElementById('diceRollBtn');
+  if(!btn || btn.disabled) return;
   var bet = parseFloat((document.getElementById('diceAmt') || {}).value) || 0;
   if(bet <= 0) { showToast('Enter bet amount!'); return; }
   var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
@@ -272,8 +286,9 @@ function diceRoll() {
 
     if(win) addBal(bet * mult);
     var profit = win ? bet * (mult - 1) : -bet;
-    diceSaveResult(bet, mult, wc, win, profit, roll);
 
+    diceShowResult(win, roll, t);
+    diceSaveResult(bet, mult, wc, win, profit, roll);
     btn.disabled = false; btn.textContent = 'ROLL DICE';
   }, 600);
 }
@@ -291,7 +306,7 @@ function diceStartAuto() {
   diceAutoBets = 0;
   var tp = document.getElementById('diceAutoTotalProfit'); if(tp) tp.value = '0.000000';
   var btn = document.getElementById('diceRollBtn');
-  if(btn) { btn.textContent = 'STOP'; btn.style.background = '#dc3545'; }
+  if(btn) { btn.textContent = 'STOP AUTO'; btn.style.background = '#dc3545'; }
   diceAutoStep();
 }
 
@@ -300,7 +315,7 @@ function diceStopAuto() {
   if(diceAutoTimer) { clearTimeout(diceAutoTimer); diceAutoTimer = null; }
   var btn = document.getElementById('diceRollBtn');
   if(btn) { btn.textContent = 'AUTO DICE'; btn.style.background = ''; }
-  showToast('Auto bet stopped. Bets: ' + diceAutoBets);
+  showToast('Auto stopped. Total bets: ' + diceAutoBets + ' | Profit: ' + (diceAutoProfit >= 0 ? '+' : '') + diceAutoProfit.toFixed(6));
 }
 
 function diceAutoStep() {
@@ -309,13 +324,12 @@ function diceAutoStep() {
   var bet = parseFloat((document.getElementById('diceAmt') || {}).value) || diceAutoBase;
   var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
 
-  // Check stop conditions
   var stopProfit = parseFloat((document.getElementById('diceStopProfit') || {}).value) || 0;
   var stopLoss = parseFloat((document.getElementById('diceStopLoss') || {}).value) || 0;
   var maxBets = parseInt((document.getElementById('diceAutoBetsInput') || {}).value) || 0;
 
-  if(stopProfit > 0 && diceAutoProfit >= stopProfit) { showToast('✅ Stop on profit reached!'); diceStopAuto(); return; }
-  if(stopLoss > 0 && diceAutoProfit <= -stopLoss) { showToast('❌ Stop on loss reached!'); diceStopAuto(); return; }
+  if(stopProfit > 0 && diceAutoProfit >= stopProfit) { showToast('✅ Profit target hit!'); diceStopAuto(); return; }
+  if(stopLoss > 0 && diceAutoProfit <= -stopLoss) { showToast('❌ Stop loss hit!'); diceStopAuto(); return; }
   if(maxBets > 0 && diceAutoBets >= maxBets) { showToast('✅ Bet count reached!'); diceStopAuto(); return; }
   if(bet > bal) { showToast('❌ Insufficient balance!'); diceStopAuto(); return; }
 
@@ -331,19 +345,20 @@ function diceAutoStep() {
   diceAutoProfit += profit;
   diceAutoBets++;
 
-  // Update total profit display
   var tp = document.getElementById('diceAutoTotalProfit');
   if(tp) tp.value = diceAutoProfit.toFixed(6);
 
   diceSaveResult(bet, mult, wc, win, profit, roll);
 
-  // Adjust bet for next round
-  var winMode = (document.querySelector('[name="diceWin"]:checked') || {}).value || 'reset';
-  var lossMode = (document.querySelector('[name="diceLoss"]:checked') || {}).value || 'reset';
+  // Read radio buttons correctly
+  var winReset = document.getElementById('diceWinReset');
+  var lossReset = document.getElementById('diceLossReset');
+  var winMode = (winReset && winReset.checked) ? 'reset' : 'increase';
+  var lossMode = (lossReset && lossReset.checked) ? 'reset' : 'increase';
   var winPct = parseFloat((document.getElementById('diceWinPct') || {}).value) || 100;
   var lossPct = parseFloat((document.getElementById('diceLossPct') || {}).value) || 100;
 
-  var nextBet = diceAutoBase;
+  var nextBet;
   if(win) {
     nextBet = winMode === 'increase' ? bet * (1 + winPct / 100) : diceAutoBase;
   } else {
@@ -357,27 +372,28 @@ function diceAutoStep() {
   diceAutoTimer = setTimeout(diceAutoStep, 700);
 }
 
-// ── SAVE & RENDER BETS ──
+// ── SAVE & RENDER ──
 function diceSaveResult(bet, mult, wc, win, profit, roll) {
   var now = new Date();
-  var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1);
+  var ts = (now.getDate() < 10 ? '0' : '') + now.getDate() + '/' + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1) + ' ' + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
   var rec = { game: 'Dice', bet: bet, mult: mult, wc: wc, win: win, profit: profit, roll: roll, ts: ts };
   diceBetHistory.unshift(rec);
   try { localStorage.setItem('diceHistory', JSON.stringify(diceBetHistory.slice(0, 100))); } catch(e) {}
-  // Save to site all bets
   try {
     var ab = JSON.parse(localStorage.getItem('site_all_bets') || '[]');
-    ab.unshift({ u: localStorage.getItem('userName') || '?', g: 'Dice', b: bet, p: mult, w: win, pr: profit, t: ts });
+    ab.unshift({ u: localStorage.getItem('userName') || 'Player', g: 'Dice', b: bet, p: mult, w: win, pr: profit, t: ts });
     localStorage.setItem('site_all_bets', JSON.stringify(ab.slice(0, 200)));
   } catch(e) {}
-  diceRenderBets();
+  diceRenderMyBets();
+  diceRenderAllBets();
+  // Update global bet section if visible
   try { renderGlobalBets(); } catch(e) {}
 }
 
-function diceRenderBets() {
-  var list = document.getElementById('gBetList');
+function diceRenderMyBets() {
+  var list = document.getElementById('diceMyBetList');
   if(!list) return;
-  if(!diceBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet.</div>'; return; }
+  if(!diceBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Roll to start!</div>'; return; }
   var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
   diceBetHistory.slice(0, 50).forEach(function(b) {
     var m = b.win ? b.mult.toFixed(2) + 'x' : '0.00x';
@@ -389,5 +405,39 @@ function diceRenderBets() {
   list.innerHTML = h;
 }
 
-function diceWinMode() { /* radio handled by browser */ }
-function diceLossMode() { /* radio handled by browser */ }
+function diceRenderAllBets() {
+  var list = document.getElementById('diceAllBetList');
+  if(!list) return;
+  try {
+    var ab = JSON.parse(localStorage.getItem('site_all_bets') || '[]');
+    if(!ab.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet.</div>'; return; }
+    var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>User</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
+    ab.slice(0, 50).forEach(function(b) {
+      var p = (b.pr >= 0 ? '+' : '') + parseFloat(b.pr).toFixed(6);
+      var cls = b.w ? 'tp-win' : 'tp-lose';
+      h += '<tr><td>' + b.t + '</td><td>' + b.u + '</td><td>' + b.g + '</td><td>' + parseFloat(b.b).toFixed(6) + '</td><td class="' + cls + '">' + (b.w ? parseFloat(b.p).toFixed(2) + 'x' : '0.00x') + '</td><td class="' + cls + '">' + p + '</td></tr>';
+    });
+    h += '</tbody></table>';
+    list.innerHTML = h;
+  } catch(e) { list.innerHTML = '<div class="tp-no-bets">Error loading bets.</div>'; }
+}
+
+function diceShowTab(tab) {
+  var my = document.getElementById('diceMyBetList');
+  var all = document.getElementById('diceAllBetList');
+  var tMy = document.getElementById('diceTabMy');
+  var tAll = document.getElementById('diceTabAll');
+  if(tab === 'my') {
+    if(my) my.style.display = '';
+    if(all) all.style.display = 'none';
+    if(tMy) { tMy.classList.add('dg-btab-act'); }
+    if(tAll) { tAll.classList.remove('dg-btab-act'); }
+    diceRenderMyBets();
+  } else {
+    if(my) my.style.display = 'none';
+    if(all) all.style.display = '';
+    if(tMy) { tMy.classList.remove('dg-btab-act'); }
+    if(tAll) { tAll.classList.add('dg-btab-act'); }
+    diceRenderAllBets();
+  }
+}
