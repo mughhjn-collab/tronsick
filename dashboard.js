@@ -32,9 +32,7 @@ try{
   if(_un2){
     var _admU=JSON.parse(localStorage.getItem('adm_users')||'[]');
     var _me=_admU.find(function(u){return u.name.toLowerCase()===_un2.toLowerCase();});
-    if(_me && parseFloat(_me.balance||0) > parseFloat(localStorage.getItem('userBalance')||'0')){
-      localStorage.setItem('userBalance', parseFloat(_me.balance).toFixed(6));
-    }
+    // balance override removed
   }
 }catch(e){}
 // Admin balance override check
@@ -131,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function(){
   if(ceEl && uemail) ceEl.value = uemail;
 });
 
-function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());syncBal();}catch(e){}}
+function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());// Sync to adm_users so admin panel reflects correct balance
+try{var _un=localStorage.getItem('userName')||'';if(_un){var _au=JSON.parse(localStorage.getItem('adm_users')||'[]');var _ui=_au.findIndex(function(u){return u.name.toLowerCase()===_un.toLowerCase();});if(_ui>=0){_au[_ui].balance=bal.toFixed(6);localStorage.setItem('adm_users',JSON.stringify(_au));}}}catch(ex){}syncBal();}catch(e){}}
 function updateWager(amt){
 try{
   var LEVEL_TARGETS=[30,300,3000,30000,300000,3000000,30000000];
@@ -665,7 +664,7 @@ var clientSeed=(Math.random().toString(36).substr(2,16)+Math.random().toString(3
 var serverSeedHash='a3f8c2b1d9e4f7a6b2c8d1e5f3a9b7c4d6e2f8a1b5c3d7e9';
 var serverSeed='srv_'+Math.random().toString(36).substr(2,32);
 var nonce=0;
-var dgDir='under';
+var dgDir='over';
 var autoRunning=false,autoBasebet=0,autoBetsLeft=0,autoLoss=0,autoProfit=0,autoTimer=null;
 var lbAutoRunning=false,lbAutoBase=0,lbAutoLoss=0,lbAutoProfit=0,lbAutoTimer=null,lbNonce=0;
 var wlRotation=0,wlSpinning=false,wlMode='low',wlNonce=0,wlBetHistory=[];
@@ -1162,7 +1161,7 @@ h+='</div>';
 return h;
 }
 function initDice(){
-dgDir='under';
+dgDir='over';
 try{var saved=localStorage.getItem('diceHistory');if(saved){betHistory=JSON.parse(saved)||[];}}catch(e){}
 dgUpdate();
 renderBets();
