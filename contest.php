@@ -752,7 +752,7 @@
 
 <?php include __DIR__ . '/site_inject.php'; ?>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=21"></script>
+<script src="dashboard.js?v=25"></script>
 <script>
 window._INIT_SECTION='contest';
 
