@@ -683,10 +683,15 @@ function buildWithdraw(){
 
 function _buildWithdrawHtml(wds){
   var rows=wds.map(function(w){
-    return '<tr><td>'+w.user+'</td><td>'+w.amount+' TRX</td><td>'+w.address+'</td><td><span class="tbl-badge '+(w.status==='pending'?'tbl-yellow':w.status==='approved'?'tbl-green':'tbl-red')+'">'+w.status+'</span></td><td>'+new Date(w.date).toLocaleDateString()+'</td><td>'+
-    (w.status==='pending'?'<button class="btn btn-sm btn-primary" style="margin-right:4px" onclick="approveWd(\''+w.id+'\')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-danger" onclick="rejectWd(\''+w.id+'\')"><i class="fas fa-times"></i></button>':'<span style="color:rgba(255,255,255,.3);font-size:12px">Done</span>')+
+    var txLink = w.txid
+      ? '<a href="https://tronscan.org/#/transaction/'+w.txid+'" target="_blank" style="color:#3ecf8e;font-family:monospace;font-size:11px">'+w.txid.substr(0,16)+'... <i class="fas fa-external-link-alt" style="font-size:9px"></i></a>'
+      : '<span style="color:rgba(255,255,255,.3);font-size:11px">—</span>';
+    return '<tr><td>'+w.user+'</td><td style="font-weight:700;color:#3ecf8e">'+w.amount+' TRX</td><td style="font-family:monospace;font-size:11px">'+w.address.substr(0,14)+'...</td><td>'+txLink+'</td><td><span class="tbl-badge '+(w.status==='pending'?'tbl-yellow':w.status==='approved'?'tbl-green':'tbl-red')+'">'+w.status+'</span></td><td>'+new Date(w.date).toLocaleDateString()+'</td><td>'+
+    (w.status==='pending'
+      ? '<button class="btn btn-sm btn-success" style="margin-right:4px" onclick="openApproveModal(\''+w.id+'\')"><i class="fas fa-check"></i> Approve</button><button class="btn btn-sm btn-danger" onclick="rejectWd(\''+w.id+'\')"><i class="fas fa-times"></i></button>'
+      : '<span style="color:rgba(255,255,255,.3);font-size:12px">Done</span>')+
     '</td></tr>';
-  }).join('')||'<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No withdrawal requests</td></tr>';
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No withdrawal requests</td></tr>';
   return '<div class="pg-hdr"><h1>Withdrawal Requests</h1><p>Approve or reject pending withdrawals.</p></div>'+
   card('Withdrawal Settings','sliders',null,
     '<div class="form-row triple">'+
@@ -710,11 +715,63 @@ function saveWdSettings(){
   saveLiveToast('Withdrawal settings saved');
 }
 
-function approveWd(id){
-  var fd=new FormData(); fd.append('action','update_withdrawal_status'); fd.append('auth','TronSick@Admin2024'); fd.append('id',id); fd.append('status','approved');
-  fetch('/site_api.php',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){if(d.ok){localStorage.setItem('adm_withdrawals',JSON.stringify(d.withdrawals));document.getElementById('admContent').innerHTML=_buildWithdrawHtml(d.withdrawals);toast('✅ Withdrawal approved!','success');}}).catch(function(){});
-  // local fallback
-  _approveWdLocal(id);}
+// openApproveModal now handles approval with TXID
+function approveWd(id){ openApproveModal(id); }
+
+function openApproveModal(id){
+  var existing = document.getElementById('_wdApproveModal');
+  if(existing) existing.remove();
+  var m = document.createElement('div');
+  m.id = '_wdApproveModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  var inner = document.createElement('div');
+  inner.style.cssText = 'background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6)';
+  inner.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">'+
+    '<div style="font-size:16px;font-weight:800;color:#fff"><i class="fas fa-check-circle" style="color:#3ecf8e;margin-right:8px"></i>Approve Withdrawal</div>'+
+    '<button onclick="document.getElementById(\'_wdApproveModal\').remove()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer">✕</button>'+
+    '</div>'+
+    '<div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:10px;padding:12px;margin-bottom:18px;font-size:12px;color:#3ecf8e">'+
+    '<i class="fas fa-info-circle"></i> Paste the real TronScan TXID first, then approve. User will see this TXID in their history.</div>'+
+    '<label style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);display:block;margin-bottom:6px"><i class="fas fa-link"></i> TXID (from TronScan)</label>'+
+    '<input type="text" id="_wdApproveTxid" placeholder="Paste real TXID here..." style="width:100%;background:#0a0f1a;border:1.5px solid rgba(255,255,255,.15);border-radius:10px;padding:11px 14px;color:#3ecf8e;font-family:monospace;font-size:12px;margin-bottom:16px;box-sizing:border-box"/>'+
+    '<div style="display:flex;gap:10px">'+
+    '<button onclick="confirmApproveWd(\''+id+'\')" style="flex:1;padding:12px;background:linear-gradient(135deg,#3ecf8e,#22c55e);border:none;border-radius:10px;color:#0a1628;font-size:14px;font-weight:900;cursor:pointer"><i class="fas fa-check"></i> Confirm Approve</button>'+
+    '<button onclick="document.getElementById(\'_wdApproveModal\').remove()" style="padding:12px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;cursor:pointer">Cancel</button>'+
+    '</div>';
+  m.appendChild(inner);
+  document.body.appendChild(m);
+}
+
+function confirmApproveWd(id){
+  var txid = (document.getElementById('_wdApproveTxid') || {}).value || '';
+  txid = txid.trim();
+  if(!txid || txid.length < 20){ toast('❌ Please paste a valid TXID first!','error'); return; }
+  var fd = new FormData();
+  fd.append('action','update_withdrawal_status');
+  fd.append('auth','TronSick@Admin2024');
+  fd.append('id',id);
+  fd.append('status','approved');
+  fd.append('txid',txid);
+  fetch('/site_api.php',{method:'POST',body:fd,credentials:'same-origin'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      document.getElementById('_wdApproveModal').remove();
+      if(d.ok){
+        localStorage.setItem('adm_withdrawals',JSON.stringify(d.withdrawals));
+        document.getElementById('admContent').innerHTML=_buildWithdrawHtml(d.withdrawals);
+        toast('✅ Withdrawal approved with TXID!','success');
+      } else { toast('Error: '+(d.error||'Unknown'),'error'); }
+    }).catch(function(){
+      // Local fallback
+      var wds=JSON.parse(localStorage.getItem('adm_withdrawals')||'[]');
+      wds.forEach(function(w){if(w.id===id){w.status='approved';w.txid=txid;}});
+      localStorage.setItem('adm_withdrawals',JSON.stringify(wds));
+      document.getElementById('_wdApproveModal').remove();
+      document.getElementById('admContent').innerHTML=_buildWithdrawHtml(wds);
+      toast('✅ Approved (local)','success');
+    });
+}
 function _approveWdLocal(id){
   var wds=JSON.parse(localStorage.getItem('adm_withdrawals')||'[]');
   wds.forEach(function(w){if(w.id===id) w.status='approved';});
@@ -1304,25 +1361,30 @@ TITLES.payout_gen = 'Payout Generator';
 function buildPayoutGen(){
   var payouts = _getPayoutDraft();
   var rows = payouts.slice().reverse().map(function(p){
-    var txDisplay = p.isDemo 
-      ? '<span style="color:#f59e0b;font-size:11px">⚠ DEMO: '+p.txid.substr(0,12)+'...</span>'
-      : '<a href="https://tronscan.org/#/transaction/'+p.txid+'" target="_blank" style="color:#3ecf8e;font-family:monospace;font-size:11px">'+p.txid.substr(0,16)+'... <i class="fas fa-external-link-alt" style="font-size:9px"></i></a>';
-    return '<tr><td>'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td>'+txDisplay+'</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+p.address.substr(0,14)+'...</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
+    var txDisplay = p.txid && !p.isDemo
+      ? '<a href="https://tronscan.org/#/transaction/'+p.txid+'" target="_blank" style="color:#3ecf8e;font-family:monospace;font-size:11px">'+p.txid.substr(0,18)+'... <i class="fas fa-external-link-alt" style="font-size:9px"></i></a>'
+      : '<span style="color:rgba(255,255,255,.3);font-size:11px">Searching...</span>';
+    return '<tr><td style="font-weight:700">'+p.username+'</td><td style="color:#3ecf8e;font-weight:700">'+p.amount+' TRX</td><td>'+txDisplay+'</td><td style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.4)">'+(p.address?p.address.substr(0,14)+'...':'—')+'</td><td style="color:rgba(255,255,255,.4);font-size:12px">'+new Date(p.date).toLocaleString()+'</td><td><button class="btn btn-sm btn-danger" onclick="deleteGenPayout(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td></tr>';
   }).join('') || '<tr><td colspan="6" style="text-align:center;color:rgba(255,255,255,.3);padding:24px">No generated payouts yet</td></tr>';
 
   return '<div class="pg-hdr"><h1>Payout Generator</h1><p>Create payout records, then click <strong>Save Live to Site</strong> to publish on Payout Proof page.</p></div>'+
   card('Generate Payout','money-bill-wave',null,
     
-    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:12px"><i class="fas fa-circle-info"></i> Enter username, amount, and the real TxID from your TRX wallet. Then click <strong>Generate Payout</strong> → <strong>Save Live to Site</strong>.</div>'+
+    '<div class="adm-alert" style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;margin-bottom:12px"><i class="fas fa-circle-info"></i> Enter username + amount range → click <strong>🔍 Find Real TX</strong> → system finds a real TronScan transaction → click <strong>Generate Payout</strong> → <strong>Save Live</strong>.</div>'+
     '<div class="form-row">'+
     '<div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="pgUser" placeholder="e.g. cryptoking99"/></div>'+
-    '<div class="form-group"><label><i class="fas fa-coins"></i> Amount (TRX)</label><input type="number" id="pgAmt" value="10" min="0.000001" step="0.000001" placeholder="e.g. 25.5"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Min Amount (TRX)</label><input type="number" id="pgMin" value="10" min="1" step="1" placeholder="Min e.g. 10"/></div>'+
+    '<div class="form-group"><label><i class="fas fa-coins"></i> Max Amount (TRX)</label><input type="number" id="pgMax" value="100" min="1" step="1" placeholder="Max e.g. 100"/></div>'+
     '</div>'+
-    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-link"></i> Real TxID <span style="color:#a3e635;font-size:11px">(Paste from TronScan or your TRX wallet — this will open on Tronscan when clicked)</span></label><input type="text" id="pgTxid" placeholder="Paste real TxID here..." style="font-family:monospace;font-size:12px"/></div>'+
-    '<div class="form-group" style="margin-top:8px"><label><i class="fas fa-wallet"></i> Recipient Address <span style="color:rgba(255,255,255,.4);font-size:11px">(optional — leave blank to auto-fill)</span></label><input type="text" id="pgAddr" placeholder="Optional: TRX wallet address (T...)"/></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'+
-    '<button class="btn btn-primary" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
-    '<button class="btn btn-secondary" onclick="generateBulkPayouts()"><i class="fas fa-layer-group"></i> Generate 5 Random</button>'+
+    '<div id="pgFoundTx" style="display:none;background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25);border-radius:10px;padding:14px;margin-bottom:14px">'+
+    '<div style="color:#3ecf8e;font-weight:700;margin-bottom:8px"><i class="fas fa-check-circle"></i> Real TX Found on TronScan!</div>'+
+    '<div style="margin-bottom:4px"><span style="color:rgba(255,255,255,.5);font-size:11px">TXID:</span> <a id="pgFoundTxidLink" href="#" target="_blank" style="color:#3ecf8e;font-family:monospace;font-size:11px"><span id="pgFoundTxid"></span> <i class="fas fa-external-link-alt" style="font-size:9px"></i></a></div>'+
+    '<div style="margin-bottom:4px"><span style="color:rgba(255,255,255,.5);font-size:11px">Address:</span> <span id="pgFoundAddr" style="font-family:monospace;color:rgba(255,255,255,.7);font-size:11px"></span></div>'+
+    '<div><span style="color:rgba(255,255,255,.5);font-size:11px">Amount:</span> <span id="pgFoundAmt" style="color:#3ecf8e;font-weight:700"></span> TRX</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">'+
+    '<button class="btn btn-primary" id="pgFindBtn" onclick="pgFindRealTx()" style="background:linear-gradient(135deg,#1e40af,#3b82f6)"><i class="fas fa-search"></i> Find Real TX</button>'+
+    '<button class="btn btn-success" onclick="generateOnePayout()"><i class="fas fa-bolt"></i> Generate Payout</button>'+
     '<button class="btn btn-success" id="pgLiveBtn" onclick="pushPayoutsLive()" style="background:linear-gradient(135deg,#3ecf8e,#22c55e);font-weight:800;border:none"><i class="fas fa-broadcast-tower"></i> Save Live to Site</button>'+
     '<button class="btn btn-danger" onclick="clearAllGenPayouts()"><i class="fas fa-trash"></i> Clear All</button>'+
     '</div>'
@@ -1438,21 +1500,109 @@ function fetchRealTronTx(callback) {
   });
 }
 
+
+// ── PAYOUT GEN: FIND REAL TRON TX IN AMOUNT RANGE ──
+function pgFindRealTx() {
+  var btn = document.getElementById('pgFindBtn');
+  var minAmt = parseFloat((document.getElementById('pgMin')||{}).value) || 10;
+  var maxAmt = parseFloat((document.getElementById('pgMax')||{}).value) || 100;
+
+  if(btn){ btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...'; btn.disabled = true; }
+
+  function restoreBtn(){ if(btn){ btn.innerHTML = '<i class="fas fa-search"></i> Find Real TX'; btn.disabled = false; } }
+  function showFound(txid, addr, amount){
+    var el = document.getElementById('pgFoundTx');
+    if(el) el.style.display = 'block';
+    var tEl = document.getElementById('pgFoundTxid'); if(tEl) tEl.textContent = txid;
+    var lEl = document.getElementById('pgFoundTxidLink'); if(lEl) lEl.href = 'https://tronscan.org/#/transaction/'+txid;
+    var aEl = document.getElementById('pgFoundAddr'); if(aEl) aEl.textContent = addr;
+    var amtEl = document.getElementById('pgFoundAmt'); if(amtEl) amtEl.textContent = parseFloat(amount).toFixed(6);
+    // Store for generate
+    window._pgFoundTxid = txid;
+    window._pgFoundAddr = addr;
+    window._pgFoundAmt = parseFloat(amount).toFixed(6);
+    restoreBtn();
+    toast('✅ Real TX found! Click Generate Payout.','success');
+  }
+
+  // TronScan API: search for recent TRX transfers in range
+  // Convert TRX to SUN (1 TRX = 1,000,000 SUN)
+  var minSun = Math.floor(minAmt * 1000000);
+  var maxSun = Math.ceil(maxAmt * 1000000);
+
+  // Use TronGrid / TronScan public API
+  var url = 'https://apilist.tronscanapi.com/api/transaction?sort=-timestamp&limit=50&start=0&count=true&transferType=trx';
+
+  fetch(url, {headers:{'Content-Type':'application/json'}})
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var txs = data.data || [];
+      // Filter by amount range
+      var valid = txs.filter(function(tx) {
+        var amt = tx.amount || tx.contractData && tx.contractData.amount || 0;
+        var amtTrx = amt / 1000000;
+        return tx.hash && tx.hash.length > 60 && amtTrx >= minAmt && amtTrx <= maxAmt && tx.contractType === 1;
+      });
+      if(valid.length) {
+        var picked = valid[Math.floor(Math.random() * valid.length)];
+        var txid = picked.hash;
+        var addr = picked.toAddress || picked.contractData && picked.contractData.toAddress || '';
+        var amtTrx = ((picked.amount || picked.contractData && picked.contractData.amount || 0) / 1000000).toFixed(6);
+        showFound(txid, addr, amtTrx);
+      } else {
+        // Try TronGrid fallback
+        fetch('https://api.trongrid.io/v1/transactions?limit=50&only_confirmed=true')
+          .then(function(r2){ return r2.json(); })
+          .then(function(d2){
+            var txs2 = d2.data || [];
+            var valid2 = txs2.filter(function(tx){
+              try {
+                var contract = tx.raw_data.contract[0];
+                if(contract.type !== 'TransferContract') return false;
+                var amtSun = contract.parameter.value.amount || 0;
+                var amtTrx2 = amtSun / 1000000;
+                return tx.txID && amtTrx2 >= minAmt && amtTrx2 <= maxAmt;
+              } catch(e){ return false; }
+            });
+            if(valid2.length){
+              var p2 = valid2[Math.floor(Math.random()*valid2.length)];
+              var addr2 = '';
+              try { addr2 = p2.raw_data.contract[0].parameter.value.to_address || ''; } catch(e){}
+              var amtSun2 = 0;
+              try { amtSun2 = p2.raw_data.contract[0].parameter.value.amount || 0; } catch(e){}
+              showFound(p2.txID, addr2, (amtSun2/1000000).toFixed(6));
+            } else {
+              restoreBtn();
+              toast('⚠️ No TX found in this range. Try wider range.','error');
+            }
+          }).catch(function(){ restoreBtn(); toast('⚠️ TronScan API error. Try again.','error'); });
+      }
+    })
+    .catch(function(){
+      restoreBtn();
+      toast('⚠️ Network error. Check internet.','error');
+    });
+}
+
 function generateOnePayout(){
   var user = (document.getElementById('pgUser').value||'').trim();
-  var amt = parseFloat(document.getElementById('pgAmt')?document.getElementById('pgAmt').value:document.getElementById('pgMin')?document.getElementById('pgMin').value:10)||10;
-  var txid = (document.getElementById('pgTxid')?document.getElementById('pgTxid').value:'').trim();
-  var addr = (document.getElementById('pgAddr')?document.getElementById('pgAddr').value:'').trim()||_randTronAddr();
-  if(!user){toast('Enter a username','error');return;}
-  if(!txid||txid.length<10){toast('❌ Paste the real TxID from your TRX wallet!','error');return;}
-  // addr is optional
-  if(addr && !addr.startsWith('T')){ addr = _randTronAddr(); }
-  if(!addr){ addr = _randTronAddr(); }
-  var p = {id:'pg'+Date.now(),username:user,amount:amt.toFixed(6),txid:txid,address:addr,date:new Date().toISOString()};
+  if(!user){ toast('❌ Enter a username first!','error'); return; }
+  var txid = window._pgFoundTxid || '';
+  var addr = window._pgFoundAddr || '';
+  var amt = parseFloat(window._pgFoundAmt) || parseFloat((document.getElementById('pgMin')||{}).value) || 10;
+  if(!txid || txid.length < 20){
+    toast('❌ Click "Find Real TX" first to get a real TronScan transaction!','error');
+    return;
+  }
+  var p = {id:'pg'+Date.now(), username:user, amount:parseFloat(amt).toFixed(6), txid:txid, address:addr, date:new Date().toISOString()};
   var payouts = _getPayoutDraft();
   payouts.push(p);
   _savePayoutDraft(payouts);
-  toast('Payout generated (draft). Click Save Live to Site!','success');
+  // Reset found TX so next payout needs fresh search
+  window._pgFoundTxid = '';
+  window._pgFoundAddr = '';
+  window._pgFoundAmt = '';
+  toast('✅ Payout generated! Click Save Live to Site to publish.','success');
   document.getElementById('admContent').innerHTML=buildPayoutGen();
 }
 
