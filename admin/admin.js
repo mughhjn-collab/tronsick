@@ -197,8 +197,14 @@ function saveUserEdit(uid){
   var emailEl = document.getElementById('_euEmail');
   var newBal = parseFloat(balEl?balEl.value:0)||0;
   var newEmail = emailEl?emailEl.value.trim():'';
+  var levelEl = document.getElementById('_euLevel');
+  var refCommEl = document.getElementById('_euRefComm');
+  var newLevel = levelEl ? levelEl.value : (users[idx].level||'Stone');
+  var newRefComm = parseFloat(refCommEl ? refCommEl.value : 5) || 5;
   users[idx].balance = newBal.toFixed(6);
   if(newEmail) users[idx].email = newEmail;
+  users[idx].level = newLevel;
+  users[idx].ref_commission = newRefComm;
   localStorage.setItem('adm_users', JSON.stringify(users));
   S.users = users;
   // Push to server via SiteSync
@@ -210,6 +216,8 @@ function saveUserEdit(uid){
     fd.append('name', users[idx].name);
     fd.append('balance', newBal.toFixed(6));
     if(newEmail) fd.append('email', newEmail);
+    fd.append('level', newLevel);
+    fd.append('ref_commission', newRefComm.toString());
     fetch('/site_api.php', {method:'POST', body:fd, credentials:'same-origin'})
       .then(function(r){return r.json();})
       .then(function(d){
@@ -1333,6 +1341,78 @@ function _randTronAddr(){
   return a;
 }
 function _randBetween(min,max){ return (Math.random()*(max-min)+min); }
+
+
+
+// ── FETCH REAL TRON TX FROM TRONSCAN ──
+function fetchRealTronTx(callback) {
+  var btn = document.querySelector('[onclick="fetchRealTronTx()"]');
+  if(btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching...'; btn.disabled = true; }
+
+  // Use TronGrid API to get recent TRX transfers
+  // Multiple endpoints for reliability
+  var endpoints = [
+    'https://apilist.tronscanapi.com/api/transaction?sort=-timestamp&limit=20&start=0&count=true&transferType=trx',
+    'https://api.trongrid.io/v1/transactions?limit=20&only_confirmed=true'
+  ];
+
+  function restoreBtn() {
+    if(btn) { btn.innerHTML = '<i class="fas fa-bolt"></i> Auto Fetch TX'; btn.disabled = false; }
+  }
+
+  // Try TronScan API
+  fetch('https://apilist.tronscanapi.com/api/transaction?sort=-timestamp&limit=50&start=0&count=true&transferType=trx', {
+    method: 'GET',
+    headers: { 'TRON-PRO-API-KEY': '' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var txs = data.data || data.transactions || [];
+    // Filter: TRX transfers with amount > 0
+    var valid = txs.filter(function(tx) {
+      return tx.hash && tx.hash.length > 60 && (tx.contractType === 1 || tx.contractRet === 'SUCCESS');
+    });
+    if(!valid.length) throw new Error('No valid txs');
+    // Pick a random one
+    var picked = valid[Math.floor(Math.random() * Math.min(valid.length, 20))];
+    var txid = picked.hash || picked.txID || picked.transaction_id;
+    var addr = picked.toAddress || picked.ownerAddress || picked.contractData && picked.contractData.toAddress || '';
+
+    var txEl = document.getElementById('pgTxid');
+    var addrEl = document.getElementById('pgAddr');
+    if(txEl) txEl.value = txid;
+    if(addrEl && addr) addrEl.value = addr;
+    restoreBtn();
+    toast('✅ Real TX fetched from TronScan!', 'success');
+    if(callback) callback(txid, addr);
+  })
+  .catch(function() {
+    // Fallback: Try TronGrid
+    fetch('https://api.trongrid.io/v1/transactions?limit=20&only_confirmed=true')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var txs = data.data || [];
+      var valid = txs.filter(function(tx) { return tx.txID && tx.txID.length > 60; });
+      if(!valid.length) throw new Error('no txs');
+      var picked = valid[Math.floor(Math.random() * valid.length)];
+      var txid = picked.txID;
+      var addr = '';
+      try { addr = picked.raw_data.contract[0].parameter.value.to_address || ''; } catch(e) {}
+      var txEl = document.getElementById('pgTxid');
+      var addrEl = document.getElementById('pgAddr');
+      if(txEl) txEl.value = txid;
+      if(addrEl && addr) addrEl.value = addr;
+      restoreBtn();
+      toast('✅ Real TX fetched!', 'success');
+      if(callback) callback(txid, addr);
+    })
+    .catch(function() {
+      restoreBtn();
+      toast('⚠️ Could not fetch TX. Paste manually from tronscan.org', 'error');
+      if(callback) callback(null, null);
+    });
+  });
+}
 
 function generateOnePayout(){
   var user = (document.getElementById('pgUser').value||'').trim();

@@ -56,6 +56,22 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 switch ($action) {
 
+    case 'get_balance':
+        // Public endpoint: get user balance by username
+        \ = trim(\['name'] ?? \['name'] ?? '');
+        if(!\){ echo json_encode(['ok'=>false,'error'=>'Missing name']); break; }
+        \ = readJson(\, []);
+        \ = null;
+        foreach(\ as \){
+            if(strcasecmp(\['name'] ?? '', \) === 0){ \ = \; break; }
+        }
+        if(\){
+            echo json_encode(['ok'=>true,'balance'=>\['balance']??'0','level'=>\['level']??'Stone','ref_commission'=>\['ref_commission']??5]);
+        } else {
+            echo json_encode(['ok'=>false,'error'=>'User not found']);
+        }
+        break;
+
     case 'get_antibot':
         $stored = readJson($antibotFile, []);
         $configured = isset($stored['_saved']) && ($stored['_saved'] === '1' || $stored['_saved'] === 1);
@@ -269,6 +285,10 @@ switch ($action) {
             if(strcasecmp($u['name'] ?? '', $name) === 0){
                 $u['balance'] = $balance;
                 if($email) $u['email'] = $email;
+                $level_post = trim($_POST['level'] ?? '');
+                $ref_comm_post = isset($_POST['ref_commission']) ? $_POST['ref_commission'] : null;
+                if($level_post) $u['level'] = $level_post;
+                if($ref_comm_post !== null) $u['ref_commission'] = floatval($ref_comm_post);
                 $u['balance_updated'] = date('c');
                 $found = true;
                 break;

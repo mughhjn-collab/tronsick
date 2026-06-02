@@ -2364,3 +2364,38 @@ function _depRenderTx(txs){
   });
   body.innerHTML = html;
 }
+// ── SERVER BALANCE SYNC (polls every 30s to reflect admin changes) ──
+function syncBalanceFromServer() {
+  var uname = localStorage.getItem('userName') || '';
+  if(!uname) return;
+  var fd = new FormData();
+  fd.append('action', 'get_balance');
+  fd.append('name', uname);
+  fetch('/site_api.php', {method:'POST', body:fd, credentials:'same-origin'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok && d.balance !== undefined) {
+        var serverBal = parseFloat(d.balance) || 0;
+        var localBal = parseFloat(localStorage.getItem('userBalance') || '0');
+        // Only update if server balance differs significantly (admin may have changed it)
+        if(Math.abs(serverBal - localBal) > 0.000001) {
+          localStorage.setItem('userBalance', serverBal.toFixed(6));
+          var el = document.getElementById('userBalance');
+          if(el) el.textContent = serverBal.toFixed(6);
+        }
+        // Update level too
+        if(d.level) {
+          localStorage.setItem('userLevel', d.level);
+        }
+      }
+    })
+    .catch(function(){});
+}
+// Start polling every 30 seconds
+setInterval(syncBalanceFromServer, 30000);
+// Also sync on page focus (when user comes back to tab)
+document.addEventListener('visibilitychange', function() {
+  if(!document.hidden) syncBalanceFromServer();
+});
+// Initial sync after 2 seconds
+setTimeout(syncBalanceFromServer, 2000);
