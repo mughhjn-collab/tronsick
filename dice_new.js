@@ -18,8 +18,6 @@ function buildDice() {
 
   var h = '<div class="tp-game-wrap">';
 
-  // ── RESULT DISPLAY ──
-  h += '<div id="diceResultBanner" style="display:none;text-align:center;padding:10px;border-radius:8px;font-size:18px;font-weight:900;margin-bottom:12px;transition:all 0.3s"></div>';
 
   // ── TOP ROW: Bet Amount | Profit On Win ──
   h += '<div class="tp-row-2">';
@@ -85,7 +83,11 @@ function buildDice() {
   // ── SLIDER ──
   h += '<div class="tp-slider-wrap" style="margin-top:16px">';
   h +=   '<span class="tp-sl-num">0</span>';
-  h +=   '<input type="range" id="diceSlider" class="tp-slider" min="0.01" max="99.99" step="0.01" value="50" oninput="diceBySlider()">';
+  h +=   '<div style="position:relative;flex:1;display:flex;align-items:center">';
+  h +=     '<input type="range" id="diceSlider" class="tp-slider" min="0.01" max="99.99" step="0.01" value="50" oninput="diceBySlider()" style="width:100%;margin:0">';
+  h +=     '<div id="diceRollBubble" style="display:none;position:absolute;top:-30px;transform:translateX(-50%);color:#fff;font-size:12px;font-weight:900;padding:3px 8px;border-radius:5px;pointer-events:none;z-index:5;white-space:nowrap"></div>';
+  h +=     '<div id="diceRollDot" style="display:none;position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;border:2px solid #fff;pointer-events:none;z-index:5"></div>';
+  h +=   '</div>';
   h +=   '<span class="tp-sl-num">100</span>';
   h += '</div>';
 
@@ -240,24 +242,6 @@ function diceToggleMode() {
   if(!isAuto && diceAutoRunning) diceStopAuto();
 }
 
-// ── SHOW RESULT BANNER ──
-function diceShowResult(win, roll, t) {
-  var b = document.getElementById('diceResultBanner'); if(!b) return;
-  var direction = diceDir === 'over' ? 'Over' : 'Under';
-  b.style.display = 'block';
-  if(win) {
-    b.style.background = 'rgba(40,167,69,0.15)';
-    b.style.border = '1px solid #28a745';
-    b.style.color = '#28a745';
-    b.textContent = '✅ WIN! Rolled ' + roll.toFixed(2) + ' (' + direction + ' ' + t.toFixed(2) + ')';
-  } else {
-    b.style.background = 'rgba(220,53,69,0.15)';
-    b.style.border = '1px solid #dc3545';
-    b.style.color = '#dc3545';
-    b.textContent = '❌ LOSS. Rolled ' + roll.toFixed(2) + ' (' + direction + ' ' + t.toFixed(2) + ')';
-  }
-  setTimeout(function() { if(b) b.style.display = 'none'; }, 3000);
-}
 
 // ── MANUAL ROLL ──
 function diceRoll() {
@@ -287,7 +271,7 @@ function diceRoll() {
     if(win) addBal(bet * mult);
     var profit = win ? bet * (mult - 1) : -bet;
 
-    diceShowResult(win, roll, t);
+    diceShowRollPoint(roll, win);
     diceSaveResult(bet, mult, wc, win, profit, roll);
     btn.disabled = false; btn.textContent = 'ROLL DICE';
   }, 600);
@@ -348,6 +332,7 @@ function diceAutoStep() {
   var tp = document.getElementById('diceAutoTotalProfit');
   if(tp) tp.value = diceAutoProfit.toFixed(6);
 
+  diceShowRollPoint(roll, win);
   diceSaveResult(bet, mult, wc, win, profit, roll);
 
   // Read radio buttons correctly
@@ -370,6 +355,23 @@ function diceAutoStep() {
   diceCalcProfit();
 
   diceAutoTimer = setTimeout(diceAutoStep, 700);
+}
+
+
+// ── ROLL POINT ON SLIDER ──
+function diceShowRollPoint(roll, win) {
+  var bubble = document.getElementById('diceRollBubble');
+  var dot = document.getElementById('diceRollDot');
+  if(!bubble || !dot) return;
+  var pct = Math.max(0, Math.min(100, roll));
+  var col = win ? '#28a745' : '#dc3545';
+  bubble.style.display = 'block';
+  bubble.style.left = pct + '%';
+  bubble.textContent = roll.toFixed(2);
+  bubble.style.background = col;
+  dot.style.display = 'block';
+  dot.style.left = pct + '%';
+  dot.style.background = col;
 }
 
 // ── SAVE & RENDER ──
@@ -395,7 +397,7 @@ function diceRenderMyBets() {
   if(!list) return;
   if(!diceBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Roll to start!</div>'; return; }
   var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
-  diceBetHistory.slice(0, 50).forEach(function(b) {
+  diceBetHistory.slice(0, 50).forEach(function(b, i) {
     var m = b.win ? b.mult.toFixed(2) + 'x' : '0.00x';
     var p = (b.profit >= 0 ? '+' : '') + b.profit.toFixed(6);
     var cls = b.win ? 'tp-win' : 'tp-lose';
@@ -420,6 +422,37 @@ function diceRenderAllBets() {
     h += '</tbody></table>';
     list.innerHTML = h;
   } catch(e) { list.innerHTML = '<div class="tp-no-bets">Error loading bets.</div>'; }
+}
+
+
+// ── BET INFO MODAL ──
+function diceOpenBetInfo(idx) {
+  var b = diceBetHistory[idx];
+  if(!b) return;
+  var modal = document.getElementById('betModal');
+  if(!modal) { try { modal = _ensureBetModal(); } catch(e) {} }
+  if(!modal) return;
+  var title = document.getElementById('bmTitle');
+  if(title) title.textContent = '\u{1F3B2} Dice \u2014 Bet Info';
+  var res = document.getElementById('bmResult');
+  if(res) {
+    res.textContent = b.win ? ('\u2705 WIN +' + b.profit.toFixed(6) + ' TRX') : ('\u274C LOSS \u2212' + Math.abs(b.profit).toFixed(6) + ' TRX');
+    res.style.cssText = b.win
+      ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(40,167,69,.15);border:1px solid #28a745;color:#28a745'
+      : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(220,53,69,.15);border:1px solid #dc3545;color:#dc3545';
+  }
+  var seeds = document.getElementById('bmSeeds');
+  if(seeds) seeds.innerHTML =
+    '<table style="width:100%;font-size:13px;color:rgba(232,240,235,.8);border-collapse:collapse">' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Rolled</td><td>' + (b.roll||0).toFixed(2) + '</td>' +
+    '<td style="color:#3ecf8e;font-weight:700">Multiplier</td><td>' + (b.mult||0).toFixed(2) + 'x</td></tr>' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Bet</td><td>' + b.bet.toFixed(6) + ' TRX</td>' +
+    '<td style="color:#3ecf8e;font-weight:700">Win Chance</td><td>' + (b.wc||0).toFixed(2) + '%</td></tr>' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Result</td><td colspan="3" style="color:' + (b.win?'#28a745':'#dc3545') + ';font-weight:700">' + (b.win?'WIN':'LOSS') + '</td></tr>' +
+    '</table>';
+  var vl = document.getElementById('bmVerifyLink');
+  if(vl) vl.innerHTML = '<a href="https://tronsick.io/verify.php" target="_blank" style="color:#3ecf8e;font-size:13px;font-weight:700;text-decoration:underline">\u{1F512} Verify Provable Fairness</a>';
+  modal.style.display = 'flex';
 }
 
 function diceShowTab(tab) {

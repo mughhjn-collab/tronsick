@@ -331,7 +331,7 @@ function limboRenderMyBets() {
   if(!list) return;
   if(!limboBetHistory.length) { list.innerHTML = '<div class="tp-no-bets">No bets yet. Press BET to start!</div>'; return; }
   var h = '<table class="tp-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Target</th><th>Result</th><th>Profit</th></tr></thead><tbody>';
-  limboBetHistory.slice(0, 50).forEach(function(b) {
+  limboBetHistory.slice(0, 50).forEach(function(b, i) {
     var cls = b.win ? 'tp-win' : 'tp-lose';
     var p = (b.profit >= 0 ? '+' : '') + b.profit.toFixed(6);
     h += '<tr><td>' + b.ts + '</td><td>🚀 Limbo</td><td>' + b.bet.toFixed(6) + '</td><td>' + b.target.toFixed(2) + 'x</td><td class="' + cls + '">' + b.crash.toFixed(2) + 'x</td><td class="' + cls + '">' + p + '</td></tr>';
@@ -355,6 +355,37 @@ function limboRenderAllBets() {
     h += '</tbody></table>';
     list.innerHTML = h;
   } catch(e) { list.innerHTML = '<div class="tp-no-bets">Error loading bets.</div>'; }
+}
+
+
+// ── LIMBO BET INFO MODAL ──
+function limboOpenBetInfo(idx) {
+  var b = limboBetHistory[idx];
+  if(!b) return;
+  var modal = document.getElementById('betModal');
+  if(!modal) { try { modal = _ensureBetModal(); } catch(e) {} }
+  if(!modal) return;
+  var title = document.getElementById('bmTitle');
+  if(title) title.textContent = '\u{1F680} Limbo \u2014 Bet Info';
+  var res = document.getElementById('bmResult');
+  if(res) {
+    res.textContent = b.win ? ('\u2705 WIN +' + b.profit.toFixed(6) + ' TRX') : ('\u274C LOSS \u2212' + Math.abs(b.profit).toFixed(6) + ' TRX');
+    res.style.cssText = b.win
+      ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(40,167,69,.15);border:1px solid #28a745;color:#28a745'
+      : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(220,53,69,.15);border:1px solid #dc3545;color:#dc3545';
+  }
+  var seeds = document.getElementById('bmSeeds');
+  if(seeds) seeds.innerHTML =
+    '<table style="width:100%;font-size:13px;color:rgba(232,240,235,.8);border-collapse:collapse">' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Result</td><td>' + (b.crash||0).toFixed(2) + 'x</td>' +
+    '<td style="color:#3ecf8e;font-weight:700">Target</td><td>' + (b.target||0).toFixed(2) + 'x</td></tr>' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Bet</td><td>' + b.bet.toFixed(6) + ' TRX</td>' +
+    '<td style="color:#3ecf8e;font-weight:700">Win Chance</td><td>' + (b.wc||0).toFixed(2) + '%</td></tr>' +
+    '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Outcome</td><td colspan="3" style="color:' + (b.win?'#28a745':'#dc3545') + ';font-weight:700">' + (b.win ? 'WIN ('+b.crash.toFixed(2)+'x >= '+b.target.toFixed(2)+'x)' : 'LOSS ('+b.crash.toFixed(2)+'x < '+b.target.toFixed(2)+'x)') + '</td></tr>' +
+    '</table>';
+  var vl = document.getElementById('bmVerifyLink');
+  if(vl) vl.innerHTML = '<a href="https://tronsick.io/verify.php" target="_blank" style="color:#3ecf8e;font-size:13px;font-weight:700;text-decoration:underline">\u{1F512} Verify Provable Fairness</a>';
+  modal.style.display = 'flex';
 }
 
 function limboShowTab(tab) {
