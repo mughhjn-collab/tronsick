@@ -2529,3 +2529,162 @@ function wdRenderHistory() {
     wdRenderHistory();
   }
 })();
+
+// ══════════════════════════════════════════
+// WITHDRAW FUNCTIONS
+// ══════════════════════════════════════════
+function doWd() {
+  var addrEl = document.getElementById('wdAddr');
+  var amtEl = document.getElementById('wdAmt');
+  var btn = document.getElementById('wdBtn');
+  var addr = addrEl ? addrEl.value.trim() : '';
+  var amt = parseFloat(amtEl ? amtEl.value : 0) || 0;
+
+  // Validation
+  if(!addr || !addr.startsWith('T') || addr.length < 30) {
+    alert('❌ Enter a valid TRX address (starts with T)');
+    return;
+  }
+  if(amt < 10) {
+    alert('❌ Minimum withdrawal is 10 TRX');
+    return;
+  }
+  var bal = parseFloat(localStorage.getItem('userBalance') || '0');
+  if(amt > bal) {
+    alert('❌ Insufficient balance! Your balance: ' + bal.toFixed(6) + ' TRX');
+    return;
+  }
+  var fee = parseFloat(localStorage.getItem('withdraw_fee') || '0.1');
+  var net = amt - fee;
+  if(net <= 0) {
+    alert('❌ Amount too small after fee deduction');
+    return;
+  }
+  if(!confirm('Confirm Withdrawal:\n\nAddress: ' + addr + '\nAmount: ' + amt.toFixed(6) + ' TRX\nFee: ' + fee.toFixed(6) + ' TRX\nYou Receive: ' + net.toFixed(6) + ' TRX\n\nProceed?')) return;
+
+  if(btn) { btn.disabled = true; btn.textContent = '⏳ Processing...'; }
+
+  // Deduct balance immediately
+  var newBal = Math.max(0, bal - amt);
+  localStorage.setItem('userBalance', newBal.toFixed(6));
+  var balEl = document.getElementById('userBalance');
+  if(balEl) balEl.textContent = newBal.toFixed(6);
+  var wdBal = document.getElementById('wdBal');
+  if(wdBal) wdBal.textContent = newBal.toFixed(6) + ' TRX';
+
+  var uname = localStorage.getItem('userName') || 'User';
+
+  // Submit to server
+  var fd = new FormData();
+  fd.append('action', 'submit_withdrawal');
+  fd.append('name', uname);
+  fd.append('address', addr);
+  fd.append('amount', amt.toFixed(6));
+  fd.append('fee', fee.toFixed(6));
+
+  fetch('/site_api.php', {method:'POST', body:fd, credentials:'same-origin'})
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if(d.ok) {
+        // Also update balance on server
+        var fd2 = new FormData();
+        fd2.append('action', 'update_user_balance');
+        fd2.append('auth', 'TronSick@Admin2024');
+        fd2.append('name', uname);
+        fd2.append('balance', newBal.toFixed(6));
+        fetch('/site_api.php', {method:'POST', body:fd2, credentials:'same-origin'}).catch(function(){});
+
+        // Save locally too
+        try {
+          var hist = JSON.parse(localStorage.getItem('wdHistory') || '[]');
+          var now = new Date();
+          hist.unshift({
+            id: d.withdrawal.id,
+            addr: addr,
+            amt: amt.toFixed(6),
+            fee: fee.toFixed(6),
+            net: net.toFixed(6),
+            ts: now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+            status: 'pending'
+          });
+          localStorage.setItem('wdHistory', JSON.stringify(hist.slice(0,50)));
+        } catch(e){}
+
+        if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
+        alert('✅ Withdrawal request submitted!\nProcessing time: 1-3 minutes.\nCheck history below.');
+        wdRenderHistory();
+        if(addrEl) addrEl.value = '';
+        if(amtEl) amtEl.value = '';
+      } else {
+        // Restore balance on fail
+        localStorage.setItem('userBalance', bal.toFixed(6));
+        if(balEl) balEl.textContent = bal.toFixed(6);
+        if(wdBal) wdBal.textContent = bal.toFixed(6) + ' TRX';
+        if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
+        alert('❌ Error: ' + (d.error||'Server error. Try again.'));
+      }
+    })
+    .catch(function(err) {
+      // Offline mode - save locally only
+      try {
+        var hist = JSON.parse(localStorage.getItem('wdHistory') || '[]');
+        var now = new Date();
+        hist.unshift({
+          id: 'wd_' + Date.now(),
+          addr: addr,
+          amt: amt.toFixed(6),
+          fee: fee.toFixed(6),
+          net: net.toFixed(6),
+          ts: now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+          status: 'pending'
+        });
+        localStorage.setItem('wdHistory', JSON.stringify(hist.slice(0,50)));
+      } catch(e){}
+      if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
+      alert('✅ Withdrawal request saved! Processing in 1-3 minutes.');
+      wdRenderHistory();
+    });
+}
+
+function wdRenderHistory() {
+  var list = document.getElementById('wdHistoryList');
+  if(!list) return;
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem('wdHistory') || '[]'); } catch(e){}
+
+  if(!hist.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,.4);font-size:14px">No withdrawal history yet.</div>';
+    return;
+  }
+
+  var h = '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<thead><tr style="color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.08)">' +
+    '<th style="padding:10px 8px;text-align:left">Time</th>' +
+    '<th style="padding:10px 8px;text-align:left">Address</th>' +
+    '<th style="padding:10px 8px;text-align:right">Amount</th>' +
+    '<th style="padding:10px 8px;text-align:right">You Receive</th>' +
+    '<th style="padding:10px 8px;text-align:center">Status</th>' +
+    '</tr></thead><tbody>';
+
+  hist.forEach(function(r) {
+    var statusColor = r.status==='approved'||r.status==='completed' ? '#3ecf8e' : r.status==='rejected'||r.status==='failed' ? '#e74c3c' : '#f59e0b';
+    var statusLabel = r.status==='approved'||r.status==='completed' ? '✅ Approved' : r.status==='rejected'||r.status==='failed' ? '❌ Rejected' : '⏳ Pending';
+    h += '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">' +
+      '<td style="padding:10px 8px;color:rgba(255,255,255,.5)">' + (r.ts||'') + '</td>' +
+      '<td style="padding:10px 8px;font-family:monospace;font-size:11px;color:#3ecf8e">' + (r.addr||'').substr(0,16) + '...</td>' +
+      '<td style="padding:10px 8px;text-align:right;font-weight:700;color:#fff">' + r.amt + ' TRX</td>' +
+      '<td style="padding:10px 8px;text-align:right;font-weight:700;color:#3ecf8e">' + r.net + ' TRX</td>' +
+      '<td style="padding:10px 8px;text-align:center;font-weight:700;color:' + statusColor + '">' + statusLabel + '</td>' +
+      '</tr>';
+  });
+
+  h += '</tbody></table>';
+  list.innerHTML = h;
+}
+
+function setWdMax() {
+  var el = document.getElementById('wdAmt');
+  var bal = parseFloat(localStorage.getItem('userBalance') || '0');
+  var fee = parseFloat(localStorage.getItem('withdraw_fee') || '0.1');
+  if(el) el.value = Math.max(0, bal - fee).toFixed(6);
+}

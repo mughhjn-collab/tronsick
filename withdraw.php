@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php include __DIR__ . '/site_inject.php'; ?>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=26"></script>
+<script src="dashboard.js?v=27"></script>
 <script>window._INIT_SECTION='withdraw';</script>
 </body>
 </html>

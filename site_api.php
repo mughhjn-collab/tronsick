@@ -272,6 +272,58 @@ switch ($action) {
         echo json_encode(['ok' => true, 'payouts' => []]);
         break;
 
+    // ── WITHDRAWALS ──
+    case 'submit_withdrawal':
+        $name    = trim($_POST['name'] ?? '');
+        $addr    = trim($_POST['address'] ?? '');
+        $amt     = floatval($_POST['amount'] ?? 0);
+        $fee     = floatval($_POST['fee'] ?? 0.1);
+        if(!$name || !$addr || $amt <= 0){ jsonFail('Invalid withdrawal data', 400); }
+        $wFile = $dataDir . '/withdrawals.json';
+        $wds = readJson($wFile, []);
+        $newWd = [
+            'id'      => 'wd_' . time() . '_' . rand(1000,9999),
+            'user'    => $name,
+            'address' => $addr,
+            'amount'  => number_format($amt, 6, '.', ''),
+            'fee'     => number_format($fee, 6, '.', ''),
+            'net'     => number_format($amt - $fee, 6, '.', ''),
+            'status'  => 'pending',
+            'date'    => date('c')
+        ];
+        array_unshift($wds, $newWd);
+        if(!writeJson($wFile, $wds)){ jsonFail('Cannot write withdrawals file.'); }
+        echo json_encode(['ok' => true, 'withdrawal' => $newWd]);
+        break;
+
+    case 'get_withdrawals':
+        requireAdmin();
+        $wFile = $dataDir . '/withdrawals.json';
+        $wds = readJson($wFile, []);
+        echo json_encode(['ok' => true, 'withdrawals' => $wds]);
+        break;
+
+    case 'update_withdrawal_status':
+        requireAdmin();
+        $wid    = trim($_POST['id'] ?? '');
+        $status = trim($_POST['status'] ?? '');
+        if(!$wid || !in_array($status, ['pending','approved','rejected'])){ jsonFail('Invalid data', 400); }
+        $wFile = $dataDir . '/withdrawals.json';
+        $wds = readJson($wFile, []);
+        $found = false;
+        foreach($wds as &$w){
+            if($w['id'] === $wid){
+                $w['status'] = $status;
+                $w['updated'] = date('c');
+                $found = true;
+                break;
+            }
+        }
+        unset($w);
+        if(!$found){ jsonFail('Withdrawal not found', 404); }
+        if(!writeJson($wFile, $wds)){ jsonFail('Cannot write withdrawals file.'); }
+        echo json_encode(['ok' => true, 'withdrawals' => $wds]);
+        break;
 
     case 'update_user_balance':
         requireAdmin();

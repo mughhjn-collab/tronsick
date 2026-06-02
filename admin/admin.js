@@ -666,7 +666,22 @@ function saveAffiliate(){
 
 // â”€â”€ WITHDRAWALS â”€â”€
 function buildWithdraw(){
-  var wds=JSON.parse(localStorage.getItem('adm_withdrawals')||'[]');
+  // Load from server
+  var fd=new FormData(); fd.append('action','get_withdrawals'); fd.append('auth','TronSick@Admin2024');
+  fetch('/site_api.php',{method:'POST',body:fd,credentials:'same-origin'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok&&d.withdrawals){
+        localStorage.setItem('adm_withdrawals',JSON.stringify(d.withdrawals));
+        document.getElementById('admContent').innerHTML=_buildWithdrawHtml(d.withdrawals);
+      }
+    }).catch(function(){
+      document.getElementById('admContent').innerHTML=_buildWithdrawHtml(JSON.parse(localStorage.getItem('adm_withdrawals')||'[]'));
+    });
+  return _buildWithdrawHtml(JSON.parse(localStorage.getItem('adm_withdrawals')||'[]'));
+}
+
+function _buildWithdrawHtml(wds){
   var rows=wds.map(function(w){
     return '<tr><td>'+w.user+'</td><td>'+w.amount+' TRX</td><td>'+w.address+'</td><td><span class="tbl-badge '+(w.status==='pending'?'tbl-yellow':w.status==='approved'?'tbl-green':'tbl-red')+'">'+w.status+'</span></td><td>'+new Date(w.date).toLocaleDateString()+'</td><td>'+
     (w.status==='pending'?'<button class="btn btn-sm btn-primary" style="margin-right:4px" onclick="approveWd(\''+w.id+'\')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-danger" onclick="rejectWd(\''+w.id+'\')"><i class="fas fa-times"></i></button>':'<span style="color:rgba(255,255,255,.3);font-size:12px">Done</span>')+
@@ -696,6 +711,11 @@ function saveWdSettings(){
 }
 
 function approveWd(id){
+  var fd=new FormData(); fd.append('action','update_withdrawal_status'); fd.append('auth','TronSick@Admin2024'); fd.append('id',id); fd.append('status','approved');
+  fetch('/site_api.php',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){if(d.ok){localStorage.setItem('adm_withdrawals',JSON.stringify(d.withdrawals));document.getElementById('admContent').innerHTML=_buildWithdrawHtml(d.withdrawals);toast('✅ Withdrawal approved!','success');}}).catch(function(){});
+  // local fallback
+  _approveWdLocal(id);}
+function _approveWdLocal(id){
   var wds=JSON.parse(localStorage.getItem('adm_withdrawals')||'[]');
   wds.forEach(function(w){if(w.id===id) w.status='approved';});
   localStorage.setItem('adm_withdrawals',JSON.stringify(wds));
@@ -704,6 +724,10 @@ function approveWd(id){
 }
 
 function rejectWd(id){
+  var fd=new FormData(); fd.append('action','update_withdrawal_status'); fd.append('auth','TronSick@Admin2024'); fd.append('id',id); fd.append('status','rejected');
+  fetch('/site_api.php',{method:'POST',body:fd,credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){if(d.ok){localStorage.setItem('adm_withdrawals',JSON.stringify(d.withdrawals));document.getElementById('admContent').innerHTML=_buildWithdrawHtml(d.withdrawals);toast('❌ Withdrawal rejected!','error');}}).catch(function(){});
+  _rejectWdLocal(id);}
+function _rejectWdLocal(id){
   var wds=JSON.parse(localStorage.getItem('adm_withdrawals')||'[]');
   wds.forEach(function(w){if(w.id===id) w.status='rejected';});
   localStorage.setItem('adm_withdrawals',JSON.stringify(wds));
