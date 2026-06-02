@@ -255,7 +255,7 @@ function diceRoll() {
   if(!btn || btn.disabled) return;
   var bet = parseFloat((document.getElementById('diceAmt') || {}).value) || 0;
   if(bet <= 0) { showToast('Enter bet amount!'); return; }
-  var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
+  var bal = (parseFloat(localStorage.getItem('userBalance')) || 0);
   if(bet > bal) { showToast('Insufficient balance!'); return; }
 
   btn.disabled = true; btn.textContent = 'Rolling...';
@@ -281,7 +281,7 @@ function diceRoll() {
 function diceStartAuto() {
   var bet = parseFloat((document.getElementById('diceAmt') || {}).value) || 0;
   if(bet <= 0) { showToast('Enter bet amount!'); return; }
-  var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
+  var bal = (parseFloat(localStorage.getItem('userBalance')) || 0);
   if(bet > bal) { showToast('Insufficient balance!'); return; }
 
   diceAutoRunning = true;
@@ -306,7 +306,7 @@ function diceAutoStep() {
   if(!diceAutoRunning) return;
 
   var bet = parseFloat((document.getElementById('diceAmt') || {}).value) || diceAutoBase;
-  var bal = parseFloat(document.getElementById('userBalance').textContent) || 0;
+  var bal = (parseFloat(localStorage.getItem('userBalance')) || 0);
 
   var stopProfit = parseFloat((document.getElementById('diceStopProfit') || {}).value) || 0;
   var stopLoss = parseFloat((document.getElementById('diceStopLoss') || {}).value) || 0;
@@ -429,9 +429,37 @@ function diceRenderAllBets() {
 function diceOpenBetInfo(idx) {
   var b = diceBetHistory[idx];
   if(!b) return;
+
   var modal = document.getElementById('betModal');
-  if(!modal) { try { modal = _ensureBetModal(); } catch(e) {} }
-  if(!modal) return;
+  if(!modal) {
+    modal = document.createElement('div');
+    modal.id = 'betModal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.8);align-items:center;justify-content:center;';
+    var inner = document.createElement('div');
+    inner.style.cssText = 'background:#0d2137;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:24px;min-width:320px;max-width:480px;width:90%;position:relative';
+    var hdr = document.createElement('div');
+    hdr.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:16px';
+    var ttl = document.createElement('span');
+    ttl.id = 'bmTitle';
+    ttl.style.cssText = 'font-size:16px;font-weight:800;color:#e8f0eb';
+    var closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.style.cssText = 'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:18px';
+    closeBtn.onclick = function(){ modal.style.display='none'; };
+    hdr.appendChild(ttl); hdr.appendChild(closeBtn);
+    var res = document.createElement('div');
+    res.id = 'bmResult';
+    res.style.cssText = 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px';
+    var seeds = document.createElement('div');
+    seeds.id = 'bmSeeds';
+    var vlink = document.createElement('div');
+    vlink.id = 'bmVerifyLink';
+    vlink.style.cssText = 'text-align:center;margin-top:14px';
+    inner.appendChild(hdr); inner.appendChild(res); inner.appendChild(seeds); inner.appendChild(vlink);
+    modal.appendChild(inner);
+    modal.onclick = function(e){ if(e.target===modal) modal.style.display='none'; };
+    document.body.appendChild(modal);
+  }
   var title = document.getElementById('bmTitle');
   if(title) title.textContent = '\u{1F3B2} Dice \u2014 Bet Info';
   var res = document.getElementById('bmResult');
