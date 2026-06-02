@@ -504,19 +504,24 @@ function diceOpenBetInfo(idx) {
     '</table>';
   var vl = document.getElementById('bmVerifyLink');
   if(vl) {
-    // Save bet data for verify page
+    // Save bet data for verify page (localStorage so it survives navigation)
     try {
-      sessionStorage.setItem('vfy_game', 'Dice');
-      sessionStorage.setItem('vfy_win', b.win ? '1' : '0');
-      sessionStorage.setItem('vfy_bet', (b.bet||0).toFixed(6));
-      sessionStorage.setItem('vfy_profit', (b.profit||0).toFixed(6));
-      sessionStorage.setItem('vfy_roll', (b.roll||0).toFixed(2));
-      sessionStorage.setItem('vfy_mult', (b.mult||0).toFixed(2));
-      sessionStorage.setItem('vfy_wc', (b.wc||0).toFixed(2));
-      sessionStorage.setItem('vfy_client', b.clientSeed || _diceClientSeed || '');
-      sessionStorage.setItem('vfy_server', b.serverSeed || '');
-      sessionStorage.setItem('vfy_hash', b.serverSeedHash || '');
-      sessionStorage.setItem('vfy_nonce', b.nonce || b.id || '0');
+      localStorage.setItem('dgVerifyData', JSON.stringify({
+        game: 'Dice',
+        clientSeed:     b.clientSeed || _diceClientSeed || '',
+        serverSeed:     b.serverSeed || '',
+        serverSeedHash: b.serverSeedHash || '',
+        nonce:          b.nonce || b.id || 1,
+        bet: {
+          win:    b.win,
+          bet:    b.bet,
+          profit: b.profit,
+          roll:   b.roll,
+          mult:   b.mult,
+          payout: b.mult,
+          wc:     b.wc
+        }
+      }));
     } catch(e) {}
     vl.innerHTML = '<a href="/verify.php" onclick="vfySetData()" style="color:#3ecf8e;font-size:14px;font-weight:700;text-decoration:underline;display:inline-block;padding:8px 16px;border:1px solid #3ecf8e;border-radius:8px;margin-top:4px">\u{1F512} Verify Fairness</a>';
   }

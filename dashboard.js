@@ -1267,7 +1267,7 @@ function lbVerify(){
 var b=lbBetHistory[window._lbVerifyIdx||0];
 var data={game:'Limbo',clientSeed:clientSeed,serverSeedHash:serverSeedHash,serverSeed:serverSeed,nonce:lbNonce,bet:b||null,bets:lbBetHistory.slice(0,50)};
 localStorage.setItem('dgVerifyData',JSON.stringify(data));
-window.open('verify.html','_blank');
+window.location.href='verify.php';
 }
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // END LIMBO GAME

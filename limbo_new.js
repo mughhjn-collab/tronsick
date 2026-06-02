@@ -438,17 +438,23 @@ function limboOpenBetInfo(idx) {
   var vl = document.getElementById('bmVerifyLink');
   if(vl) {
     try {
-      sessionStorage.setItem('vfy_game', 'Limbo');
-      sessionStorage.setItem('vfy_win', b.win ? '1' : '0');
-      sessionStorage.setItem('vfy_bet', (b.bet||0).toFixed(6));
-      sessionStorage.setItem('vfy_profit', (b.profit||0).toFixed(6));
-      sessionStorage.setItem('vfy_roll', (b.crash||0).toFixed(2));
-      sessionStorage.setItem('vfy_mult', (b.target||0).toFixed(2));
-      sessionStorage.setItem('vfy_wc', (b.wc||0).toFixed(2));
-      sessionStorage.setItem('vfy_client', b.clientSeed || _limboClientSeed || '');
-      sessionStorage.setItem('vfy_server', b.serverSeed || '');
-      sessionStorage.setItem('vfy_hash', b.serverSeedHash || '');
-      sessionStorage.setItem('vfy_nonce', String(b.nonce || b.id || '1'));
+      localStorage.setItem('dgVerifyData', JSON.stringify({
+        game: 'Limbo',
+        clientSeed:     b.clientSeed || _limboClientSeed || '',
+        serverSeed:     b.serverSeed || '',
+        serverSeedHash: b.serverSeedHash || '',
+        nonce:          b.nonce || b.id || 1,
+        bet: {
+          win:    b.win,
+          bet:    b.bet,
+          profit: b.profit,
+          roll:   b.crash,
+          crash:  b.crash,
+          mult:   b.target,
+          payout: b.target,
+          wc:     b.wc
+        }
+      }));
     } catch(e) {}
     vl.innerHTML = '<a href="/verify.php" onclick="vfySetData()" style="color:#3ecf8e;font-size:14px;font-weight:700;text-decoration:underline;display:inline-block;padding:8px 16px;border:1px solid #3ecf8e;border-radius:8px;margin-top:4px">\u{1F512} Verify Fairness</a>';
   }
