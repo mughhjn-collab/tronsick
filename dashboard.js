@@ -266,18 +266,20 @@ function _getSiteSetting(key, fallback){
 }
 
 /** Random dice roll for forced win/loss — full range below/above threshold */
-function _abDiceRoll(forceWin, dir, wc){
+function _abDiceRoll(forceWin, dir, wc, threshold){
   wc=parseFloat(wc)||50;
   dir=dir||'under';
+  // Use explicit threshold if provided, otherwise calc from wc
+  var th=(threshold!=null)?parseFloat(threshold):(dir==='under'?wc:(100-wc));
   if(dir==='under'){
     if(forceWin){
-      var hi=Math.max(0.02, wc-0.01);
+      var hi=Math.max(0.02, th-0.01);
       return parseFloat((0.01+Math.random()*(hi-0.01)).toFixed(2));
     }
-    var lo=Math.min(99.98, wc);
+    var lo=Math.min(99.98, th);
     return parseFloat((lo+Math.random()*(99.99-lo)).toFixed(2));
   }
-  var th=100-wc;
+  // th already set above
   if(forceWin){
     var lo2=Math.min(99.98, th+0.01);
     return parseFloat((lo2+Math.random()*(99.99-lo2)).toFixed(2));
@@ -1248,13 +1250,14 @@ btn.disabled=true;btn.textContent='Rolling...';
 nonce++;
 setTimeout(function(){
 var roll=parseFloat((Math.random()*100).toFixed(2));var _abR=_abCheckWin(bet,wc,payout);
-var win=(dgDir==='under'&&roll<wc)||(dgDir==='over'&&roll>(100-wc));
+var rollTh=parseFloat((document.getElementById('dgRollVal')||{}).value)||50; // threshold from display
+var win=(dgDir==='under'&&roll<rollTh)||(dgDir==='over'&&roll>rollTh); // win if roll crosses threshold
 if(_abR===false){
   win=false;
-  roll=_abDiceRoll(false,dgDir,wc);
+  roll=_abDiceRoll(false,dgDir,wc,rollTh);
 }else if(_abR===true){
   win=true;
-  roll=_abDiceRoll(true,dgDir,wc);
+  roll=_abDiceRoll(true,dgDir,wc,rollTh);
 }
 var sl=document.getElementById('dgSlider');
 var hex=document.getElementById('hexBubble');
