@@ -18,7 +18,7 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');try{sessionStorage.setItem('_ls',key);}catch(e){}closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
 
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
@@ -129,6 +129,50 @@ document.addEventListener('DOMContentLoaded', function(){
   if(ceEl && uemail) ceEl.value = uemail;
 });
 
+
+// ── GLOBAL BET HISTORY TABS (My Bets / All Bets on games page) ──
+var _gCurTab='my';
+function gBetTab(t){
+  _gCurTab=t;
+  var myB=document.getElementById('gTabMy');
+  var alB=document.getElementById('gTabAll');
+  if(myB)myB.className='dg-btab'+(t==='my'?' dg-btab-act':'');
+  if(alB)alB.className='dg-btab'+(t==='all'?' dg-btab-act':'');
+  renderGlobalBets();
+}
+function renderGlobalBets(){
+  var list=document.getElementById('gBetList');
+  if(!list)return;
+  if(_gCurTab==='all'){
+    try{
+      var ab=JSON.parse(localStorage.getItem('site_all_bets')||'[]');
+      if(!ab.length){list.innerHTML='<div class="dg-no-bets">No site bets yet.</div>';return;}
+      var h='<table class="dg-hist-tbl"><thead><tr><th>User</th><th>Game</th><th>Bet</th><th>Payout</th><th>Profit</th></tr></thead><tbody>';
+      ab.slice(0,100).forEach(function(b){
+        var pr=(b.pr>=0?'+':'')+parseFloat(b.pr||0).toFixed(6);
+        var mult=b.w?parseFloat(b.p||1).toFixed(2)+'x':'0.00x';
+        h+='<tr><td style="color:#3ecf8e;font-weight:700">'+b.u+'</td><td>&#127922; '+b.g+'</td><td>'+parseFloat(b.b||0).toFixed(6)+'</td><td class="'+(b.w?'dg-mult-win':'dg-mult-lose')+'">'+mult+'</td><td class="'+(b.w?'dg-mult-win':'dg-mult-lose')+'">'+pr+'</td></tr>';
+      });
+      h+='</tbody></table>';
+      list.innerHTML=h;
+    }catch(e){list.innerHTML='<div class="dg-no-bets">Error loading.</div>';}
+  }else{
+    try{
+      var mb=JSON.parse(localStorage.getItem('diceHistory')||'[]');
+      if(!mb.length){list.innerHTML='<div class="dg-no-bets">No bets yet. Play a game!</div>';return;}
+      var h='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th></tr></thead><tbody>';
+      mb.slice(0,50).forEach(function(b,i){
+        var mult=b.win?b.payout.toFixed(2)+'x':'0.00x';
+        var pr=(b.profit>=0?'+':'')+b.profit.toFixed(6);
+        h+='<tr class="dg-hist-row"><td>'+b.ts+'</td><td>&#127922; Dice</td><td>'+b.bet.toFixed(6)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+mult+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+pr+'</td></tr>';
+      });
+      h+='</tbody></table>';
+      list.innerHTML=h;
+    }catch(e){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';}
+  }
+}
+// Auto-refresh global bets every 5s when visible
+setInterval(function(){if(document.getElementById('gBetList'))renderGlobalBets();},5000);
 function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')||'0');bal=Math.max(0,bal+amt);localStorage.setItem('userBalance',bal.toString());// Sync to adm_users so admin panel reflects correct balance
 try{var _un=localStorage.getItem('userName')||'';if(_un){var _au=JSON.parse(localStorage.getItem('adm_users')||'[]');var _ui=_au.findIndex(function(u){return u.name.toLowerCase()===_un.toLowerCase();});if(_ui>=0){_au[_ui].balance=bal.toFixed(6);localStorage.setItem('adm_users',JSON.stringify(_au));}}}catch(ex){}syncBal();}catch(e){}}
 function updateWager(amt){
@@ -206,11 +250,10 @@ if(window.SiteSync){
 }
 // Show section based on PHP-injected variable (each page sets window._INIT_SECTION)
 var _phpSec=(typeof window._INIT_SECTION!=='undefined')?window._INIT_SECTION:'home';
-var _savedSec='';try{_savedSec=sessionStorage.getItem('_ls')||'';}catch(e){}
-var _initSec=_savedSec||_phpSec;
+var _initSec=_phpSec; // always use PHP-set section (no cross-page restore bug)
 _showSection(_initSec);
-// Restore last game if was inside one
-try{var _lg=sessionStorage.getItem('_lg');if(_lg&&_initSec==='games')setTimeout(function(){openGame(_lg,true);},150);}catch(e){}
+// Restore last open game within same page (games.php only)
+try{var _lg=sessionStorage.getItem('_lg');if(_lg&&_phpSec==='games')setTimeout(function(){openGame(_lg,true);},150);}catch(e){}
 });
 function onCap(cb){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=!cb.checked;note.textContent=cb.checked?'Click CLAIM to receive your TRX':'Complete captcha to claim';note.style.color=cb.checked?'#3ecf8e':'';}
 function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){rollsLeft=1;document.getElementById('rollCount').textContent=rollsLeft;btn.disabled=false;note.textContent='Click ROLL to spin!';note.style.color='#3ecf8e';}else{rollsLeft=0;btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
@@ -1285,6 +1328,7 @@ var rec={id:nonce,game:'Dice',option:(dgDir==='under'?'Roll Under':'Roll Over')+
 betHistory.unshift(rec);
 try{localStorage.setItem('diceHistory',JSON.stringify(betHistory.slice(0,50)));}catch(e){}
 try{var _sb=JSON.parse(localStorage.getItem('site_all_bets')||'[]');_sb.unshift({u:localStorage.getItem('userName')||'?',g:'Dice',b:rec.bet,p:rec.payout,w:rec.win,pr:rec.profit,t:rec.ts});localStorage.setItem('site_all_bets',JSON.stringify(_sb.slice(0,200)));}catch(e){}
+try{renderGlobalBets();}catch(e){} // refresh global bet list
 renderBets();
 btn.disabled=false;btn.textContent='Roll Now';
 },600);
