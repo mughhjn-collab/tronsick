@@ -514,3 +514,7 @@
   color: #e8f0eb !important;
 }
 .tp-icon-btn:hover { background: rgba(255,255,255,0.18) !important; }
+/* Hide global bet section when a game is open */
+#sec-games.game-open #globalBetSec {
+  display: none !important;
+}

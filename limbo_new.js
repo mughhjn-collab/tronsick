@@ -214,23 +214,22 @@ function limboRoll() {
   addBal(-bet); updateWager(bet);
 
   setTimeout(function() {
-    var target = Math.max(1.0104, parseFloat((document.getElementById('limboMult') || {}).value) || 2);
-    var wc = parseFloat((document.getElementById('limboWC') || {}).value) || 48.5;
-
-    // Exponential distribution: P(result >= target) = 97/100/target ≈ winChance%
-    // Generate crash point
-    var rand = Math.random();
-    // crash point = 0.97 / (1 - rand) but capped
-    var crash = parseFloat((0.97 / Math.max(0.0001, 1 - rand)).toFixed(2));
-    crash = Math.max(1.00, Math.min(crash, 10000));
-    var win = crash >= target;
-
-    if(win) addBal(bet * target);
-    var profit = win ? bet * (target - 1) : -bet;
-
-    limboAnimate(win, crash);
-    limboSaveResult(bet, target, wc, win, profit, crash);
-    btn.disabled = false; btn.textContent = 'BET';
+    try {
+      var target = Math.max(1.0104, parseFloat((document.getElementById('limboMult') || {}).value) || 2);
+      var wc = parseFloat((document.getElementById('limboWC') || {}).value) || 48.5;
+      var rand = Math.random();
+      var crash = parseFloat((0.97 / Math.max(0.0001, 1 - rand)).toFixed(2));
+      crash = Math.max(1.00, Math.min(crash, 10000));
+      var win = crash >= target;
+      if(win) addBal(bet * target);
+      var profit = win ? bet * (target - 1) : -bet;
+      try { limboAnimate(win, crash); } catch(ea) {}
+      limboSaveResult(bet, target, wc, win, profit, crash);
+    } catch(e) {
+      console.error('limboRoll error:', e);
+    } finally {
+      btn.disabled = false; btn.textContent = 'BET';
+    }
   }, 500);
 }
 
@@ -323,7 +322,6 @@ function limboSaveResult(bet, target, wc, win, profit, crash) {
   } catch(e) {}
   limboRenderMyBets();
   limboRenderAllBets();
-  try { renderGlobalBets(); } catch(e) {}
 }
 
 function limboRenderMyBets() {

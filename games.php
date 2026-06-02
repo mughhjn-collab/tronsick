@@ -218,10 +218,7 @@
 
   <!-- GLOBAL MY BETS / ALL BETS (below games, always visible on games page) -->
   <div class="dg-bsec" id="globalBetSec" style="margin:18px 0 0 0;padding:0 12px">
-    <div class="dg-bet-tabs">
-      <button class="dg-btab dg-btab-act" id="gTabMy" onclick="gBetTab('my')">My Bets</button>
-      <button class="dg-btab" id="gTabAll" onclick="gBetTab('all')">All Bets</button>
-    </div>
+    
     <div class="dg-bet-list" id="gBetList"><div class="dg-no-bets">No bets yet. Play a game!</div></div>
   </div>
 
@@ -747,11 +744,11 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<link rel="stylesheet" href="games_tp.css?v=5">
+<link rel="stylesheet" href="games_tp.css?v=6">
 <script src="site_sync.js?v=4"></script>
 <script src="dashboard.js?v=25"></script>
-<script src="dice_new.js?v=5"></script>
-<script src="limbo_new.js?v=5"></script>
+<script src="dice_new.js?v=6"></script>
+<script src="limbo_new.js?v=6"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}

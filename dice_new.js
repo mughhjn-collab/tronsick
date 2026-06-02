@@ -271,8 +271,8 @@ function diceRoll() {
     if(win) addBal(bet * mult);
     var profit = win ? bet * (mult - 1) : -bet;
 
-    diceShowRollPoint(roll, win);
-    diceSaveResult(bet, mult, wc, win, profit, roll);
+    try { diceShowRollPoint(roll, win); } catch(ep) {}
+    try { diceSaveResult(bet, mult, wc, win, profit, roll); } catch(es) { console.error('dice save err',es); }
     btn.disabled = false; btn.textContent = 'ROLL DICE';
   }, 600);
 }
@@ -389,7 +389,6 @@ function diceSaveResult(bet, mult, wc, win, profit, roll) {
   diceRenderMyBets();
   diceRenderAllBets();
   // Update global bet section if visible
-  try { renderGlobalBets(); } catch(e) {}
 }
 
 function diceRenderMyBets() {
