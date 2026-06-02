@@ -210,6 +210,9 @@
 
     </div>
     <!-- GAME PANEL -->
+    <div class="game-panel" id="gamePanel" style="display:none">
+      <button class="back-btn" onclick="closeGame()">&larr; Back to Games</button>
+      <div class="game-frame" id="gameFrame"></div>
     </div>
   </div>
 
