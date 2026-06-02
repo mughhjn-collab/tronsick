@@ -410,7 +410,18 @@ function limboOpenBetInfo(idx) {
     '<tr><td style="padding:6px 4px;color:#3ecf8e;font-weight:700">Outcome</td><td colspan="3" style="color:' + (b.win?'#28a745':'#dc3545') + ';font-weight:700">' + (b.win ? 'WIN ('+b.crash.toFixed(2)+'x >= '+b.target.toFixed(2)+'x)' : 'LOSS ('+b.crash.toFixed(2)+'x < '+b.target.toFixed(2)+'x)') + '</td></tr>' +
     '</table>';
   var vl = document.getElementById('bmVerifyLink');
-  if(vl) vl.innerHTML = '<a href="https://tronsick.io/verify.php" target="_blank" style="color:#3ecf8e;font-size:13px;font-weight:700;text-decoration:underline">\u{1F512} Verify Provable Fairness</a>';
+  if(vl) {
+    try {
+      sessionStorage.setItem('vfy_game', 'Limbo');
+      sessionStorage.setItem('vfy_win', b.win ? '1' : '0');
+      sessionStorage.setItem('vfy_bet', (b.bet||0).toFixed(6));
+      sessionStorage.setItem('vfy_profit', (b.profit||0).toFixed(6));
+      sessionStorage.setItem('vfy_roll', (b.crash||0).toFixed(2));
+      sessionStorage.setItem('vfy_mult', (b.target||0).toFixed(2));
+      sessionStorage.setItem('vfy_wc', (b.wc||0).toFixed(2));
+    } catch(e) {}
+    vl.innerHTML = '<a href="/verify.php" onclick="vfySetData()" style="color:#3ecf8e;font-size:14px;font-weight:700;text-decoration:underline;display:inline-block;padding:8px 16px;border:1px solid #3ecf8e;border-radius:8px;margin-top:4px">\u{1F512} Verify Fairness</a>';
+  }
   modal.style.display = 'flex';
 }
 

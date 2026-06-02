@@ -32,7 +32,7 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item" id="nav-bonus" href="/bonus.php"><i>&#127873;</i><s>Bonus</s></a>
+    <a class="sb-item" id="nav-lucky" href="javascript:void(0)" onclick="openLuckyDraw()"><i>&#127381;</i><s>Lucky Draw</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -744,11 +744,12 @@
 </div>
 
 <?php include __DIR__ . '/site_inject.php'; ?>
-<link rel="stylesheet" href="games_tp.css?v=6">
+<link rel="stylesheet" href="games_tp.css?v=7">
 <script src="site_sync.js?v=4"></script>
 <script src="dashboard.js?v=25"></script>
-<script src="dice_new.js?v=6"></script>
-<script src="limbo_new.js?v=6"></script>
+<script src="dice_new.js?v=7"></script>
+<script src="limbo_new.js?v=7"></script>
+<script src="lucky_draw.js?v=1"></script>
 <script>
 window._INIT_SECTION='games';
 if(typeof addBal!=='function'){window.addBal=function(amt){try{var b=parseFloat(localStorage.getItem('userBalance')||'0');b=Math.max(0,b+amt);localStorage.setItem('userBalance',b.toString());var e=document.getElementById('userBalance');if(e)e.textContent=b.toFixed(6);}catch(x){}};}
@@ -756,5 +757,92 @@ if(typeof syncBal!=='function'){window.syncBal=function(){try{var b=parseFloat(l
 if(typeof updateWager!=='function'){window.updateWager=function(){};}
 if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
 </script>
+
+<!-- LUCKY DRAW MODAL -->
+<div id="luckyDrawModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);align-items:center;justify-content:center;overflow-y:auto">
+  <div style="background:linear-gradient(135deg,#0d2137 0%,#0a1628 100%);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:28px 24px;max-width:480px;width:95%;margin:20px auto;position:relative">
+    <button onclick="document.getElementById('luckyDrawModal').style.display='none'" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:20px">&#215;</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:40px">&#127381;</div>
+      <h2 style="color:#3ecf8e;font-size:22px;margin:6px 0">Lucky Draw</h2>
+      <p style="color:rgba(232,240,235,.6);font-size:13px">Try your luck! One chance to win big.</p>
+    </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button id="ldTabFreeBtn" onclick="ldShowTab('free')" style="flex:1;padding:10px;border-radius:8px;border:2px solid #3ecf8e;background:#3ecf8e;color:#0a1628;font-weight:800;cursor:pointer;font-size:14px">&#127800; Free Draw</button>
+      <button id="ldTabPaidBtn" onclick="ldShowTab('paid')" style="flex:1;padding:10px;border-radius:8px;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(232,240,235,.7);font-weight:700;cursor:pointer;font-size:14px">&#128081; Paid Draw</button>
+    </div>
+
+    <!-- FREE TAB -->
+    <div id="ldTabFree">
+      <div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="color:#3ecf8e;font-weight:700;font-size:13px;margin-bottom:8px">&#127381; FREE DRAW — 1 Time Only</div>
+        <div style="color:rgba(232,240,235,.75);font-size:12px;line-height:1.6">
+          Spin once for free! Possible prizes:<br>
+          &#129695; <b style="color:#a0aab0">Iron Level</b> — upgrade your account level<br>
+          &#128176; <b style="color:#3ecf8e">0.05 TRX</b> — added to your balance<br>
+          <span style="color:rgba(232,240,235,.4);font-size:11px">(Other slots shown for display only)</span>
+        </div>
+      </div>
+      <div id="ldFreeStatus" style="text-align:center;margin-bottom:14px;font-size:13px"></div>
+      <!-- Prize cards -->
+      <div id="ldFreeCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px">
+        <div class="ld-card" style="background:rgba(160,170,176,.1);border:2px solid rgba(160,170,176,.3);border-radius:10px;padding:12px 6px;text-align:center;cursor:default">
+          <div style="font-size:22px">&#129695;</div>
+          <div style="font-size:11px;color:#a0aab0;margin-top:4px;font-weight:700">Iron Level</div>
+        </div>
+        <div class="ld-card" style="background:rgba(62,207,142,.1);border:2px solid rgba(62,207,142,.3);border-radius:10px;padding:12px 6px;text-align:center;cursor:default">
+          <div style="font-size:22px">&#128176;</div>
+          <div style="font-size:11px;color:#3ecf8e;margin-top:4px;font-weight:700">0.05 TRX</div>
+        </div>
+        <div class="ld-card" style="background:rgba(62,207,142,.05);border:2px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 6px;text-align:center;cursor:default;opacity:0.4">
+          <div style="font-size:22px">&#128176;</div>
+          <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:4px;font-weight:700">0.1 TRX</div>
+        </div>
+        <div class="ld-card" style="background:rgba(62,207,142,.05);border:2px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 6px;text-align:center;cursor:default;opacity:0.4">
+          <div style="font-size:22px">&#128176;</div>
+          <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:4px;font-weight:700">1 TRX</div>
+        </div>
+      </div>
+      <div id="ldFreeResult" style="display:none;text-align:center;padding:16px;border-radius:10px;margin-bottom:16px;font-size:16px;font-weight:900"></div>
+      <button id="ldFreeBtn" onclick="doFreeDraw()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#3ecf8e,#27ae60);color:#0a1628;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:1px">&#127381; SPIN FREE DRAW</button>
+    </div>
+
+    <!-- PAID TAB -->
+    <div id="ldTabPaid" style="display:none">
+      <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="color:#ffd700;font-weight:700;font-size:13px;margin-bottom:8px">&#128081; PAID DRAW — Rules</div>
+        <div style="color:rgba(232,240,235,.75);font-size:12px;line-height:1.8">
+          &#9658; Entry cost: <b style="color:#ffd700">500 TRX</b> from your balance<br>
+          &#9658; 1 time only per account<br>
+          &#9658; Win: <b style="color:#ffd700">Gold</b>, <b style="color:#e5e4e2">Platinum</b>, or <b style="color:#b9f2ff">Diamond</b> Level<br>
+          &#9658; If you win a level, <b style="color:#e74c3c">20% of remaining balance</b> will be deducted as fee<br>
+          &#9658; Example: 500 TRX entry &#8594; 100 TRX fee deducted &#8594; you keep 400 TRX + level upgrade<br>
+          &#9658; After draw you can play games or withdraw freely
+        </div>
+      </div>
+      <div id="ldPaidStatus" style="text-align:center;margin-bottom:14px;font-size:13px"></div>
+      <!-- Prize cards -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+        <div style="background:rgba(255,215,0,.1);border:2px solid rgba(255,215,0,.4);border-radius:10px;padding:14px 6px;text-align:center">
+          <div style="font-size:28px">&#127947;</div>
+          <div style="font-size:12px;color:#ffd700;margin-top:6px;font-weight:700">GOLD Level</div>
+        </div>
+        <div style="background:rgba(229,228,226,.08);border:2px solid rgba(229,228,226,.3);border-radius:10px;padding:14px 6px;text-align:center">
+          <div style="font-size:28px">&#129352;</div>
+          <div style="font-size:12px;color:#e5e4e2;margin-top:6px;font-weight:700">PLATINUM Level</div>
+        </div>
+        <div style="background:rgba(185,242,255,.08);border:2px solid rgba(185,242,255,.3);border-radius:10px;padding:14px 6px;text-align:center">
+          <div style="font-size:28px">&#128142;</div>
+          <div style="font-size:12px;color:#b9f2ff;margin-top:6px;font-weight:700">DIAMOND Level</div>
+        </div>
+      </div>
+      <div id="ldPaidResult" style="display:none;text-align:center;padding:16px;border-radius:10px;margin-bottom:16px;font-size:16px;font-weight:900"></div>
+      <button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#ffd700,#f39c12);color:#0a1628;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:1px">&#128081; SPIN PAID DRAW (500 TRX)</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
