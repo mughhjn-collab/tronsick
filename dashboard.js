@@ -1179,10 +1179,16 @@ var ri=document.getElementById('dgRollVal');if(ri)ri.value=rollVal.toFixed(2);
 var wi=document.getElementById('dgWinCh');if(wi)wi.value=wc.toFixed(2);
 var hex=document.getElementById('hexBubble');if(hex)hex.textContent=rollVal.toFixed(2);
 var lbl=document.getElementById('dgDirLbl');if(lbl)lbl.textContent=dgDir==='under'?'Roll Under':'Roll Over';
-var pct=(wc-0.01)/95.99*100;
-var gr='#22c55e',or='#f59e0b';
-if(dgDir==='under')sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+pct+'%,'+or+' '+pct+'%,'+or+' 100%)';
-else sl.style.background='linear-gradient(to right,'+or+' 0%,'+or+' '+pct+'%,'+gr+' '+pct+'%,'+gr+' 100%)';
+// GREEN = win zone, RED = lose zone
+var gr='#22c55e',rd='#ef4444';
+if(dgDir==='under'){
+  // Roll Under: win zone 0 to wc% (green), lose zone wc% to 100 (red)
+  sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+wc+'%,'+rd+' '+wc+'%,'+rd+' 100%)';
+}else{
+  // Roll Over: lose zone 0 to (100-wc)% (red), win zone (100-wc)% to 100 (green)
+  var lz=Math.min(100,Math.max(0,(100-wc)));
+  sl.style.background='linear-gradient(to right,'+rd+' 0%,'+rd+' '+lz+'%,'+gr+' '+lz+'%,'+gr+' 100%)';
+}
 dgCalcWin();
 setTimeout(function(){dgHexPos();},10);
 }
