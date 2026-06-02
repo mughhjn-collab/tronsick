@@ -1171,23 +1171,29 @@ window.addEventListener('resize',dgHexPos);
 function dgSlide(){dgUpdate();}
 function dgUpdate(){
 var sl=document.getElementById('dgSlider');if(!sl)return;
-var wc=parseFloat(sl.value);
+var sv=parseFloat(sl.value); // slider position = threshold to roll over/under
+var wc=dgDir==='under'?sv:(100-sv); // win chance
+wc=Math.max(0.01,Math.min(99.99,wc));
 var payout=parseFloat((97/wc).toFixed(4));
-var rollVal=dgDir==='under'?wc:(100-wc);
+var rollVal=sv; // threshold shown in Roll Under/Over field
 var pi=document.getElementById('dgPayout');if(pi)pi.value=payout.toFixed(4);
 var ri=document.getElementById('dgRollVal');if(ri)ri.value=rollVal.toFixed(2);
 var wi=document.getElementById('dgWinCh');if(wi)wi.value=wc.toFixed(2);
 var hex=document.getElementById('hexBubble');if(hex)hex.textContent=rollVal.toFixed(2);
 var lbl=document.getElementById('dgDirLbl');if(lbl)lbl.textContent=dgDir==='under'?'Roll Under':'Roll Over';
-// GREEN = win zone, RED = lose zone
+// GREEN = win zone (right of thumb for BOTH modes), RED = lose zone
+// Slider position sv = threshold value (0-96 scale)
+// Roll Over: win if roll > sv → win zone sv% to 100% (green right)
+// Roll Under: win if roll < sv → win zone 0% to sv% (green left)
+var sv=parseFloat(sl.value); // slider position = threshold
 var gr='#22c55e',rd='#ef4444';
 if(dgDir==='under'){
-  // Roll Under: win zone 0 to wc% (green), lose zone wc% to 100 (red)
-  sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+wc+'%,'+rd+' '+wc+'%,'+rd+' 100%)';
+  // Win zone: LEFT (0 to sv%), Lose zone: RIGHT (sv% to 100)
+  sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+sv+'%,'+rd+' '+sv+'%,'+rd+' 100%)';
 }else{
-  // Roll Over: lose zone 0 to (100-wc)% (red), win zone (100-wc)% to 100 (green)
-  var lz=Math.min(100,Math.max(0,(100-wc)));
-  sl.style.background='linear-gradient(to right,'+rd+' 0%,'+rd+' '+lz+'%,'+gr+' '+lz+'%,'+gr+' 100%)';
+  // Win zone: RIGHT (sv% to 100%), Lose zone: LEFT (0 to sv%)
+  // Moving slider LEFT = lower sv = bigger win zone (more green on right)
+  sl.style.background='linear-gradient(to right,'+rd+' 0%,'+rd+' '+sv+'%,'+gr+' '+sv+'%,'+gr+' 100%)';
 }
 dgCalcWin();
 setTimeout(function(){dgHexPos();},10);

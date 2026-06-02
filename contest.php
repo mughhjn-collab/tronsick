@@ -577,6 +577,7 @@
               <th>Place</th>
               <th>User Name</th>
               <th>Total Wagered</th>
+              <th>&#127941; Reward</th>
               </tr>
           </thead>
           <tbody id="ctLeaderboard">
@@ -785,16 +786,25 @@ function renderContest(){
       return;
     }
     var medals=['&#129351;','&#129352;','&#129353;'];
+    // Contest prize pool (adjust as needed)
+    var PRIZES=['500 TRX','200 TRX','100 TRX','50 TRX','25 TRX','10 TRX','5 TRX','2 TRX','1 TRX','0.5 TRX'];
     var html='';
+    var myPrize='—';
     for(var j=0;j<entries.length;j++){
       var isMe=entries[j].name===myName;
+      var prize=PRIZES[j]||'—';
+      if(isMe) myPrize=prize;
       html+='<tr'+(isMe?' style="background:rgba(163,230,53,.06);font-weight:700"':'')+'>'+
         '<td>'+(medals[j]||'')+(j+1)+'</td>'+
         '<td>'+(isMe?'<strong>'+entries[j].name+'</strong>':entries[j].name)+'</td>'+
         '<td>'+entries[j].wager.toFixed(6)+' TRX</td>'+
+        '<td style="color:#f59e0b;font-weight:700">'+prize+'</td>'+
         '</tr>';
     }
     tbody.innerHTML=html;
+    // Update My Prize
+    var mpEl=document.getElementById('ctMyReward');
+    if(mpEl) mpEl.textContent=myPrize;
   }
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ draw(r.ok?(r.wagers||{}):{}); });
   else try{ draw(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ draw({}); }
