@@ -73,7 +73,7 @@
 
       <!-- FAUCET PANE -->
       <div class="pane active" id="paneFaucet">
-        <p class="fdesc">To receive rewards from Hourly faucet, please fill the correct captcha and press <strong>CLAIM</strong> button. The amount of free TRX that you earn will depend on your level and paid out according to the table below. Your level is <span class="hl">Stone</span>, to reach the next level please play our games.</p>
+        <p class="fdesc">To receive rewards from Hourly faucet, please fill the correct captcha and press <strong>CLAIM</strong> button. The amount of free TRX that you earn will depend on your level and paid out according to the table below. Your level is <span class="hl">Stone</span>, to reach the next level please <a href="/games.php" style="display:inline-block;background:#3ecf8e;color:#0a1a0f;font-weight:800;padding:3px 14px;border-radius:20px;font-size:13px;text-decoration:none;vertical-align:middle;transition:background .2s" onmouseover="this.style.background='#22c55e'" onmouseout="this.style.background='#3ecf8e'">&#127918; Play Games</a></p>
 
         <div class="prog">
           <div class="prog-info">Wagered: <strong id="wagered">0.000000</strong> / Target: <strong id="levelTarget">30 TRX</strong></div>
@@ -157,7 +157,7 @@
   <div class="pg" id="sec-games">
     <!-- Level Progress Bar (same as home) -->
     <div class="games-level-bar" id="gamesLevelBar">
-      <p class="fdesc" style="margin-bottom:10px">Your level is <span class="hl">Stone</span>, to reach the next level please play our games.</p>
+      <p class="fdesc" style="margin-bottom:10px">Your level is <span class="hl">Stone</span>, to reach the next level please <a href="/games.php" style="display:inline-block;background:#3ecf8e;color:#0a1a0f;font-weight:800;padding:3px 14px;border-radius:20px;font-size:13px;text-decoration:none;vertical-align:middle;transition:background .2s" onmouseover="this.style.background='#22c55e'" onmouseout="this.style.background='#3ecf8e'">&#127918; Play Games</a></p>
       <div class="prog-info" style="text-align:center;font-size:13px;color:rgba(232,240,235,.58);margin-bottom:8px">Wagered: <strong id="gWagered">0.000000</strong> / Target: <strong id="progTarget">30 TRX</strong></div>
       <div class="prog-row"><span id="progFrom">Stone</span><span id="progTo">Iron</span></div>
       <div class="prog-track"><div class="prog-fill" style="width:0%" id="gProgFill"></div></div>
