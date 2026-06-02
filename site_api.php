@@ -58,15 +58,15 @@ switch ($action) {
 
     case 'get_balance':
         // Public endpoint: get user balance by username
-        \ = trim(\['name'] ?? \['name'] ?? '');
-        if(!\){ echo json_encode(['ok'=>false,'error'=>'Missing name']); break; }
-        \ = readJson(\, []);
-        \ = null;
-        foreach(\ as \){
-            if(strcasecmp(\['name'] ?? '', \) === 0){ \ = \; break; }
+        $uname = trim($_POST['name'] ?? $_GET['name'] ?? '');
+        if(!$uname){ echo json_encode(['ok'=>false,'error'=>'Missing name']); break; }
+        $users = readJson($usersFile, []);
+        $found_user = null;
+        foreach($users as $u){
+            if(strcasecmp($u['name'] ?? '', $uname) === 0){ $found_user = $u; break; }
         }
-        if(\){
-            echo json_encode(['ok'=>true,'balance'=>\['balance']??'0','level'=>\['level']??'Stone','ref_commission'=>\['ref_commission']??5]);
+        if($found_user){
+            echo json_encode(['ok'=>true,'balance'=>$found_user['balance']??'0','level'=>$found_user['level']??'Stone','ref_commission'=>$found_user['ref_commission']??5]);
         } else {
             echo json_encode(['ok'=>false,'error'=>'User not found']);
         }

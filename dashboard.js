@@ -2399,3 +2399,133 @@ document.addEventListener('visibilitychange', function() {
 });
 // Initial sync after 2 seconds
 setTimeout(syncBalanceFromServer, 2000);
+// ══════════════════════════════════════════
+// WITHDRAW FUNCTION
+// ══════════════════════════════════════════
+function doWd() {
+  var addr = (document.getElementById('wdAddr') || {}).value || '';
+  var amt = parseFloat((document.getElementById('wdAmt') || {}).value) || 0;
+  var btn = document.getElementById('wdBtn');
+
+  // Validation
+  addr = addr.trim();
+  if(!addr || !addr.startsWith('T') || addr.length < 30) {
+    showToast('❌ Enter a valid TRX address (starts with T)');
+    return;
+  }
+  if(amt < 10) {
+    showToast('❌ Minimum withdrawal is 10 TRX');
+    return;
+  }
+
+  var bal = parseFloat(localStorage.getItem('userBalance') || '0');
+  if(amt > bal) {
+    showToast('❌ Insufficient balance! Balance: ' + bal.toFixed(4) + ' TRX');
+    return;
+  }
+
+  var fee = 0.1;
+  var total = amt + fee;
+  if(total > bal) {
+    showToast('❌ Not enough for amount + fee (0.1 TRX)');
+    return;
+  }
+
+  if(!confirm('Withdraw ' + amt.toFixed(6) + ' TRX to ' + addr.substr(0,12) + '...?\nFee: 0.1 TRX\nYou receive: ' + (amt - fee).toFixed(6) + ' TRX')) return;
+
+  // Disable button
+  if(btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
+
+  // Deduct balance
+  var newBal = bal - total;
+  localStorage.setItem('userBalance', Math.max(0, newBal).toFixed(6));
+  var balEl = document.getElementById('userBalance');
+  if(balEl) balEl.textContent = Math.max(0, newBal).toFixed(6);
+  var wdBal = document.getElementById('wdBal');
+  if(wdBal) wdBal.textContent = Math.max(0, newBal).toFixed(6) + ' TRX';
+
+  // Save withdrawal record locally
+  var now = new Date();
+  var ts = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+  var rec = {
+    id: 'wd_' + Date.now(),
+    addr: addr,
+    amt: amt.toFixed(6),
+    fee: fee.toFixed(6),
+    net: (amt - fee).toFixed(6),
+    ts: ts,
+    status: 'pending'
+  };
+
+  try {
+    var hist = JSON.parse(localStorage.getItem('wdHistory') || '[]');
+    hist.unshift(rec);
+    localStorage.setItem('wdHistory', JSON.stringify(hist.slice(0, 50)));
+  } catch(e) {}
+
+  // Try to notify server
+  try {
+    var fd = new FormData();
+    fd.append('action', 'update_user_balance');
+    fd.append('auth', 'TronSick@Admin2024');
+    fd.append('name', localStorage.getItem('userName') || '');
+    fd.append('balance', Math.max(0, newBal).toFixed(6));
+    fetch('/site_api.php', {method:'POST', body:fd, credentials:'same-origin'}).catch(function(){});
+  } catch(e) {}
+
+  setTimeout(function() {
+    if(btn) { btn.disabled = false; btn.textContent = 'WITHDRAW'; }
+    showToast('✅ Withdrawal request submitted! Processing in 1-3 minutes.');
+    wdRenderHistory();
+  }, 1500);
+}
+
+// ══════════════════════════════════════════
+// WITHDRAW HISTORY RENDER
+// ══════════════════════════════════════════
+function wdRenderHistory() {
+  var list = document.getElementById('wdHistoryList');
+  if(!list) return;
+
+  var hist = [];
+  try { hist = JSON.parse(localStorage.getItem('wdHistory') || '[]'); } catch(e) {}
+
+  if(!hist.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,.4);font-size:14px">No withdrawal history yet.</div>';
+    return;
+  }
+
+  var h = '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+    '<thead><tr style="color:rgba(255,255,255,.5);border-bottom:1px solid rgba(255,255,255,.08)">' +
+    '<th style="padding:10px 8px;text-align:left">Time</th>' +
+    '<th style="padding:10px 8px;text-align:left">Address</th>' +
+    '<th style="padding:10px 8px;text-align:right">Amount</th>' +
+    '<th style="padding:10px 8px;text-align:right">You Get</th>' +
+    '<th style="padding:10px 8px;text-align:center">Status</th>' +
+    '</tr></thead><tbody>';
+
+  hist.forEach(function(r) {
+    var statusColor = r.status === 'completed' ? '#3ecf8e' : r.status === 'failed' ? '#e74c3c' : '#f59e0b';
+    var statusLabel = r.status === 'completed' ? '✅ Done' : r.status === 'failed' ? '❌ Failed' : '⏳ Pending';
+    h += '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">' +
+      '<td style="padding:10px 8px;color:rgba(255,255,255,.5)">' + (r.ts||'') + '</td>' +
+      '<td style="padding:10px 8px;font-family:monospace;color:#3ecf8e">' + (r.addr||'').substr(0,14) + '...</td>' +
+      '<td style="padding:10px 8px;text-align:right;color:#fff;font-weight:700">' + r.amt + ' TRX</td>' +
+      '<td style="padding:10px 8px;text-align:right;color:#3ecf8e;font-weight:700">' + r.net + ' TRX</td>' +
+      '<td style="padding:10px 8px;text-align:center;color:' + statusColor + ';font-weight:700">' + statusLabel + '</td>' +
+      '</tr>';
+  });
+
+  h += '</tbody></table>';
+  list.innerHTML = h;
+}
+
+// Auto-init withdraw page
+(function() {
+  var wdBal = document.getElementById('wdBal');
+  if(wdBal) {
+    var b = parseFloat(localStorage.getItem('userBalance') || '0');
+    wdBal.textContent = b.toFixed(6) + ' TRX';
+    wdRenderHistory();
+  }
+})();

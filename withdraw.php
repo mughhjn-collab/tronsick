@@ -11,7 +11,15 @@
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
-<script>if(!localStorage.getItem("userLoggedIn")||!localStorage.getItem("userName")){window.location.replace("https://tronsick.io/login.php");}</script></head>
+<script>if(!localStorage.getItem("userLoggedIn")||!localStorage.getItem("userName")){window.location.replace("https://tronsick.io/login.php");}
+document.addEventListener('DOMContentLoaded', function() {
+  var wdBal = document.getElementById('wdBal');
+  if(wdBal) {
+    var b = parseFloat(localStorage.getItem('userBalance')||'0');
+    wdBal.textContent = b.toFixed(6) + ' TRX';
+  }
+  setTimeout(function(){ if(typeof wdRenderHistory==='function') wdRenderHistory(); }, 500);
+});</script></head>
 <body>
 
 <!-- OVERLAY -->
@@ -283,6 +291,15 @@
       <button class="gbtn wd-btn" id="wdBtn" onclick="doWd()">WITHDRAW</button>
 
     </div>
+  </div>
+
+  <!-- WITHDRAW HISTORY -->
+  <div style="background:#0d1f35;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin:16px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;color:#e8f0eb">&#128196; Withdrawal History</div>
+      <button onclick="wdRenderHistory()" style="background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.2);color:#3ecf8e;padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:700">&#8635; Refresh</button>
+    </div>
+    <div id="wdHistoryList"><div style="text-align:center;padding:24px;color:rgba(255,255,255,.4)">No withdrawals yet.</div></div>
   </div>
 
   <!-- AFFILIATES -->
@@ -760,7 +777,7 @@
 
 <?php include __DIR__ . '/site_inject.php'; ?>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=25"></script>
+<script src="dashboard.js?v=26"></script>
 <script>window._INIT_SECTION='withdraw';</script>
 </body>
 </html>
