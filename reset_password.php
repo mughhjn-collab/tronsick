@@ -91,8 +91,27 @@
 
   // Validate token from localStorage
   var stored = localStorage.getItem('pwreset_'+token);
+  // Also try sessionStorage as fallback (cross-tab)
+  if(!stored) stored = sessionStorage.getItem('pwreset_'+token);
   if(!stored){
-    showInvalid('Invalid or Expired Link', 'This password reset link has already been used or has expired. Please request a new one.');
+    // Token might have been set in different tab - try server validation
+    fetch('forgot_pw.php', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'action=check_token&token='+encodeURIComponent(token)
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d&&d.valid){
+        // Server says valid - create local data
+        var expiry = Date.now() + 60*60*1000;
+        var fakeData = JSON.stringify({email:d.email||'',expires:expiry});
+        localStorage.setItem('pwreset_'+token, fakeData);
+        showResetForm(token, d.email||'');
+      } else {
+        showInvalid('Invalid or Expired Link', 'This password reset link has already been used or has expired. Please request a new one from the login page.');
+      }
+    }).catch(function(){
+      showInvalid('Invalid or Expired Link', 'This password reset link has already been used or has expired. Please request a new one from the login page.');
+    });
     return;
   }
 

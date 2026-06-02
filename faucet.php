@@ -106,7 +106,7 @@
             <span>I am not a robot</span>
           </label>
           <button class="claim-btn" id="claimBtn" disabled onclick="doClaim()">CLAIM</button>
-          <p class="claim-note" id="claimNote">Complete captcha to claim</p>
+          <p class="claim-note" id="claimNote" style="font-size:14px;font-weight:600;min-height:22px">Complete captcha to claim</p>
         </div>
       </div>
 

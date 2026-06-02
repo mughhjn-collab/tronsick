@@ -1275,6 +1275,8 @@ function buildSettings(){
   card('Site Settings','globe',null,
     '<div class="form-row">'+
     fld('Site Name','ss_name',localStorage.getItem('site_name')||'TronSick','text')+
+    fld('Telegram Link','ss_telegram',localStorage.getItem('site_telegram_link')||'','text')+
+    fld('Telegram Name','ss_tg_name',localStorage.getItem('site_telegram_name')||'Join our Telegram','text')+
     fld('Site Balance (TRX)','ss_bal',localStorage.getItem('site_balance')||'0','number')+
     '</div><div class="form-row">'+
     fld('Admin Email','ss_email',localStorage.getItem('admin_email')||'admin@tronsick.io','email')+
@@ -1315,6 +1317,8 @@ function saveSiteSettings(){
   save('site_balance',document.getElementById('ss_bal').value);
   save('admin_email',document.getElementById('ss_email').value);
   save('max_attempts',document.getElementById('ss_attempts').value);
+  if(document.getElementById('ss_telegram')) save('site_telegram_link',document.getElementById('ss_telegram').value);
+  if(document.getElementById('ss_tg_name')) save('site_telegram_name',document.getElementById('ss_tg_name').value);
   saveLiveToast('Site settings saved');
 }
 

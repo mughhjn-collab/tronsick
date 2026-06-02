@@ -650,8 +650,106 @@
       <div class="fl-col"><div class="flogo">Tron<span>Sick</span></div><p>The fastest TRON faucet. Earn free TRX every 30 minutes, play provably fair games, and earn 50% lifetime referral commission.</p></div>
       <div class="fc"><h4>Account</h4><a href="/settings.php">Settings</a><a href="/withdraw.php">Withdraw</a><a href="/deposit.php">Deposit</a></div>
       <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
-      <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
+      <div class="fc"><h4>Support</h4><a href="/contact.php">Contact</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
+    
+<div class="ft-lang-telegram">
+  <!-- Telegram Link -->
+  <a href="#" id="ftTelegramLink" class="ft-tg-btn" target="_blank" style="display:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.93 6.686l-1.68 7.918c-.126.56-.455.695-.922.432l-2.546-1.876-1.229 1.183c-.136.136-.25.25-.512.25l.183-2.597 4.726-4.268c.205-.184-.046-.286-.318-.103L7.614 14.41l-2.49-.777c-.54-.17-.552-.54.115-.8l9.72-3.748c.448-.162.84.108.971.601z" fill="currentColor"/>
+    </svg>
+    <span id="ftTelegramName">Join Telegram</span>
+  </a>
+  <!-- Language Selector -->
+  <div class="ft-lang-wrap" style="position:relative;display:inline-block">
+    <button class="ft-lang-btn" onclick="toggleLangDrop()" id="ftLangBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span id="ftLangLabel">English</span>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="ft-lang-drop" id="ftLangDrop" style="display:none">
+      <div class="ft-lang-item" onclick="setLang('en','English')">🇬🇧 English</div>
+      <div class="ft-lang-item" onclick="setLang('es','Español')">🇪🇸 Español</div>
+      <div class="ft-lang-item" onclick="setLang('pt','Português')">🇧🇷 Português</div>
+      <div class="ft-lang-item" onclick="setLang('fr','Français')">🇫🇷 Français</div>
+      <div class="ft-lang-item" onclick="setLang('ru','Русский')">🇷🇺 Русский</div>
+      <div class="ft-lang-item" onclick="setLang('de','Deutsch')">🇩🇪 Deutsch</div>
+      <div class="ft-lang-item" onclick="setLang('nl','Nederlands')">🇳🇱 Nederlands</div>
+      <div class="ft-lang-item" onclick="setLang('zh','中文')">🇨🇳 中文</div>
+      <div class="ft-lang-item" onclick="setLang('hi','हिन्दी')">🇮🇳 हिन्दी</div>
+      <div class="ft-lang-item" onclick="setLang('ja','日本語')">🇯🇵 日本語</div>
+      <div class="ft-lang-item" onclick="setLang('bn','বাংলা')">🇧🇩 বাংলা</div>
+      <div class="ft-lang-item" onclick="setLang('mn','Монгол')">🇲🇳 Монгол</div>
+      <div class="ft-lang-item" onclick="setLang('tr','Türkçe')">🇹🇷 Türkçe</div>
+      <div class="ft-lang-item" onclick="setLang('uz','O'zbekcha')">🇺🇿 O'zbekcha</div>
+      <div class="ft-lang-item" onclick="setLang('id','Bahasa Indonesia')">🇮🇩 Bahasa Indonesia</div>
+      <div class="ft-lang-item" onclick="setLang('th','ภาษาไทย')">🇹🇭 ภาษาไทย</div>
+      <div class="ft-lang-item" onclick="setLang('hr','Hrvatski')">🇭🇷 Hrvatski</div>
+      <div class="ft-lang-item" onclick="setLang('ko','한국어')">🇰🇷 한국어</div>
+      <div class="ft-lang-item" onclick="setLang('it','Italiano')">🇮🇹 Italiano</div>
+    </div>
+  </div>
+</div>
+<style>
+.ft-lang-telegram{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.ft-tg-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(0,136,204,.15);border:1px solid rgba(0,136,204,.3);color:#29b6f6;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s}
+.ft-tg-btn:hover{background:rgba(0,136,204,.25)}
+.ft-lang-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.75);padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.ft-lang-btn:hover{background:rgba(255,255,255,.12)}
+.ft-lang-drop{position:absolute;bottom:calc(100% + 6px);left:0;background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:6px;min-width:180px;z-index:9999;box-shadow:0 -8px 32px rgba(0,0,0,.5);max-height:280px;overflow-y:auto}
+.ft-lang-item{padding:8px 12px;border-radius:7px;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;transition:background .15s}
+.ft-lang-item:hover,.ft-lang-item.active{background:rgba(62,207,142,.12);color:#3ecf8e}
+</style>
+<script>
+(function(){
+  // Load telegram link
+  var tgLink = localStorage.getItem('site_telegram_link')||'';
+  var tgName = localStorage.getItem('site_telegram_name')||'Join Telegram';
+  var tgBtn = document.getElementById('ftTelegramLink');
+  var tgNameEl = document.getElementById('ftTelegramName');
+  if(tgBtn && tgLink){
+    tgBtn.href = tgLink;
+    tgBtn.style.display = 'inline-flex';
+    if(tgNameEl) tgNameEl.textContent = tgName;
+  }
+  // Load also via SiteSync
+  if(window.SiteSync){
+    SiteSync.loadSettings(function(){
+      var link = localStorage.getItem('site_telegram_link')||window._SITE_SETTINGS&&window._SITE_SETTINGS.telegram_link||'';
+      if(link && tgBtn){ tgBtn.href=link; tgBtn.style.display='inline-flex'; }
+    });
+  }
+  // Apply saved language
+  var lang = localStorage.getItem('site_lang')||'en';
+  var labelMap = {en:'English',es:'Español',pt:'Português',fr:'Français',ru:'Русский',de:'Deutsch',nl:'Nederlands',zh:'中文',hi:'हिन्दी',ja:'日本語',bn:'বাংলা',mn:'Монгол',tr:'Türkçe',uz:"O'zbekcha",id:'Bahasa Indonesia',th:'ภาษาไทย',hr:'Hrvatski',ko:'한국어',it:'Italiano'};
+  var el = document.getElementById('ftLangLabel');
+  if(el) el.textContent = labelMap[lang]||'English';
+  document.documentElement.lang = lang;
+  // Mark active
+  document.querySelectorAll('.ft-lang-item').forEach(function(item){
+    if(item.getAttribute('onclick')&&item.getAttribute('onclick').includes("'"+lang+"'")) item.classList.add('active');
+  });
+})();
+function toggleLangDrop(){
+  var d=document.getElementById('ftLangDrop');
+  if(d) d.style.display=d.style.display==='none'?'block':'none';
+}
+function setLang(code,label){
+  localStorage.setItem('site_lang',code);
+  var el=document.getElementById('ftLangLabel');
+  if(el) el.textContent=label;
+  document.documentElement.lang=code;
+  document.getElementById('ftLangDrop').style.display='none';
+  // Google Translate (optional)
+  // window.location.href = '/?googtrans=/en/'+code;
+}
+document.addEventListener('click',function(e){
+  var drop=document.getElementById('ftLangDrop');
+  var btn=document.getElementById('ftLangBtn');
+  if(drop&&btn&&!btn.contains(e.target)&&!drop.contains(e.target)) drop.style.display='none';
+});
+</script>
     <div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
   </footer>
 
