@@ -1191,7 +1191,7 @@ var h='';
 h+='<div class="dg-wrap" style="max-width:900px;margin:16px auto;">';
 h+='<div class="dg-tabs"><button class="dg-tab dg-tab-act" id="dgtManual" onclick="dgSetMode(\'manual\')">Manual</button><button class="dg-tab" id="dgtAuto" onclick="dgSetMode(\'auto\')">Auto</button></div>';
 h+='<div class="dg-layout-v">';
-h+='<div class="dg-display"><div class="dg-hex-wrap"><div class="hex-bubble" id="hexBubble">50.00</div><input type="range" class="dg-slider" id="dgSlider" min="0.01" max="96" step="0.01" value="50" oninput="dgSlide()"></div><div class="dg-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>';
+h+='<div class="dg-display"><div class="dg-hex-wrap"><div class="hex-bubble" id="hexBubble">50.00</div><input type="range" class="dg-slider" id="dgSlider" min="0.02" max="96" step="0.01" value="48.5" oninput="dgSlide()"></div><div class="dg-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>';
 h+='<div class="dg-stats-row"><div class="dg-stat"><div class="dg-slbl">Payout</div><div class="dg-sval"><input class="dg-sinp" id="dgPayout" type="number" value="1.94" step="0.01" oninput="dgByPayout()"><span class="dg-sx">x</span></div></div><div class="dg-stat dg-stat-mid"><div class="dg-slbl" id="dgDirLbl">Roll Under</div><div class="dg-sval"><input class="dg-sinp" id="dgRollVal" type="number" value="50.00" step="0.01" oninput="dgByRoll()"><button class="dg-arrow-btn" onclick="dgToggleDir()">&#8644;</button></div></div><div class="dg-stat"><div class="dg-slbl">Win Chance</div><div class="dg-sval"><input class="dg-sinp" id="dgWinCh" type="number" value="50.00" step="0.01" oninput="dgByChance()"><span class="dg-sx">%</span></div></div></div>';
 
 h+='<div class="dg-amount-sec"><div class="dg-amt-lbl"><span class="dg-dot"></span> Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="dgAmt" type="number" value="0.0001" step="0.000001" min="0" oninput="dgCalcWin()"><button class="dg-sz-btn" onclick="dgSetAmt(\'min\')">MIN</button><button class="dg-sz-btn" onclick="dgSetAmt(\'half\')">1/2</button><button class="dg-sz-btn" onclick="dgSetAmt(\'2x\')">2x</button><button class="dg-sz-btn" onclick="dgSetAmt(\'max\')">MAX</button></div></div>';
@@ -1209,6 +1209,90 @@ h+='<div class="dg-bsec"><div class="dg-bet-tabs"><button class="dg-btab dg-btab
 h+='</div>';
 return h;
 }
+
+// ── DICE AUTO BET ──
+function toggleAuto(){
+  var btn=document.getElementById('dgAutoBtn');
+  if(!btn)return;
+  if(autoRunning){
+    // Stop auto
+    autoRunning=false;
+    if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+    btn.textContent='Start Auto';
+    btn.classList.remove('dg-roll-btn-stop');
+    return;
+  }
+  var baseBet=parseFloat((document.getElementById('dgAmt')||{}).value)||0;
+  if(baseBet<=0){showToast('Enter bet amount first!');return;}
+  var bal=parseFloat(document.getElementById('userBalance').textContent)||0;
+  if(bal<baseBet){showToast('Insufficient balance!');return;}
+  autoRunning=true;
+  autoBasebet=baseBet;
+  autoBetsLeft=0;
+  autoLoss=0;
+  autoProfit=0;
+  btn.textContent='Stop Auto';
+  btn.classList.add('dg-roll-btn-stop');
+  runAutoStep();
+}
+function runAutoStep(){
+  if(!autoRunning)return;
+  var btn=document.getElementById('dgRollBtn');
+  var autoPauseDone=false;
+  // Check stop conditions
+  var stopLoss=parseFloat((document.getElementById('dgStopLoss')||{}).value)||0;
+  var stopWin=parseFloat((document.getElementById('dgStopWin')||{}).value)||0;
+  var bal=parseFloat(document.getElementById('userBalance').textContent)||0;
+  if(stopLoss>0&&(-autoProfit)>=stopLoss){autoRunning=false;(document.getElementById('dgAutoBtn')||{}).textContent='Start Auto';showToast('Auto stopped: loss limit hit');return;}
+  if(stopWin>0&&autoProfit>=stopWin){autoRunning=false;(document.getElementById('dgAutoBtn')||{}).textContent='Start Auto';showToast('Auto stopped: profit target hit');return;}
+  // Do a roll
+  var bet=parseFloat((document.getElementById('dgAmt')||{}).value)||autoBasebet;
+  var wc=parseFloat((document.getElementById('dgWinCh')||{}).value)||48.5;
+  var payout=parseFloat((document.getElementById('dgPayout')||{}).value)||2;
+  var curBal=parseFloat(document.getElementById('userBalance').textContent)||0;
+  if(curBal<bet){autoRunning=false;(document.getElementById('dgAutoBtn')||{}).textContent='Start Auto';showToast('Insufficient balance - auto stopped');return;}
+  addBal(-bet);updateWager(bet);
+  var roll=parseFloat((Math.random()*100).toFixed(2));
+  var rollTh=dgDir==='under'?wc:(100-wc);
+  var win=(dgDir==='under'&&roll<rollTh)||(dgDir==='over'&&roll>rollTh);
+  if(win)addBal(bet*payout);
+  var profit=win?(bet*(payout-1)):-bet;
+  autoProfit+=profit;
+  autoBetsLeft++;
+  // Update counter
+  var bcEl=document.getElementById('dgBetCount');
+  if(bcEl)bcEl.textContent=autoBetsLeft;
+  var plEl=document.getElementById('dgPLVal');
+  if(plEl)plEl.textContent=(autoProfit>=0?'+':'')+autoProfit.toFixed(6);
+  // On win/loss multiplier adjustments
+  var winPct=parseFloat((document.getElementById('dgWinPct')||{}).value)||0;
+  var lossPct=parseFloat((document.getElementById('dgLossPct')||{}).value)||0;
+  var winRad=document.querySelector('[name="dgWin"]:checked');
+  var lossRad=document.querySelector('[name="dgLoss"]:checked');
+  var winMode=winRad?winRad.value:'reset';
+  var lossMode=lossRad?lossRad.value:'reset';
+  var newBet=bet;
+  if(win){
+    if(winMode==='increase')newBet=bet*(1+winPct/100);
+    else newBet=autoBasebet;
+  }else{
+    if(lossMode==='increase')newBet=bet*(1+lossPct/100);
+    else newBet=autoBasebet;
+  }
+  var amtEl=document.getElementById('dgAmt');
+  if(amtEl)amtEl.value=newBet.toFixed(6);
+  dgCalcWin();
+  // Save to history
+  var now=new Date();var ts=(now.getDate()<10?'0':'')+now.getDate()+'/'+(now.getMonth()<9?'0':'')+(now.getMonth()+1);
+  nonce++;
+  var rec={id:nonce,game:'Dice',option:(dgDir==='under'?'Roll Under':'Roll Over')+' '+rollTh.toFixed(2),roll:roll,bet:bet,payout:payout,wc:wc,dir:dgDir,win:win,profit:profit,ts:ts};
+  betHistory.unshift(rec);
+  try{localStorage.setItem('diceHistory',JSON.stringify(betHistory.slice(0,50)));}catch(e){}
+  try{var _sb=JSON.parse(localStorage.getItem('site_all_bets')||'[]');_sb.unshift({u:localStorage.getItem('userName')||'?',g:'Dice',b:rec.bet,p:rec.payout,w:rec.win,pr:rec.profit,t:rec.ts});localStorage.setItem('site_all_bets',JSON.stringify(_sb.slice(0,200)));}catch(e){}
+  renderBets();
+  // Continue after short delay
+  autoTimer=setTimeout(runAutoStep, 800);
+}
 function initDice(){
 dgDir='over';
 try{var saved=localStorage.getItem('diceHistory');if(saved){betHistory=JSON.parse(saved)||[];}}catch(e){}
@@ -1220,11 +1304,10 @@ window.addEventListener('resize',dgHexPos);
 function dgSlide(){dgUpdate();}
 function dgUpdate(){
 var sl=document.getElementById('dgSlider');if(!sl)return;
-var sv=parseFloat(sl.value); // slider position = threshold to roll over/under
-var wc=dgDir==='under'?sv:(100-sv); // win chance
-wc=Math.max(0.01,Math.min(99.99,wc));
-var payout=parseFloat((97/wc).toFixed(4));
-var rollVal=sv; // threshold shown in Roll Under/Over field
+var wc=parseFloat(sl.value); // slider value = Win Chance % (0.02-96)
+wc=Math.max(0.02,Math.min(96,wc));
+var payout=parseFloat((97/wc).toFixed(4)); // 96%=1.01x, 48.5%=2.00x, 0.02%=4850x
+var rollVal=dgDir==='under'?wc:(100-wc); // threshold for comparison
 var pi=document.getElementById('dgPayout');if(pi)pi.value=payout.toFixed(4);
 var ri=document.getElementById('dgRollVal');if(ri)ri.value=rollVal.toFixed(2);
 var wi=document.getElementById('dgWinCh');if(wi)wi.value=wc.toFixed(2);
@@ -1234,15 +1317,17 @@ var lbl=document.getElementById('dgDirLbl');if(lbl)lbl.textContent=dgDir==='unde
 // Slider position sv = threshold value (0-96 scale)
 // Roll Over: win if roll > sv → win zone sv% to 100% (green right)
 // Roll Under: win if roll < sv → win zone 0% to sv% (green left)
-var sv=parseFloat(sl.value); // slider position = threshold
+var sv=wc; // sv = wc (slider value = win chance, not threshold)
+var lz=dgDir==='under'?wc:(100-wc); // boundary between red and green
 var gr='#22c55e',rd='#ef4444';
 if(dgDir==='under'){
-  // Win zone: LEFT (0 to sv%), Lose zone: RIGHT (sv% to 100)
-  sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+sv+'%,'+rd+' '+sv+'%,'+rd+' 100%)';
+  // Win zone: LEFT (0 to wc%), Lose zone: RIGHT (wc% to 100)
+  sl.style.background='linear-gradient(to right,'+gr+' 0%,'+gr+' '+wc+'%,'+rd+' '+wc+'%,'+rd+' 100%)';
 }else{
-  // Win zone: RIGHT (sv% to 100%), Lose zone: LEFT (0 to sv%)
-  // Moving slider LEFT = lower sv = bigger win zone (more green on right)
-  sl.style.background='linear-gradient(to right,'+rd+' 0%,'+rd+' '+sv+'%,'+gr+' '+sv+'%,'+gr+' 100%)';
+  // Win zone: RIGHT ((100-wc)% to 100%), Lose zone: LEFT (0 to (100-wc)%)
+  // Moving slider RIGHT = lower win chance = smaller green zone
+  var th=100-wc;
+  sl.style.background='linear-gradient(to right,'+rd+' 0%,'+rd+' '+th+'%,'+gr+' '+th+'%,'+gr+' 100%)';
 }
 dgCalcWin();
 setTimeout(function(){dgHexPos();},10);
@@ -1262,7 +1347,7 @@ var pos=trackPad+pct*(tw-thumbW)-hexW/2;
 hex.style.left=pos+'px';
 hex.style.transform='none';
 }
-function dgByPayout(){var p=parseFloat(document.getElementById('dgPayout').value)||2;p=Math.max(1.0104,Math.min(4850,p));var wc=Math.max(0.02,Math.min(96,(97/p)));document.getElementById('dgSlider').value=wc;dgUpdate();}
+function dgByPayout(){var p=parseFloat(document.getElementById('dgPayout').value)||2;p=Math.max(1.0104,Math.min(4850,p));var wc=parseFloat((97/p).toFixed(4));wc=Math.max(0.02,Math.min(96,wc));document.getElementById('dgSlider').value=wc;dgUpdate();}
 function dgByRoll(){var rv=parseFloat(document.getElementById('dgRollVal').value)||50;var wc=dgDir==='under'?rv:(100-rv);wc=Math.min(96,Math.max(0.01,wc));document.getElementById('dgSlider').value=wc;dgUpdate();}
 function dgByChance(){var wc=Math.min(96,Math.max(0.01,parseFloat(document.getElementById('dgWinCh').value)||50));document.getElementById('dgSlider').value=wc;dgUpdate();}
 function dgToggleDir(){dgDir=dgDir==='under'?'over':'under';dgUpdate();}
@@ -1297,8 +1382,9 @@ btn.disabled=true;btn.textContent='Rolling...';
 nonce++;
 setTimeout(function(){
 var roll=parseFloat((Math.random()*100).toFixed(2));var _abR=_abCheckWin(bet,wc,payout);
-var rollTh=parseFloat((document.getElementById('dgRollVal')||{}).value)||50; // threshold from display
-var win=(dgDir==='under'&&roll<rollTh)||(dgDir==='over'&&roll>rollTh); // win if roll crosses threshold
+// threshold: for Roll Under = wc, for Roll Over = 100-wc
+var rollTh=dgDir==='under'?wc:(100-wc);
+var win=(dgDir==='under'&&roll<rollTh)||(dgDir==='over'&&roll>rollTh);
 if(_abR===false){
   win=false;
   roll=_abDiceRoll(false,dgDir,wc,rollTh);

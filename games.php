@@ -210,19 +210,18 @@
 
     </div>
     <!-- GAME PANEL -->
-    <div class="game-panel" id="gamePanel" style="display:none">
-      <button class="back-btn" onclick="closeGame()">&#8592; Back to Games</button>
-      <div class="game-frame" id="gameFrame"></div>
-      <!-- MY BETS / ALL BETS SECTION -->
-      <div class="dg-bsec" id="globalBetSec" style="margin-top:16px">
-        <div class="dg-bet-tabs">
-          <button class="dg-btab dg-btab-act" id="gTabMy" onclick="gBetTab('my')">My Bets</button>
-          <button class="dg-btab" id="gTabAll" onclick="gBetTab('all')">All Bets</button>
-        </div>
-        <div class="dg-bet-list" id="gBetList"><div class="dg-no-bets">No bets yet. Play a game!</div></div>
-      </div>
     </div>
   </div>
+
+  <!-- GLOBAL MY BETS / ALL BETS (below games, always visible on games page) -->
+  <div class="dg-bsec" id="globalBetSec" style="margin:18px 0 0 0;padding:0 12px">
+    <div class="dg-bet-tabs">
+      <button class="dg-btab dg-btab-act" id="gTabMy" onclick="gBetTab('my')">My Bets</button>
+      <button class="dg-btab" id="gTabAll" onclick="gBetTab('all')">All Bets</button>
+    </div>
+    <div class="dg-bet-list" id="gBetList"><div class="dg-no-bets">No bets yet. Play a game!</div></div>
+  </div>
+
 
 
   <!-- DEPOSIT -->
