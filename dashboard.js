@@ -18,7 +18,7 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');try{sessionStorage.setItem('_lastSection',key);}catch(e){} // save for refreshcloseSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');try{sessionStorage.setItem('_ls',key);}catch(e){}closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
 
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
@@ -205,14 +205,12 @@ if(window.SiteSync){
   if(document.getElementById('ctCkDays')) SiteSync.startContestTimer({},1000);
 }
 // Show section based on PHP-injected variable (each page sets window._INIT_SECTION)
-// Restore last section on refresh (sessionStorage persists within tab session)
 var _phpSec=(typeof window._INIT_SECTION!=='undefined')?window._INIT_SECTION:'home';
-var _savedSec='';
-try{_savedSec=sessionStorage.getItem('_lastSection')||'';}catch(e){}
+var _savedSec='';try{_savedSec=sessionStorage.getItem('_ls')||'';}catch(e){}
 var _initSec=_savedSec||_phpSec;
 _showSection(_initSec);
-// Restore last open game if user was inside a game
-try{var _lastG=sessionStorage.getItem('_lastGame');if(_lastG&&_initSec==='games'){setTimeout(function(){openGame(_lastG,true);},100);}}catch(e){}
+// Restore last game if was inside one
+try{var _lg=sessionStorage.getItem('_lg');if(_lg&&_initSec==='games')setTimeout(function(){openGame(_lg,true);},150);}catch(e){}
 });
 function onCap(cb){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=!cb.checked;note.textContent=cb.checked?'Click CLAIM to receive your TRX':'Complete captcha to claim';note.style.color=cb.checked?'#3ecf8e':'';}
 function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){rollsLeft=1;document.getElementById('rollCount').textContent=rollsLeft;btn.disabled=false;note.textContent='Click ROLL to spin!';note.style.color='#3ecf8e';}else{rollsLeft=0;btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
@@ -399,16 +397,6 @@ function _abCheckWin(betAmt, winPct, payout){
   return null; // No antibot active — normal RNG
 }
 
-
-var _dgCurTab='my';
-function dgBetTab(t){
-  _dgCurTab=t;
-  var myB=document.getElementById('dgtMyBets');
-  var alB=document.getElementById('dgtAllBets');
-  if(myB)myB.className='dg-btab'+(t==='my'?' dg-btab-act':'');
-  if(alB)alB.className='dg-btab'+(t==='all'?' dg-btab-act':'');
-  renderBets();
-}
 // Hook antibot into Dice game win resolution
 var _origDiceWin=null;
 function _abWrapDice(){
@@ -709,7 +697,7 @@ hard:[
 };
 
 function openGame(name, skipHistory){
-try{sessionStorage.setItem('_lastGame',name);}catch(e){} // save for refresh
+try{sessionStorage.setItem('_lg',name);}catch(e){}
 go('games',true);
 // CSS handles hide/show via .game-open class on #sec-games
 var sec=document.getElementById('sec-games');
@@ -729,6 +717,7 @@ else{closeGame();return;}
 window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
+try{sessionStorage.removeItem('_lg');}catch(e){}
 // Remove game-open class — CSS restores grid automatically
 var sec=document.getElementById('sec-games');
 if(sec)sec.classList.remove('game-open');
@@ -1188,10 +1177,11 @@ window.addEventListener('resize',dgHexPos);
 function dgSlide(){dgUpdate();}
 function dgUpdate(){
 var sl=document.getElementById('dgSlider');if(!sl)return;
-var wc=parseFloat(sl.value); // slider value = win chance (0.02-96)
-wc=Math.max(0.02,Math.min(96,wc));
-var payout=parseFloat((97/wc).toFixed(4)); // payout formula: 97/winChance
-var rollVal=dgDir==='under'?wc:(100-wc); // threshold for comparison
+var sv=parseFloat(sl.value); // slider position = threshold to roll over/under
+var wc=dgDir==='under'?sv:(100-sv); // win chance
+wc=Math.max(0.01,Math.min(99.99,wc));
+var payout=parseFloat((97/wc).toFixed(4));
+var rollVal=sv; // threshold shown in Roll Under/Over field
 var pi=document.getElementById('dgPayout');if(pi)pi.value=payout.toFixed(4);
 var ri=document.getElementById('dgRollVal');if(ri)ri.value=rollVal.toFixed(2);
 var wi=document.getElementById('dgWinCh');if(wi)wi.value=wc.toFixed(2);
@@ -1231,7 +1221,7 @@ hex.style.transform='none';
 }
 function dgByPayout(){var p=parseFloat(document.getElementById('dgPayout').value)||2;p=Math.max(1.0104,Math.min(4850,p));var wc=Math.max(0.02,Math.min(96,(97/p)));document.getElementById('dgSlider').value=wc;dgUpdate();}
 function dgByRoll(){var rv=parseFloat(document.getElementById('dgRollVal').value)||50;var wc=dgDir==='under'?rv:(100-rv);wc=Math.min(96,Math.max(0.01,wc));document.getElementById('dgSlider').value=wc;dgUpdate();}
-function dgByChance(){var wc=Math.min(96,Math.max(0.02,parseFloat(document.getElementById('dgWinCh').value)||48.5));document.getElementById('dgSlider').value=wc;dgUpdate();}
+function dgByChance(){var wc=Math.min(96,Math.max(0.01,parseFloat(document.getElementById('dgWinCh').value)||50));document.getElementById('dgSlider').value=wc;dgUpdate();}
 function dgToggleDir(){dgDir=dgDir==='under'?'over':'under';dgUpdate();}
 function dgCalcWin(){var bet=parseFloat((document.getElementById('dgAmt')||{}).value)||0;var p=parseFloat((document.getElementById('dgPayout')||{}).value)||1.94;var wa=document.getElementById('dgWinAmt');if(wa)wa.textContent=(bet*p).toFixed(8);}
 function dgSetAmt(sz){
@@ -1294,8 +1284,7 @@ var now=new Date();var ts=(now.getDate()<10?'0':'')+now.getDate()+'/'+(now.getMo
 var rec={id:nonce,game:'Dice',option:(dgDir==='under'?'Roll Under':'Roll Over')+' '+(dgDir==='under'?wc.toFixed(2):(100-wc).toFixed(2)),roll:roll,bet:bet,payout:payout,wc:wc,dir:dgDir,win:win,profit:profit,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed};
 betHistory.unshift(rec);
 try{localStorage.setItem('diceHistory',JSON.stringify(betHistory.slice(0,50)));}catch(e){}
-// Save to site-wide all bets feed
-try{var _sab=JSON.parse(localStorage.getItem('site_all_bets')||'[]');_sab.unshift({u:localStorage.getItem('userName')||'?',g:'Dice',b:rec.bet,p:rec.payout,w:rec.win,pr:rec.profit,t:rec.ts});if(_sab.length>200)_sab=_sab.slice(0,200);localStorage.setItem('site_all_bets',JSON.stringify(_sab));}catch(e){}
+try{var _sb=JSON.parse(localStorage.getItem('site_all_bets')||'[]');_sb.unshift({u:localStorage.getItem('userName')||'?',g:'Dice',b:rec.bet,p:rec.payout,w:rec.win,pr:rec.profit,t:rec.ts});localStorage.setItem('site_all_bets',JSON.stringify(_sb.slice(0,200)));}catch(e){}
 renderBets();
 btn.disabled=false;btn.textContent='Roll Now';
 },600);
