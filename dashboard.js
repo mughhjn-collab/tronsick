@@ -287,10 +287,12 @@ var _ab={
   ab2Count:0,           // cycle position for AB2
   ab2Phase:'loss',      // 'loss' | 'wins'
   ab2WinsSoFar:0,
-  ab3LastBet:0,         // last bet amount for AB3 reset detection
-  ab3LossCount:0,       // how many losses so far in cycle
-  ab3WinCount:0,        // wins so far
-  ab3Phase:'initial'    // 'initial' | 'cycle'
+  ab3LastBet:0,         // last bet amount for AB3 (detect increase)
+  ab3LossCount:0,       // losses so far in current cycle
+  ab3CycleTarget:0,     // losses required before next win in this cycle
+  ab3Phase:'initial',   // 'initial' | 'cycle'
+  ab3LastPayout:0,      // last payout multiplier (detect change)
+  ab3WinCount:0         // total wins in this session (for cycle randomness)
 };
 
 /**
@@ -389,39 +391,98 @@ function _abCheckWin(betAmt, winPct, payout){
     _ab.ab2WinsSoFar=0;
   }
 
-  // ── ANTIBOT 3 (high payout 4x–9700x) ──
-  if(ab3On && payout>=4){
-    // Detect bet increase after win → reset cycle
-    if(betAmt > _ab.ab3LastBet * 1.001 && _ab.ab3LastBet > 0){
-      _ab.ab3Phase='initial';
-      _ab.ab3LossCount=0;
-      _ab.ab3WinCount=0;
+  // ── ANTIBOT 3: Payout-Proportional Loss Control (3x – 4850x) ──
+  // Logic: losses = ~payout value before first win, then random cycles.
+  // If user increases bet → reset back to initial (full payout-losses again).
+  if(ab3On && payout >= 3 && payout <= 4850){
+
+    // ── Detect payout change → reset cycle ──
+    if(_ab.ab3LastPayout > 0 && Math.abs(payout - _ab.ab3LastPayout) > 0.01){
+      _ab.ab3Phase = 'initial';
+      _ab.ab3LossCount = 0;
+      _ab.ab3CycleTarget = 0;
     }
-    _ab.ab3LastBet=betAmt;
+    _ab.ab3LastPayout = payout;
 
-    // Required losses before first win based on payout
-    var baseLoss = Math.max(3, Math.floor(payout));
-    baseLoss = Math.min(baseLoss, 20); // cap at 20
+    // ── Detect bet INCREASE → reset to initial phase ──
+    // (increase by any amount, even 1% counts)
+    if(_ab.ab3LastBet > 0 && betAmt > _ab.ab3LastBet * 1.005){
+      _ab.ab3Phase = 'initial';
+      _ab.ab3LossCount = 0;
+      _ab.ab3CycleTarget = 0;
+    }
+    _ab.ab3LastBet = betAmt;
 
-    if(_ab.ab3Phase==='initial'){
+    // ── Calculate required losses based on payout ──
+    // 3x → 2-3 losses, 10x → 9-10, 100x → 99-100, capped at 30 for high payouts
+    var payoutLoss;
+    if(payout <= 5)         payoutLoss = Math.round(payout);           // 3x=3, 4x=4, 5x=5
+    else if(payout <= 20)   payoutLoss = Math.round(payout);           // 10x=10, 20x=20
+    else if(payout <= 50)   payoutLoss = Math.round(payout * 0.7);     // 30x→21, 50x→35
+    else if(payout <= 200)  payoutLoss = Math.round(payout * 0.4);     // 100x→40, 200x→80
+    else if(payout <= 1000) payoutLoss = Math.round(payout * 0.15);    // 500x→75, 1000x→150
+    else                    payoutLoss = Math.round(payout * 0.05);    // 4850x→242
+
+    // Hard cap: no more than 30 losses in a row per cycle
+    payoutLoss = Math.min(payoutLoss, 30);
+    payoutLoss = Math.max(payoutLoss, 2);  // at least 2
+
+    // ── INITIAL PHASE: first N losses then 1 win ──
+    if(_ab.ab3Phase === 'initial'){
       _ab.ab3LossCount++;
-      if(_ab.ab3LossCount>=baseLoss){
-        _ab.ab3Phase='cycle';
-        _ab.ab3LossCount=0;
-        _ab.ab3WinCount=0;
-        return true; // WIN after initial losses
-      }
-      return false; // FORCE LOSS
-    } else {
-      // Cycle phase: random 4-7 losses then 1 win
-      var cycleLoss = baseLoss + Math.floor(Math.random()*3);
-      _ab.ab3LossCount++;
-      if(_ab.ab3LossCount>=cycleLoss){
-        _ab.ab3LossCount=0;
+
+      // Allow ±1 randomness on when win happens
+      var winAt = payoutLoss + Math.floor(Math.random() * 3) - 1; // payoutLoss-1 to payoutLoss+1
+      winAt = Math.max(winAt, 1);
+
+      if(_ab.ab3LossCount >= winAt){
+        // Transition to cycle phase
+        _ab.ab3Phase = 'cycle';
+        _ab.ab3LossCount = 0;
+        _ab.ab3WinCount++;
+        // Set next cycle target: random between (payoutLoss*0.5) and (payoutLoss*1.2)
+        var lo = Math.max(1, Math.round(payoutLoss * 0.5));
+        var hi = Math.round(payoutLoss * 1.2);
+        _ab.ab3CycleTarget = lo + Math.floor(Math.random() * (hi - lo + 1));
+        _ab.ab3CycleTarget = Math.min(_ab.ab3CycleTarget, 30);
         return true; // WIN
       }
       return false; // FORCE LOSS
     }
+
+    // ── CYCLE PHASE: random losses (50%-120% of payoutLoss) then 1 win ──
+    else {
+      _ab.ab3LossCount++;
+
+      // If cycle target not set, set it now
+      if(_ab.ab3CycleTarget <= 0){
+        var lo2 = Math.max(1, Math.round(payoutLoss * 0.5));
+        var hi2 = Math.round(payoutLoss * 1.2);
+        _ab.ab3CycleTarget = lo2 + Math.floor(Math.random() * (hi2 - lo2 + 1));
+        _ab.ab3CycleTarget = Math.min(_ab.ab3CycleTarget, 30);
+      }
+
+      if(_ab.ab3LossCount >= _ab.ab3CycleTarget){
+        _ab.ab3LossCount = 0;
+        _ab.ab3WinCount++;
+        // Set next cycle target (fresh random)
+        var lo3 = Math.max(1, Math.round(payoutLoss * 0.5));
+        var hi3 = Math.round(payoutLoss * 1.2);
+        _ab.ab3CycleTarget = lo3 + Math.floor(Math.random() * (hi3 - lo3 + 1));
+        _ab.ab3CycleTarget = Math.min(_ab.ab3CycleTarget, 30);
+        return true; // WIN
+      }
+      return false; // FORCE LOSS
+    }
+  }
+
+  // Reset AB3 state if payout out of range
+  if(payout < 3 || payout > 4850){
+    _ab.ab3Phase = 'initial';
+    _ab.ab3LossCount = 0;
+    _ab.ab3CycleTarget = 0;
+    _ab.ab3LastBet = 0;
+    _ab.ab3LastPayout = 0;
   }
 
   // ── ANTIBOT 1 ──
