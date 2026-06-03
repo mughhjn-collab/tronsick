@@ -149,8 +149,9 @@ window.SiteSync = (function(){
         if(cb) cb(r);
       });
     },
-    registerUser: function(name, email, cb){
-      post('register_user', { name:name, email:email || '' }, cb);
+    registerUser: function(name, email, ref, cb){
+      if(typeof ref === 'function'){cb=ref;ref='';}
+      post('register_user', { name:name, email:email||'', ref:ref||'' }, cb);
     },
     syncLocalUsers: function(cb){
       var seen = {};

@@ -654,7 +654,7 @@ function handleReg(e){
     }catch(ex){}
 
     // Register on server for admin user count
-    if(window.SiteSync) SiteSync.registerUser(u, em);
+    if(window.SiteSync) SiteSync.registerUser(u, em, ref||'');
 
     window.location.href='faucet.php';
   }, 1200);

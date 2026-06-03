@@ -69,7 +69,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
 
       <div class="tabs">
         <button class="tab active" id="tabFaucet" onclick="tab('faucet')">Faucet</button>
-        <button class="tab" id="tabBonus" onclick="openLuckyDraw()">&#127381; Lucky Draw</button>
+        <button class="tab" id="tabBonus" onclick="window.location.href='bonus.php'">&#127381; Lucky Draw</button>
       </div>
 
       <!-- FAUCET PANE -->

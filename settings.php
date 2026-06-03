@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -744,29 +744,29 @@
       <div class="foot-lang-select-wrap">
         <select id="siteLangSelect" class="foot-lang-select" onchange="setSiteLanguage(this.value)">
           <option value="en">&#127482;&#127480; English</option>
-          <option value="ru">&#127479;&#127482; Русский (Russian)</option>
-          <option value="ar">&#127462;&#127466; العربية (Arabic)</option>
-          <option value="fr">&#127467;&#127479; Français (French)</option>
-          <option value="es">&#127466;&#127480; Español (Spanish)</option>
-          <option value="pt">&#127477;&#127481; Português (Portuguese)</option>
+          <option value="ru">&#127479;&#127482; ??????? (Russian)</option>
+          <option value="ar">&#127462;&#127466; ??????? (Arabic)</option>
+          <option value="fr">&#127467;&#127479; Fran�ais (French)</option>
+          <option value="es">&#127466;&#127480; Espa�ol (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Portugu�s (Portuguese)</option>
           <option value="de">&#127465;&#127466; Deutsch (German)</option>
-          <option value="tr">&#127481;&#127479; Türkçe (Turkish)</option>
+          <option value="tr">&#127481;&#127479; T�rk�e (Turkish)</option>
           <option value="id">&#127470;&#127465; Indonesia</option>
-          <option value="hi">&#127470;&#127475; हिन्दी (Hindi)</option>
-          <option value="bn">&#127463;&#127465; বাংলা (Bengali)</option>
-          <option value="ur">&#127477;&#127472; اردو (Urdu)</option>
+          <option value="hi">&#127470;&#127475; ?????? (Hindi)</option>
+          <option value="bn">&#127463;&#127465; ????? (Bengali)</option>
+          <option value="ur">&#127477;&#127472; ???? (Urdu)</option>
           <option value="mg">&#127474;&#127468; Malagasy</option>
           <option value="sw">&#127472;&#127466; Kiswahili (Swahili)</option>
           <option value="ha">&#127475;&#127468; Hausa</option>
           <option value="yo">&#127475;&#127468; Yoruba</option>
-          <option value="zh">&#127464;&#127475; 中文 (Chinese)</option>
-          <option value="ja">&#127471;&#127477; 日本語 (Japanese)</option>
-          <option value="ko">&#127472;&#127479; 한국어 (Korean)</option>
-          <option value="vi">&#127475;&#127475; Tiếng Việt (Vietnamese)</option>
-          <option value="th">&#127481;&#127469; ภาษาไทย (Thai)</option>
-          <option value="fa">&#127470;&#127479; فارسی (Persian)</option>
+          <option value="zh">&#127464;&#127475; ?? (Chinese)</option>
+          <option value="ja">&#127471;&#127477; ??? (Japanese)</option>
+          <option value="ko">&#127472;&#127479; ??? (Korean)</option>
+          <option value="vi">&#127475;&#127475; Ti?ng Vi?t (Vietnamese)</option>
+          <option value="th">&#127481;&#127469; ??????? (Thai)</option>
+          <option value="fa">&#127470;&#127479; ????? (Persian)</option>
           <option value="pl">&#127477;&#127473; Polski (Polish)</option>
-          <option value="uk">&#127482;&#127462; Українська (Ukrainian)</option>
+          <option value="uk">&#127482;&#127462; ?????????? (Ukrainian)</option>
         </select>
       </div>
     </div>
@@ -978,11 +978,42 @@ async function verifyAndEnable2FA(){
 }
 
 function disableTwoFA(){
-  if(!confirm('Are you sure you want to disable 2FA? Your account will be less secure.'))return;
+  // Show inline disable form instead of confirm
+  var enabledView=document.getElementById('twofa-enabled-view');
+  if(!enabledView) return;
+  // Remove existing disable form if any
+  var existing=document.getElementById('twofa-disable-form');
+  if(existing){existing.remove();return;}
+  var form=document.createElement('div');
+  form.id='twofa-disable-form';
+  form.style.cssText='margin-top:16px;padding:16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px';
+  form.innerHTML='<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px;">Enter your current 6-digit 2FA code to disable:</div>'+
+    '<input type="text" id="twofa-disable-code" placeholder="6-digit code" maxlength="6" inputmode="numeric" style="width:180px;padding:10px 14px;background:#0a1628;border:1.5px solid rgba(239,68,68,.3);border-radius:8px;font-size:15px;color:#fff;font-family:monospace;letter-spacing:4px;outline:none;margin-bottom:10px;display:block"/>'+
+    '<div id="twofa-disable-err" style="display:none;color:#f87171;font-size:12px;margin-bottom:8px"></div>'+
+    '<div style="display:flex;gap:10px"><button onclick="confirmDisableTwoFA()" style="padding:9px 18px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:8px;color:#f87171;font-size:13px;font-weight:700;cursor:pointer">Disable 2FA</button>'+
+    '<button onclick="document.getElementById(\'twofa-disable-form\').remove()" style="padding:9px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer">Cancel</button></div>';
+  enabledView.appendChild(form);
+  setTimeout(function(){var inp=document.getElementById('twofa-disable-code');if(inp)inp.focus();},100);
+}
+
+async function confirmDisableTwoFA(){
   var uname=localStorage.getItem('userName')||'';
+  var secret=localStorage.getItem('2fa_secret_'+uname.toLowerCase());
+  var code=(document.getElementById('twofa-disable-code')||{value:''}).value.trim();
+  var errEl=document.getElementById('twofa-disable-err');
+  if(!code||code.length!==6){if(errEl){errEl.style.display='block';errEl.textContent='Enter your 6-digit 2FA code.';}return;}
+  var valid=false;
+  if(secret&&secret!=='enabled'){
+    try{valid=await verifyTOTP2(secret,code);}catch(e){valid=false;}
+  } else { valid=true; }
+  if(!valid){if(errEl){errEl.style.display='block';errEl.textContent='Invalid code. Check your authenticator app.';}return;}
   localStorage.removeItem('2fa_secret_'+uname.toLowerCase());
+  localStorage.removeItem('tfa_enabled_'+uname.toLowerCase());
+  localStorage.removeItem('tfa_enabled');
+  var form=document.getElementById('twofa-disable-form');
+  if(form)form.remove();
   init2FAStatus();
-  showToast('2FA has been disabled.');
+  if(typeof showToast==='function')showToast('2FA disabled successfully.');
 }
 
 // Init on page load
