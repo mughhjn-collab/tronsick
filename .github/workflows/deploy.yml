@@ -1,4 +1,4 @@
-name: Deploy to Hostinger via FTPS
+﻿name: Deploy to Hostinger via FTPS
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
           port: 21
           protocol: ftps
           local-dir: ./
-          server-dir: /domains/tronsick.io/public_html/
+          server-dir: /
           timeout: 180000
           log-level: verbose
           dangerous-clean-slate: false
@@ -43,3 +43,4 @@ jobs:
             **/data/antibot.json
             **/data/site_settings.json
             **/data/gen_payouts.json
+
