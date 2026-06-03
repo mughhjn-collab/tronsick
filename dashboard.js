@@ -1,4 +1,4 @@
-// Strip any hash fragment from URL on load
+﻿// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // ── LOGOUT ──
@@ -315,8 +315,7 @@ try{
     var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
     var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_betUser;});
     if(_rm&&_rm.ref) _refBy=(_rm.ref||'').toLowerCase();
-    if(!_refBy){
-      var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');
+    if(!_refBy){ var _urk=localStorage.getItem('userRef_'+_betUser); if(_urk) _refBy=_urk.toLowerCase(); } if(!_refBy){ var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');
       var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_betUser;});
       if(_am&&_am.ref) _refBy=(_am.ref||'').toLowerCase();
     }
@@ -458,7 +457,7 @@ function _getLevelPayouts(){
     master: parseFloat(_getSiteSetting('fp_master','60'))||60.0
   };
 }
-function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());try{var _claimUser=(localStorage.getItem('userName')||'').toLowerCase();var _refBy='';var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_claimUser;});if(_rm&&_rm.ref){_refBy=(_rm.ref||'').toLowerCase();}if(!_refBy){var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_claimUser;});if(_am&&_am.ref)_refBy=(_am.ref||'').toLowerCase();}if(_refBy){var _ck='ref_claims_'+_claimUser;localStorage.setItem(_ck,parseInt(localStorage.getItem(_ck)||'0')+1);var _fEarnKey='ref_earned_faucet_'+_refBy;var _prev=parseFloat(localStorage.getItem(_fEarnKey)||'0');localStorage.setItem(_fEarnKey,(_prev+amt*0.5).toFixed(8));}// Track server-side claim
+function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());try{var _claimUser=(localStorage.getItem('userName')||'').toLowerCase();var _refBy='';var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_claimUser;});if(_rm&&_rm.ref){_refBy=(_rm.ref||'').toLowerCase();}if(!_refBy){ var _urk=localStorage.getItem('userRef_'+_betUser); if(_urk) _refBy=_urk.toLowerCase(); } if(!_refBy){ var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_claimUser;});if(_am&&_am.ref)_refBy=(_am.ref||'').toLowerCase();}if(_refBy){var _ck='ref_claims_'+_claimUser;localStorage.setItem(_ck,parseInt(localStorage.getItem(_ck)||'0')+1);var _fEarnKey='ref_earned_faucet_'+_refBy;var _prev=parseFloat(localStorage.getItem(_fEarnKey)||'0');localStorage.setItem(_fEarnKey,(_prev+amt*0.5).toFixed(8));}// Track server-side claim
 if(window.SiteSync&&SiteSync.updateUserStats) SiteSync.updateUserStats(_claimUser,0,1,0);}catch(ex){}setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
 let rollsLeft=0;
 function initNewUserBonus(){
@@ -3244,3 +3243,4 @@ function setSiteLanguage(lang){
   `;
   document.head.appendChild(style);
 })();
+

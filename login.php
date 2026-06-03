@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -181,7 +181,7 @@
         </div>
       </div>
 
-      <!-- 2FA field — hidden by default, shows only when user has 2FA enabled -->
+      <!-- 2FA field � hidden by default, shows only when user has 2FA enabled -->
       <div class="ff ff-plain" id="twofa-wrap" style="display:none">
         <label>2FA Code <span class="opt-label">(Required ? your account has 2FA enabled)</span></label>
         <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
@@ -300,7 +300,27 @@
 </div>
 
 
-<?php include __DIR__ . '/site_inject.php'; ?>
+<script>
+(function(){
+  function applyStore(d, skipKeys){
+    if(!d) return;
+    skipKeys=skipKeys||['_saved','_updated'];
+    Object.keys(d).forEach(function(k){
+      if(skipKeys.indexOf(k)>=0) return;
+      if(d[k]!=null) try{localStorage.setItem(k,String(d[k]));}catch(e){}
+    });
+  }
+  var ab={"_saved":"1","ab1_on":"1","ab1_amount":"1","ab1_mode":"hard","ab2_on":"1","ab2_amount":"4","ab2_wins":"6","ab3_on":"1","_updated":"2026-06-02T09:22:44+00:00"};
+  var st=[];
+  window._SITE_AB=ab||{};
+  window._SITE_SETTINGS=st||{};
+  if(ab&&String(ab._saved)==='1') applyStore(ab);
+  if(st&&String(st._saved)==='1') applyStore(st);
+  if(st&&String(st.maintenance_mode)==='1'&&(window.location.pathname||'').indexOf('/admin/')===-1){
+    document.documentElement.classList.add('site-maintenance');
+  }
+})();
+</script>
 <script src="site_sync.js?v=4"></script>
 <script>
 // -- TAB SWITCH ------------------------------
@@ -482,7 +502,7 @@ function handleLogin(e){
   if(secret2fa){
     if(!code2fa){ err.style.display='block'; err.textContent='Please enter your 2FA code from your authenticator app.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
     if(secret2fa === 'enabled'){
-      // 2FA enabled but secret missing — allow login (graceful fallback)
+      // 2FA enabled but secret missing � allow login (graceful fallback)
       doLoginFinish(id, pw, btn);
     } else {
       verifyTOTP(secret2fa, code2fa).then(function(valid){
@@ -491,7 +511,7 @@ function handleLogin(e){
       });
     }
   } else {
-    // No 2FA — proceed directly to login
+    // No 2FA � proceed directly to login
     doLoginFinish(id, pw, btn);
   }
 }
@@ -501,7 +521,7 @@ function doLoginFinish(id, pw_input, btn){
     var uname = id.includes('@') ? id.split('@')[0] : id;
     var uemail = id.includes('@') ? id : '';
 
-    // ── SECURITY: Block admin username from user login ──
+    // -- SECURITY: Block admin username from user login --
     var adminUser = localStorage.getItem('adminUser') || 'admin';
     if(uname.toLowerCase() === adminUser.toLowerCase()){
       var err = document.getElementById('loginErr');
@@ -510,7 +530,7 @@ function doLoginFinish(id, pw_input, btn){
       return;
     }
 
-    // ── SECURITY: Verify password against stored hash ──
+    // -- SECURITY: Verify password against stored hash --
     var storedPw = localStorage.getItem('userPw_' + uname.toLowerCase());
     if(storedPw && storedPw !== pw_input){
       var err2 = document.getElementById('loginErr');
@@ -612,14 +632,14 @@ function handleReg(e){
     localStorage.setItem('userId',uid);
     // Permanent email key ? survives logout
     localStorage.setItem('userRealEmail_'+u.toLowerCase(), em);
-    if(ref) localStorage.setItem('userRef',ref);
+    if(ref){ localStorage.setItem('userRef',ref); localStorage.setItem('userRef_'+u.toLowerCase(),ref.toLowerCase()); }
     localStorage.removeItem('pendingRef'); // Clear after use
 
     // site_registered_users
     try{
       var ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
       if(!ru.find(function(x){return x.name===u;})){
-        ru.push({name:u,email:em,joined:new Date().toISOString(),balance:'0'});
+        ru.push({name:u,email:em,joined:new Date().toISOString(),balance:'0',ref:ref?ref.toLowerCase():''});
         localStorage.setItem('site_registered_users',JSON.stringify(ru));
       }
     }catch(ex){}
@@ -628,7 +648,7 @@ function handleReg(e){
     try{
       var au=JSON.parse(localStorage.getItem('adm_users')||'[]');
       if(!au.find(function(x){return x.name===u||x.email===em;})){
-        au.push({id:uid,name:u,email:em,balance:'0.000000',banned:false,joined:new Date().toISOString()});
+        au.push({id:uid,name:u,email:em,balance:'0.000000',banned:false,joined:new Date().toISOString(),ref:ref?ref.toLowerCase():''});
         localStorage.setItem('adm_users',JSON.stringify(au));
       }
     }catch(ex){}
@@ -721,4 +741,6 @@ initStaffMode();
 
 </body>
 </html>
+
+
 

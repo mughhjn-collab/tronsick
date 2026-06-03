@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿?<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -33,7 +33,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item" id="nav-bonus" href="/bonus.php"><i>&#127873;</i><s>Bonus</s></a>
+    <a class="sb-item" id="nav-lucky" href="javascript:void(0)" onclick="openLuckyDraw()"><i>&#127381;</i><s>Lucky Draw</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -69,7 +69,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
 
       <div class="tabs">
         <button class="tab active" id="tabFaucet" onclick="tab('faucet')">Faucet</button>
-        <button class="tab"        id="tabBonus"  onclick="tab('bonus')">Bonus</button>
+        <button class="tab" id="tabBonus" onclick="openLuckyDraw()">&#127381; Lucky Draw</button>
       </div>
 
       <!-- FAUCET PANE -->
@@ -368,70 +368,6 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
         </div>
       </div>
 
-    </div>
-  </div>
-  <!-- STAKE -->
-  <div class="pg" id="sec-stake">
-    <div class="stake-wrap">
-      <div class="stake-header">
-        <div class="stake-icon">&#x1F4B0;</div>
-        <div>
-          <h2 class="stake-title">TRX Staking</h2>
-          <p class="stake-subtitle">Lock your TRX for 24 hours and earn daily rewards automatically</p>
-        </div>
-      </div>
-
-      <!-- Current Stake Status -->
-      <div class="stake-status-card" id="stakeStatusCard" style="display:none">
-        <div class="stake-status-hd">&#x23F3; Active Stake</div>
-        <div class="stake-status-grid">
-          <div class="stake-stat"><div class="stake-stat-v" id="stakeLockedAmt">0</div><div class="stake-stat-l">Staked TRX</div></div>
-          <div class="stake-stat"><div class="stake-stat-v" id="stakeRewardAmt" style="color:#3ecf8e">0</div><div class="stake-stat-l">Daily Reward</div></div>
-          <div class="stake-stat"><div class="stake-stat-v" id="stakeCountdown">--:--:--</div><div class="stake-stat-l">Time Left</div></div>
-        </div>
-        <button class="stake-claim-btn" id="stakeClaimBtn" onclick="stakeClaim()" disabled>Claim Reward</button>
-        <div class="stake-claim-note" id="stakeClaimNote">Stake is locked for 24 hours</div>
-        <button class="stake-unstake-btn" id="stakeUnstakeBtn" onclick="stakeUnstake()" disabled>Unstake &amp; Withdraw</button>
-      </div>
-
-      <!-- Stake Tiers -->
-      <div class="stake-tiers" id="stakeTiersPanel">
-        <div class="stake-tiers-hd">&#x1F4CA; Choose Stake Tier</div>
-        <div class="stake-tiers-grid">
-          <div class="stake-tier-card" onclick="stakeSelect(10)">
-            <div class="stake-tier-amount">10 TRX</div>
-            <div class="stake-tier-reward">+0.05 TRX/day</div>
-            <button class="stake-tier-btn">Stake 10 TRX</button>
-          </div>
-          <div class="stake-tier-card stake-tier-popular" onclick="stakeSelect(200)">
-            <div class="stake-tier-badge">POPULAR</div>
-            <div class="stake-tier-amount">200 TRX</div>
-            <div class="stake-tier-reward">+0.5 TRX/day</div>
-            <button class="stake-tier-btn">Stake 200 TRX</button>
-          </div>
-          <div class="stake-tier-card" onclick="stakeSelect(2000)">
-            <div class="stake-tier-amount">2000 TRX</div>
-            <div class="stake-tier-reward">+2 TRX/day</div>
-            <button class="stake-tier-btn">Stake 2000 TRX</button>
-          </div>
-          <div class="stake-tier-card stake-tier-vip" onclick="stakeSelect(5000)">
-            <div class="stake-tier-badge">VIP</div>
-            <div class="stake-tier-amount">5000 TRX</div>
-            <div class="stake-tier-reward">+10 TRX/day</div>
-            <button class="stake-tier-btn">Stake 5000 TRX</button>
-          </div>
-        </div>
-        <div class="stake-info-box">
-          &#x26A0; Your TRX will be locked for <strong>24 hours</strong>. You can claim your reward and unstake after the lock period ends.
-          Maximum 1 active stake at a time.
-        </div>
-      </div>
-
-      <!-- Stake History -->
-      <div class="stake-hist-wrap">
-        <div class="stake-hist-hd">&#x1F4CB; Stake History</div>
-        <div id="stakeHistBody"><div class="dg-no-bets">No stake history yet.</div></div>
-      </div>
     </div>
   </div>
 
@@ -810,29 +746,29 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
       <div class="foot-lang-select-wrap">
         <select id="siteLangSelect" class="foot-lang-select" onchange="setSiteLanguage(this.value)">
           <option value="en">&#127482;&#127480; English</option>
-          <option value="ru">&#127479;&#127482; Русский (Russian)</option>
-          <option value="ar">&#127462;&#127466; العربية (Arabic)</option>
-          <option value="fr">&#127467;&#127479; Français (French)</option>
-          <option value="es">&#127466;&#127480; Español (Spanish)</option>
-          <option value="pt">&#127477;&#127481; Português (Portuguese)</option>
+          <option value="ru">&#127479;&#127482; ??????? (Russian)</option>
+          <option value="ar">&#127462;&#127466; ??????? (Arabic)</option>
+          <option value="fr">&#127467;&#127479; Fran�ais (French)</option>
+          <option value="es">&#127466;&#127480; Espa�ol (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Portugu�s (Portuguese)</option>
           <option value="de">&#127465;&#127466; Deutsch (German)</option>
-          <option value="tr">&#127481;&#127479; Türkçe (Turkish)</option>
+          <option value="tr">&#127481;&#127479; T�rk�e (Turkish)</option>
           <option value="id">&#127470;&#127465; Indonesia</option>
-          <option value="hi">&#127470;&#127475; हिन्दी (Hindi)</option>
-          <option value="bn">&#127463;&#127465; বাংলা (Bengali)</option>
-          <option value="ur">&#127477;&#127472; اردو (Urdu)</option>
+          <option value="hi">&#127470;&#127475; ?????? (Hindi)</option>
+          <option value="bn">&#127463;&#127465; ????? (Bengali)</option>
+          <option value="ur">&#127477;&#127472; ???? (Urdu)</option>
           <option value="mg">&#127474;&#127468; Malagasy</option>
           <option value="sw">&#127472;&#127466; Kiswahili (Swahili)</option>
           <option value="ha">&#127475;&#127468; Hausa</option>
           <option value="yo">&#127475;&#127468; Yoruba</option>
-          <option value="zh">&#127464;&#127475; 中文 (Chinese)</option>
-          <option value="ja">&#127471;&#127477; 日本語 (Japanese)</option>
-          <option value="ko">&#127472;&#127479; 한국어 (Korean)</option>
-          <option value="vi">&#127475;&#127475; Tiếng Việt (Vietnamese)</option>
-          <option value="th">&#127481;&#127469; ภาษาไทย (Thai)</option>
-          <option value="fa">&#127470;&#127479; فارسی (Persian)</option>
+          <option value="zh">&#127464;&#127475; ?? (Chinese)</option>
+          <option value="ja">&#127471;&#127477; ??? (Japanese)</option>
+          <option value="ko">&#127472;&#127479; ??? (Korean)</option>
+          <option value="vi">&#127475;&#127475; Ti?ng Vi?t (Vietnamese)</option>
+          <option value="th">&#127481;&#127469; ??????? (Thai)</option>
+          <option value="fa">&#127470;&#127479; ????? (Persian)</option>
           <option value="pl">&#127477;&#127473; Polski (Polish)</option>
-          <option value="uk">&#127482;&#127462; Українська (Ukrainian)</option>
+          <option value="uk">&#127482;&#127462; ?????????? (Ukrainian)</option>
         </select>
       </div>
     </div>
@@ -855,7 +791,27 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
   </div>
 </div>
 
-<?php include __DIR__ . '/site_inject.php'; ?>
+<script>
+(function(){
+  function applyStore(d, skipKeys){
+    if(!d) return;
+    skipKeys=skipKeys||['_saved','_updated'];
+    Object.keys(d).forEach(function(k){
+      if(skipKeys.indexOf(k)>=0) return;
+      if(d[k]!=null) try{localStorage.setItem(k,String(d[k]));}catch(e){}
+    });
+  }
+  var ab={"_saved":"1","ab1_on":"1","ab1_amount":"1","ab1_mode":"hard","ab2_on":"1","ab2_amount":"4","ab2_wins":"6","ab3_on":"1","_updated":"2026-06-02T09:22:44+00:00"};
+  var st=[];
+  window._SITE_AB=ab||{};
+  window._SITE_SETTINGS=st||{};
+  if(ab&&String(ab._saved)==='1') applyStore(ab);
+  if(st&&String(st._saved)==='1') applyStore(st);
+  if(st&&String(st.maintenance_mode)==='1'&&(window.location.pathname||'').indexOf('/admin/')===-1){
+    document.documentElement.classList.add('site-maintenance');
+  }
+})();
+</script>
 <script src="site_sync.js?v=4"></script>
 <script src="dashboard.js?v=31"></script>
 <script>
@@ -1058,3 +1014,5 @@ function renderContestLeaderboard(){
 </script>
 </body>
 </html>
+
+
