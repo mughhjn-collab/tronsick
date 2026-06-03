@@ -1,18 +1,18 @@
-﻿// Strip any hash fragment from URL on load
+// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
-// ── LOGOUT ──
+// -- LOGOUT --
 function doSiteLogout(){
   var _uname=localStorage.getItem('userName')||'';
   var keys=['userName','userEmail','userLoggedIn','userId','userBalance',
             'regUser','bonusRolls','lastFaucet','lastBonus',
             'totalWagered','userLevel','userRef'];
-  // NOTE: newUserBonus_USERNAME intentionally NOT cleared — one-time only per account
+  // NOTE: newUserBonus_USERNAME intentionally NOT cleared � one-time only per account
   keys.forEach(function(k){ localStorage.removeItem(k); });
   window.location.replace('https://tronsick.io/');
 }
 
-// ── SIDEBAR ──
+// -- SIDEBAR --
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
 const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','stake','settings','contact'];
@@ -20,15 +20,15 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' � TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
 
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
 
 function tab(t){['Faucet','Bonus'].forEach(k=>{document.getElementById('tab'+k).classList.remove('active');document.getElementById('pane'+k).classList.remove('active');});document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).classList.add('active');document.getElementById('pane'+t[0].toUpperCase()+t.slice(1)).classList.add('active');}
-// ── BALANCE HELPERS ──
+// -- BALANCE HELPERS --
 function syncBal(){
-// ── Admin balance sync from adm_users ──
+// -- Admin balance sync from adm_users --
 try{
   var _un2=localStorage.getItem('userName')||'';
   if(_un2){
@@ -43,7 +43,7 @@ try{
   var bal=parseFloat(localStorage.getItem('userBalance')||'0');
   var el=document.getElementById('userBalance');if(el)el.textContent=bal.toFixed(6);
   var wdBal=document.getElementById('wdBal');if(wdBal)wdBal.textContent=bal.toFixed(6)+' TRX';
-  // ── Username & Email sync ──
+  // -- Username & Email sync --
   var uname=localStorage.getItem('userName')||'';
   var uemail=localStorage.getItem('userEmail')||'';
   var unEl=document.getElementById('userName');if(unEl)unEl.textContent=uname;
@@ -74,7 +74,7 @@ try{
   }
 }catch(e){}}
 
-// ── SETTINGS TABS ── (exact IDs: spSecurity, spTwoFA, stSecurity, stTwoFA)
+// -- SETTINGS TABS -- (exact IDs: spSecurity, spTwoFA, stSecurity, stTwoFA)
 function settTab(tab){
   var panels={security:'spSecurity',twofa:'spTwoFA'};
   var btns  ={security:'stSecurity',twofa:'stTwoFA'};
@@ -93,7 +93,7 @@ function copyTfaKey(){
   var k=document.getElementById('tfaKey');
   if(k){ navigator.clipboard.writeText(k.value).then(function(){ showToast('Key copied!'); }); }
 }
-// ── TOTP 2FA Verification (for enable and disable flows) ──
+// -- TOTP 2FA Verification (for enable and disable flows) --
 var _B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 function _base32Decode(s){s=s.toUpperCase().replace(/=+$/,'');var bits=0,val=0,out=[];for(var i=0;i<s.length;i++){val=(val<<5)|_B32.indexOf(s[i]);bits+=5;if(bits>=8){bits-=8;out.push((val>>bits)&0xff);}}return new Uint8Array(out);}
 async function verifyTOTP(secret,code){if(!code||code.length!==6)return false;var key=_base32Decode(secret);var t=Math.floor(Date.now()/1000/30);for(var i=-1;i<=1;i++){var c=t+i;var buf=new ArrayBuffer(8);new DataView(buf).setUint32(4,c,false);try{var ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);var sig=await crypto.subtle.sign('HMAC',ck,buf);var h=new Uint8Array(sig);var off=h[h.length-1]&0x0f;var n=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);if(String(n%1000000).padStart(6,'0')===String(code))return true;}catch(ex){}}return false;}
@@ -151,7 +151,7 @@ async function _confirmDisable2FA(){
     if(btn){btn.disabled=false;btn.textContent='&#128274; Disable 2FA';}
     return;
   }
-  // Valid — disable 2FA
+  // Valid � disable 2FA
   localStorage.removeItem('2fa_secret_'+uname);
   localStorage.removeItem('tfa_enabled_'+uname);
   localStorage.removeItem('tfa_enabled');
@@ -203,7 +203,7 @@ function changePassword(){
   cur.value=''; nw.value=''; cf.value='';
 }
 
-// ── USER INFO INIT (runs on every page load) ──
+// -- USER INFO INIT (runs on every page load) --
 document.addEventListener('DOMContentLoaded', function(){
   var uname  = localStorage.getItem('userName')  || '';
   var uemail = localStorage.getItem('userEmail') || '';
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 
-// ── GLOBAL BET HISTORY TABS (My Bets / All Bets on games page) ──
+// -- GLOBAL BET HISTORY TABS (My Bets / All Bets on games page) --
 var _gCurTab='my';
 function gBetTab(t){
   _gCurTab=t;
@@ -308,7 +308,7 @@ try{
   });
   // Store level
   localStorage.setItem('userLevel',curLvl.toLowerCase());
-  // ── Track referral game commission (0.4% of wagered) ──
+  // -- Track referral game commission (0.4% of wagered) --
   try{
     var _betUser=(localStorage.getItem('userName')||'').toLowerCase();
     var _refBy='';
@@ -339,11 +339,11 @@ try{
   }
 }catch(e){}}
 
-// ── GLOBAL BET MODAL HELPERS ──
+// -- GLOBAL BET MODAL HELPERS --
 
 function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
 
-// ── REFERRAL STATS RENDER (Server + localStorage fallback) ──
+// -- REFERRAL STATS RENDER (Server + localStorage fallback) --
 function renderAffRefStats(){
   try{
     var myName=(localStorage.getItem('userName')||'').toLowerCase();
@@ -415,7 +415,7 @@ function _renderRefFromLocal(myName){
 // Auto-refresh referral stats every 5s
 setInterval(renderAffRefStats, 5000);
 
-// ── END BALANCE HELPERS ──
+// -- END BALANCE HELPERS --
 document.addEventListener('DOMContentLoaded',()=>{
 // deposit address is loaded by initDeposit() via OxaPay API
 // Referral link uses USERNAME - format: https://tronsick.io/?ref=USERNAME
@@ -443,7 +443,7 @@ function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.get
 if(rollsLeft>0){btn.disabled=false;note.textContent='Click ROLL to use your '+rollsLeft+' bonus roll'+(rollsLeft>1?'s':'')+'!';note.style.color='#3ecf8e';}else{btn.disabled=true;note.textContent='No rolls remaining. Check back or earn more!';note.style.color='#f59e0b';}}else{btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
 let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=2400-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
-function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn){btn.textContent='⏱ '+m+':'+s;btn.style.background='rgba(245,158,11,.15)';btn.style.color='#f59e0b';}if(note){note.textContent='';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
+function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn){btn.textContent='? '+m+':'+s;btn.style.background='rgba(245,158,11,.15)';btn.style.color='#f59e0b';}if(note){note.textContent='';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
 var LEVEL_PAYOUTS={stone:0.005,iron:0.01,bronze:0.02,silver:0.07,gold:0.5,platinum:5.0,diamond:15.0,master:60.0};
 function _getLevelPayouts(){
   return {
@@ -519,7 +519,7 @@ function _getSiteSetting(key, fallback){
   return v!=null?v:(fallback!=null?String(fallback):'');
 }
 
-/** Random dice roll for forced win/loss — full range below/above threshold */
+/** Random dice roll for forced win/loss � full range below/above threshold */
 function _abDiceRoll(forceWin, dir, wc, threshold){
   wc=parseFloat(wc)||50;
   dir=dir||'under';
@@ -569,13 +569,13 @@ function _abCheckWin(betAmt, winPct, payout){
   var ab2Amt    = parseFloat(_getAb('ab2_amount','0'));
   var ab2Wins   = parseInt(_getAb('ab2_wins','6'));
   var ab3On     = _getAb('ab3_on','0')==='1';
-  // AB4 piggybacks on AB3 being enabled — applies to low payout range 1.01x-2x
+  // AB4 piggybacks on AB3 being enabled � applies to low payout range 1.01x-2x
   var ab4On     = ab3On; // same toggle as AB3
 
   var amtMatch1 = ab1On && _abAmtMatch(betAmt, ab1Amt);
   var amtMatch2 = ab2On && _abAmtMatch(betAmt, ab2Amt);
 
-  // ── ANTIBOT 2 check (96%–65% range + amount match) ──
+  // -- ANTIBOT 2 check (96%�65% range + amount match) --
   if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
     // AB2 overrides AB1 for this range
     if(_ab.ab2Phase==='loss'){
@@ -587,7 +587,7 @@ function _abCheckWin(betAmt, winPct, payout){
       // In win phase
       _ab.ab2WinsSoFar++;
       if(_ab.ab2WinsSoFar>=ab2Wins){
-        // Enough wins — next is loss again
+        // Enough wins � next is loss again
         _ab.ab2Phase='loss';
         _ab.ab2WinsSoFar=0;
       }
@@ -600,12 +600,12 @@ function _abCheckWin(betAmt, winPct, payout){
     _ab.ab2WinsSoFar=0;
   }
 
-  // ── ANTIBOT 3: Payout-Proportional Loss Control (3x – 4850x) ──
+  // -- ANTIBOT 3: Payout-Proportional Loss Control (3x � 4850x) --
   // Logic: losses = ~payout value before first win, then random cycles.
-  // If user increases bet → reset back to initial (full payout-losses again).
+  // If user increases bet ? reset back to initial (full payout-losses again).
   if(ab3On && payout >= 3 && payout <= 4850){
 
-    // ── Detect payout change → reset cycle ──
+    // -- Detect payout change ? reset cycle --
     if(_ab.ab3LastPayout > 0 && Math.abs(payout - _ab.ab3LastPayout) > 0.01){
       _ab.ab3Phase = 'initial';
       _ab.ab3LossCount = 0;
@@ -613,7 +613,7 @@ function _abCheckWin(betAmt, winPct, payout){
     }
     _ab.ab3LastPayout = payout;
 
-    // ── Detect bet INCREASE → reset to initial phase ──
+    // -- Detect bet INCREASE ? reset to initial phase --
     // (increase by any amount, even 1% counts)
     if(_ab.ab3LastBet > 0 && betAmt > _ab.ab3LastBet * 1.005){
       _ab.ab3Phase = 'initial';
@@ -622,25 +622,25 @@ function _abCheckWin(betAmt, winPct, payout){
     }
     _ab.ab3LastBet = betAmt;
 
-    // ── Calculate required losses based on payout ──
-    // 3x → 2-3 losses, 10x → 9-10, 100x → 99-100, capped at 30 for high payouts
+    // -- Calculate required losses based on payout --
+    // 3x ? 2-3 losses, 10x ? 9-10, 100x ? 99-100, capped at 30 for high payouts
     var payoutLoss;
     if(payout <= 5)         payoutLoss = Math.round(payout);           // 3x=3, 4x=4, 5x=5
     else if(payout <= 20)   payoutLoss = Math.round(payout);           // 10x=10, 20x=20
-    else if(payout <= 50)   payoutLoss = Math.round(payout * 0.7);     // 30x→21, 50x→35
-    else if(payout <= 200)  payoutLoss = Math.round(payout * 0.4);     // 100x→40, 200x→80
-    else if(payout <= 1000) payoutLoss = Math.round(payout * 0.15);    // 500x→75, 1000x→150
-    else                    payoutLoss = Math.round(payout * 0.05);    // 4850x→242
+    else if(payout <= 50)   payoutLoss = Math.round(payout * 0.7);     // 30x?21, 50x?35
+    else if(payout <= 200)  payoutLoss = Math.round(payout * 0.4);     // 100x?40, 200x?80
+    else if(payout <= 1000) payoutLoss = Math.round(payout * 0.15);    // 500x?75, 1000x?150
+    else                    payoutLoss = Math.round(payout * 0.05);    // 4850x?242
 
     // Hard cap: no more than 30 losses in a row per cycle
     payoutLoss = Math.min(payoutLoss, 30);
     payoutLoss = Math.max(payoutLoss, 2);  // at least 2
 
-    // ── INITIAL PHASE: first N losses then 1 win ──
+    // -- INITIAL PHASE: first N losses then 1 win --
     if(_ab.ab3Phase === 'initial'){
       _ab.ab3LossCount++;
 
-      // Allow ±1 randomness on when win happens
+      // Allow �1 randomness on when win happens
       var winAt = payoutLoss + Math.floor(Math.random() * 3) - 1; // payoutLoss-1 to payoutLoss+1
       winAt = Math.max(winAt, 1);
 
@@ -659,7 +659,7 @@ function _abCheckWin(betAmt, winPct, payout){
       return false; // FORCE LOSS
     }
 
-    // ── CYCLE PHASE: random losses (50%-120% of payoutLoss) then 1 win ──
+    // -- CYCLE PHASE: random losses (50%-120% of payoutLoss) then 1 win --
     else {
       _ab.ab3LossCount++;
 
@@ -713,7 +713,7 @@ function _abCheckWin(betAmt, winPct, payout){
   }
   if(payout < 1.01 || payout >= 3){ _ab.ab4WinCount=0; _ab.ab4WinTarget=0; _ab.ab4LastPayout=0; }
 
-  // ── ANTIBOT 1 ──
+  // -- ANTIBOT 1 --
   if(ab1On){
     if(ab1Mode==='hard'){
       return false; // Hard = force loss on every bet
@@ -726,20 +726,20 @@ function _abCheckWin(betAmt, winPct, payout){
     }
   }
 
-  return null; // No antibot active — normal RNG
+  return null; // No antibot active � normal RNG
 }
 
 // Hook antibot into Dice game win resolution
 var _origDiceWin=null;
 function _abWrapDice(){
-  // Will be called by dice bet functions — checks before resolving
+  // Will be called by dice bet functions � checks before resolving
 }
 
 function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;try{var _rUn=(localStorage.getItem('userName')||'').toLowerCase();if(_rUn)localStorage.setItem('bonusRollsLeft_'+_rUn,rollsLeft.toString());}catch(ex){}note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
 
-// ═══════════════════════════════════════
+// ---------------------------------------
 // CONTEST SYSTEM
-// ═══════════════════════════════════════
+// ---------------------------------------
 var _ctTimer=null;
 function _getCTPRizes(){
   var p4=parseFloat(_getSiteSetting('contest_prize4','25'))||25;
@@ -804,7 +804,7 @@ function _ctRenderLeaderboard(){
     for(var u in cw){ if(cw.hasOwnProperty(u)) list.push({u:u,w:parseFloat(cw[u])||0,isMe:u===myName}); }
     list.sort(function(a,b){return b.w-a.w;});
     if(!list.length){
-      lb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
+      lb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet � play a game to appear here!</td></tr>';
       return;
     }
     var html='';
@@ -821,7 +821,7 @@ function _ctRenderLeaderboard(){
       html+='<td>'+rankStr+'</td>';
       html+='<td>'+(item.isMe?'<strong style="color:#3ecf8e">'+item.u+' (You)</strong>':item.u)+'</td>';
       html+='<td class="ct-wager">'+item.w.toFixed(6)+'</td>';
-      html+='<td class="ct-reward-val">'+(prize?prize+' TRX':'—')+'</td>';
+      html+='<td class="ct-reward-val">'+(prize?prize+' TRX':'�')+'</td>';
       html+='</tr>';
     });
     lb.innerHTML=html;
@@ -843,17 +843,17 @@ function _ctUpdateMyStats(){
     var rank=list.indexOf(myWager)+1;
     if(myWager<=0||rank<1) rank=0;
     var rankEl=document.getElementById('ctMyRank');
-    if(rankEl)rankEl.textContent=rank>0?'#'+rank:'—';
+    if(rankEl)rankEl.textContent=rank>0?'#'+rank:'�';
     var prizeEl=document.getElementById('ctMyReward');
-    if(prizeEl)prizeEl.textContent=rank>0&&_getCTPRizes()[rank-1]?_getCTPRizes()[rank-1]+' TRX':'—';
+    if(prizeEl)prizeEl.textContent=rank>0&&_getCTPRizes()[rank-1]?_getCTPRizes()[rank-1]+' TRX':'�';
   }
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ update(r.ok?(r.wagers||{}):{}); });
   else try{ update(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ update({}); }
 }
 
-// ═══════════════════════════════════════
+// ---------------------------------------
 // STAKING SYSTEM
-// ═══════════════════════════════════════
+// ---------------------------------------
 var STAKE_TIERS={10:0.05,200:0.5,2000:2,5000:10};
 var _stakeTimer=null;
 
@@ -874,7 +874,7 @@ function stakeSelect(amount){
   var hist=_stakeHistGet();
   hist.unshift({amount:amount,reward:STAKE_TIERS[amount],startTime:stakeData.startTime,endTime:stakeData.endTime,status:'active'});
   localStorage.setItem('userStakeHist',JSON.stringify(hist.slice(0,20)));
-  showToast('✅ '+amount+' TRX staked! Unlock in 24 hours.');
+  showToast('? '+amount+' TRX staked! Unlock in 24 hours.');
   stakeRenderStatus();
   stakeRenderHist();
 }
@@ -899,7 +899,7 @@ function stakeClaim(){
   var hist=_stakeHistGet();
   if(hist.length>0){hist[0].status='claimed';}
   localStorage.setItem('userStakeHist',JSON.stringify(hist));
-  showToast('🎉 Claimed '+s.reward+' TRX reward!');
+  showToast('?? Claimed '+s.reward+' TRX reward!');
   stakeRenderStatus();
   stakeRenderHist();
 }
@@ -915,7 +915,7 @@ function stakeUnstake(){
   if(hist.length>0){hist[0].status=s.claimed?'completed':'unstaked';}
   localStorage.setItem('userStakeHist',JSON.stringify(hist));
   localStorage.removeItem('userStake');
-  showToast('✅ '+s.amount+' TRX returned to your balance!');
+  showToast('? '+s.amount+' TRX returned to your balance!');
   stakeRenderStatus();
   stakeRenderHist();
 }
@@ -1050,7 +1050,7 @@ window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
 try{sessionStorage.removeItem('_lg');}catch(e){}
-// Remove game-open class — CSS restores grid automatically
+// Remove game-open class � CSS restores grid automatically
 var sec=document.getElementById('sec-games');
 if(sec)sec.classList.remove('game-open');
 var frame=document.getElementById('gameFrame');
@@ -1061,7 +1061,7 @@ window.scrollTo(0,0);
 try{if(typeof renderAllBets==='function')setTimeout(renderAllBets,50);}catch(e){}
 }
 
-// ── MY BETS / ALL BETS TWO-TAB SYSTEM ──
+// -- MY BETS / ALL BETS TWO-TAB SYSTEM --
 var _abMainMode = 'my'; // 'my' or 'all'
 function abMainSwitch(mode){
   _abMainMode = mode;
@@ -1203,13 +1203,13 @@ function sbAutoStep(){if(!sbAutoRunning||sbRolling)return;var bal=parseFloat(doc
 function sbRenderBets(){var list=document.getElementById('sbBetList');if(!list)return;if(sbBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Result</th><th>Profit</th></tr></thead><tbody>';sbBetHistory.slice(0,50).forEach(function(b){html+='<tr class="dg-hist-row" onclick="showSbBetModal('+sbBetHistory.indexOf(b)+')">'; html+='<td class="dg-tc-time">'+b.ts+'</td><td>&#127922; Sic Bo</td><td>'+b.betAmt.toFixed(8)+'</td>';html+='<td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+( b.win?b.payout+'x':'LOSE')+'</td>';html+='<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+( b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 // END SIC BO GAME
 
-// ─── SIC BO BET INFO MODAL ───
+// --- SIC BO BET INFO MODAL ---
 function showSbBetModal(i){
   var b = sbBetHistory[i];
   if(!b) return;
   var modal = _ensureBetModal();
   var title = document.getElementById('bmTitle');
-  if(title) title.textContent = '🎲 Sic Bo — Bet Info';
+  if(title) title.textContent = '?? Sic Bo � Bet Info';
   var res = document.getElementById('bmResult');
   if(res){
     res.textContent = b.win
@@ -1250,9 +1250,9 @@ function mnSetAmt(sz){var inp=document.getElementById('mnAmt');var bal=parseFloa
 function mnTabMode(m){var isA=m==='auto';document.getElementById('mnTManual').classList.toggle('dg-tab-act',!isA);document.getElementById('mnTAuto').classList.toggle('dg-tab-act',isA);document.getElementById('mnManSec').style.display=isA?'none':'';document.getElementById('mnAutoSec').style.display=isA?'':'none';}
 function mnSetMines(n){if(mnActive)return;mnMines=Math.min(24,Math.max(1,parseInt(n)||3));var inp=document.getElementById('mnMinesInput');if(inp)inp.value=mnMines;}
 function mnCalcMult(picks,mines){var N=25,p=1;for(var i=0;i<picks;i++)p*=(N-mines-i)/(N-i);return Math.max(1.00,parseFloat((1/p*0.97).toFixed(4)));}
-function mnRefreshGrid(){for(var i=0;i<25;i++){var cell=document.getElementById('mnCell'+i);if(!cell)continue;var g=mnGrid[i];if(g.revealed){if(g.mine){cell.className='mn-cell mn-mine';cell.textContent='💣';}else{cell.className='mn-cell mn-safe';cell.textContent='💎';}}else{cell.className='mn-cell mn-hidden';cell.textContent='';}}}
+function mnRefreshGrid(){for(var i=0;i<25;i++){var cell=document.getElementById('mnCell'+i);if(!cell)continue;var g=mnGrid[i];if(g.revealed){if(g.mine){cell.className='mn-cell mn-mine';cell.textContent='??';}else{cell.className='mn-cell mn-safe';cell.textContent='??';}}else{cell.className='mn-cell mn-hidden';cell.textContent='';}}}
 function mnBetStart(){if(mnActive)return;var bet=parseFloat((document.getElementById('mnAmt')||{}).value)||0;var bal=parseFloat(document.getElementById('userBalance').textContent)||0;if(bet<=0){showToast('Enter bet!');return;}if(bal<bet){showToast('Insufficient balance!');return;}mnBet=bet;addBal(-bet);updateWager(bet);mnNonce++;mnActive=true;mnGrid=[];for(var i=0;i<25;i++)mnGrid.push({mine:false,revealed:false});var pos=[];for(var j=0;j<25;j++)pos.push(j);pos.sort(function(){return Math.random()-0.5;});for(var k=0;k<mnMines;k++)mnGrid[pos[k]].mine=true;mnPickCount=0;mnRefreshGrid();var btn=document.getElementById('mnBetBtn');if(btn){btn.disabled=true;btn.textContent='Pick a cell!';}var co=document.getElementById('mnCashOut');if(co)co.disabled=false;var mu=document.getElementById('mnMult');if(mu)mu.textContent='1.00x';var pc=document.getElementById('mnPickCnt');if(pc)pc.textContent='Picks: 0';}
-function mnReveal(idx){if(!mnActive)return;var g=mnGrid[idx];if(g.revealed)return;if(!g.mine){var _mnAb=_abCheckWin(mnBet,50,mnCalcMult(Math.max(1,mnPickCount+1),mnMines));if(_mnAb===false)g.mine=true;else if(_mnAb===true&&g.mine)g.mine=false;}g.revealed=true;var cell=document.getElementById('mnCell'+idx);if(g.mine){cell.className='mn-cell mn-mine';cell.textContent='💣';mnActive=false;mnGrid.forEach(function(c,i){if(c.mine)c.revealed=true;});mnRefreshGrid();var now=new Date();var ts=(now.getDate()<10?'0':'')+now.getDate()+'/'+(now.getMonth()<9?'0':'')+(now.getMonth()+1);mnBetHistory.unshift({id:mnNonce,mines:mnMines,picks:mnPickCount,bet:mnBet,win:false,mult:0,profit:-mnBet,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed});try{localStorage.setItem('mnHistory',JSON.stringify(mnBetHistory.slice(0,50)));}catch(e){}mnRenderBets();showToast('BOOM! Mine hit!');var wa=document.getElementById('mnWinAmt');if(wa){wa.textContent='-'+mnBet.toFixed(6);wa.style.color='#ef4444';}var co=document.getElementById('mnCashOut');if(co)co.disabled=true;var btn=document.getElementById('mnBetBtn');if(btn){btn.disabled=false;btn.textContent='Place Bet';}setTimeout(function(){mnGrid.forEach(function(c){c.revealed=false;c.mine=false;});mnRefreshGrid();if(mnAutoRunning)mnAutoNext();},1400);}else{cell.className='mn-cell mn-safe';cell.textContent='💎';mnPickCount++;var mult=mnCalcMult(mnPickCount,mnMines);var mu=document.getElementById('mnMult');if(mu)mu.textContent=mult.toFixed(2)+'x';var pc=document.getElementById('mnPickCnt');if(pc)pc.textContent='Picks: '+mnPickCount;var ca=document.getElementById('mnCashOutAmt');if(ca)ca.textContent=(mnBet*mult).toFixed(6);var safeLeft=mnGrid.filter(function(c){return !c.mine&&!c.revealed;}).length;if(safeLeft===0)mnCashOut();}}
+function mnReveal(idx){if(!mnActive)return;var g=mnGrid[idx];if(g.revealed)return;if(!g.mine){var _mnAb=_abCheckWin(mnBet,50,mnCalcMult(Math.max(1,mnPickCount+1),mnMines));if(_mnAb===false)g.mine=true;else if(_mnAb===true&&g.mine)g.mine=false;}g.revealed=true;var cell=document.getElementById('mnCell'+idx);if(g.mine){cell.className='mn-cell mn-mine';cell.textContent='??';mnActive=false;mnGrid.forEach(function(c,i){if(c.mine)c.revealed=true;});mnRefreshGrid();var now=new Date();var ts=(now.getDate()<10?'0':'')+now.getDate()+'/'+(now.getMonth()<9?'0':'')+(now.getMonth()+1);mnBetHistory.unshift({id:mnNonce,mines:mnMines,picks:mnPickCount,bet:mnBet,win:false,mult:0,profit:-mnBet,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed});try{localStorage.setItem('mnHistory',JSON.stringify(mnBetHistory.slice(0,50)));}catch(e){}mnRenderBets();showToast('BOOM! Mine hit!');var wa=document.getElementById('mnWinAmt');if(wa){wa.textContent='-'+mnBet.toFixed(6);wa.style.color='#ef4444';}var co=document.getElementById('mnCashOut');if(co)co.disabled=true;var btn=document.getElementById('mnBetBtn');if(btn){btn.disabled=false;btn.textContent='Place Bet';}setTimeout(function(){mnGrid.forEach(function(c){c.revealed=false;c.mine=false;});mnRefreshGrid();if(mnAutoRunning)mnAutoNext();},1400);}else{cell.className='mn-cell mn-safe';cell.textContent='??';mnPickCount++;var mult=mnCalcMult(mnPickCount,mnMines);var mu=document.getElementById('mnMult');if(mu)mu.textContent=mult.toFixed(2)+'x';var pc=document.getElementById('mnPickCnt');if(pc)pc.textContent='Picks: '+mnPickCount;var ca=document.getElementById('mnCashOutAmt');if(ca)ca.textContent=(mnBet*mult).toFixed(6);var safeLeft=mnGrid.filter(function(c){return !c.mine&&!c.revealed;}).length;if(safeLeft===0)mnCashOut();}}
 function mnCashOut(){if(!mnActive)return;mnActive=false;var mult=mnCalcMult(mnPickCount,mnMines);var won=mnBet*mult;addBal(won);var profit=won-mnBet;var now=new Date();var ts=(now.getDate()<10?'0':'')+now.getDate()+'/'+(now.getMonth()<9?'0':'')+(now.getMonth()+1);mnBetHistory.unshift({id:mnNonce,mines:mnMines,picks:mnPickCount,bet:mnBet,win:true,mult:mult,profit:profit,ts:ts,cs:clientSeed,ssh:serverSeedHash,sv:serverSeed});try{localStorage.setItem('mnHistory',JSON.stringify(mnBetHistory.slice(0,50)));}catch(e){}mnRenderBets();showToast('Cashed out! +'+profit.toFixed(6)+' TRX');var wa=document.getElementById('mnWinAmt');if(wa){wa.textContent='+'+profit.toFixed(6);wa.style.color='#22c55e';}var co=document.getElementById('mnCashOut');if(co)co.disabled=true;var btn=document.getElementById('mnBetBtn');if(btn){btn.disabled=false;btn.textContent='Place Bet';}setTimeout(function(){mnGrid.forEach(function(c){c.revealed=false;c.mine=false;});mnRefreshGrid();if(mnAutoRunning)mnAutoNext();},600);}
 function mnToggleAuto(){if(mnAutoRunning)mnStopAuto();else mnStartAuto();}
 function mnStartAuto(){var bet=parseFloat((document.getElementById('mnAmt')||{}).value)||0;var bal=parseFloat(document.getElementById('userBalance').textContent)||0;if(bet<=0){showToast('Enter bet!');return;}if(bal<bet){showToast('Insufficient balance!');return;}mnAutoRunning=true;var btn=document.getElementById('mnAutoBtn');if(btn){btn.textContent='Stop Auto';btn.style.background='#ef4444';}mnAutoNext();}
@@ -1262,13 +1262,13 @@ function mnAutoPickN(target,done){if(!mnAutoRunning||!mnActive)return;if(done>=t
 function mnRenderBets(){var list=document.getElementById('mnBetList');if(!list)return;if(mnBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Mines</th><th>Picks</th><th>Bet</th><th>Mult</th><th>Profit</th></tr></thead><tbody>';mnBetHistory.slice(0,50).forEach(function(b,i){html+='<tr class="dg-hist-row" style="cursor:pointer" onclick="showMnBetModal('+i+')">'+'<td class="dg-tc-time">'+b.ts+'</td><td>'+b.mines+'</td><td>'+b.picks+'</td><td>'+b.bet.toFixed(8)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+(b.win?b.mult.toFixed(2)+'x':'BOOM')+'</td><td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 // END MINES GAME
 
-// ─── MINES BET INFO MODAL ───
+// --- MINES BET INFO MODAL ---
 function showMnBetModal(i){
   var b = mnBetHistory[i];
   if(!b) return;
   var modal = _ensureBetModal();
   var title = document.getElementById('bmTitle');
-  if(title) title.textContent = '💣 Mines — Bet Info';
+  if(title) title.textContent = '?? Mines � Bet Info';
   var res = document.getElementById('bmResult');
   if(res){
     res.textContent = b.win
@@ -1283,7 +1283,7 @@ function showMnBetModal(i){
     '<div class="bm-sf"><div class="bm-sf-lbl">Bet Amount</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128176;</span><input class="bm-sf-inp" readonly value="' + b.bet.toFixed(6) + ' TRX"></div></div>' +
     '<div class="bm-sf"><div class="bm-sf-lbl">Mines Count</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128163;</span><input class="bm-sf-inp" readonly value="' + (b.mines||0) + ' mines"></div></div>' +
     '<div class="bm-sf"><div class="bm-sf-lbl">Tiles Picked</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128062;</span><input class="bm-sf-inp" readonly value="' + (b.picks||0) + ' safe tiles"></div></div>' +
-    '<div class="bm-sf"><div class="bm-sf-lbl">Multiplier</div><div class="bm-sf-row"><span class="bm-sf-ico">&#10005;</span><input class="bm-sf-inp" readonly value="' + (b.win ? (b.mult||0).toFixed(4)+'x' : 'BOOM 💣') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Multiplier</div><div class="bm-sf-row"><span class="bm-sf-ico">&#10005;</span><input class="bm-sf-inp" readonly value="' + (b.win ? (b.mult||0).toFixed(4)+'x' : 'BOOM ??') + '"></div></div>' +
     '<div class="bm-sf"><div class="bm-sf-lbl">Profit</div><div class="bm-sf-row"><span class="bm-sf-ico">&#36;</span><input class="bm-sf-inp" readonly value="' + (b.profit>=0?'+':'') + b.profit.toFixed(6) + ' TRX"></div></div>' +
     '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="' + (b.sv||'') + '"></div></div>' +
     '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed Hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="' + (b.ssh||'') + '"></div></div>' +
@@ -1337,32 +1337,32 @@ function wlVerify(){var b=wlBetHistory[window._wlVerifyIdx||0];localStorage.setI
 // ==========================================
 // END WHEEL GAME
 // ==========================================
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // LIMBO GAME
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 var lbBetHistory=[];
 function buildLimboUI(){
 var h='';
 h+='<div class="lb-wrap">';
-// â”€â”€ GAME DISPLAY â”€â”€
+// ── GAME DISPLAY ──
 h+='<div class="lb-display" id="lbDisplay">';
 h+='<div class="lb-stars"></div>';
 h+='<div class="lb-multiplier" id="lbMult"><span id="lbMultNum">1.00</span>&times;</div>';
 h+='<div class="lb-rocket-area"><div class="lb-rocket" id="lbRocket">&#x1F680;</div><div class="lb-moon"></div></div>';
 h+='</div>';
-// â”€â”€ STATS: Payout | Win Chance â”€â”€
+// ── STATS: Payout | Win Chance ──
 h+='<div class="lb-stats">';
 h+='<div class="lb-stat"><div class="dg-slbl">Payout</div><div class="lb-srow"><input class="lb-sinp" id="lbPayout" type="number" value="1.96" step="0.01" min="1.01" oninput="lbByPayout()"><span class="lb-sx">x</span><button class="lb-arr" onclick="lbAdj(-0.1)">&#8249;</button><button class="lb-arr" onclick="lbAdj(0.1)">&#8250;</button></div></div>';
 h+='<div class="lb-stat"><div class="dg-slbl">Win Chance</div><div class="lb-srow"><input class="lb-sinp" id="lbWinCh" type="number" value="50.51" step="0.01" oninput="lbByChance()"><span class="lb-sx">%</span></div></div>';
 h+='</div>';
-// â”€â”€ TABS â”€â”€
+// ── TABS ──
 h+='<div class="dg-tabs" style="margin-top:10px"><button class="dg-tab dg-tab-act" id="lbTManual" onclick="lbMode(\'man\')">Manual</button><button class="dg-tab" id="lbTAuto" onclick="lbMode(\'auto\')">Auto</button></div>';
-// â”€â”€ MANUAL â”€â”€
+// ── MANUAL ──
 h+='<div id="lbManSec">';
 h+='<div class="lb-bet-row"><div class="dg-amt-lbl"><span class="dg-dot"></span> Bet Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="lbAmt" type="number" value="0.0001" step="0.000001" min="0"><button class="dg-sz-btn" onclick="lbSetAmt(\'min\')">MIN</button><button class="dg-sz-btn" onclick="lbSetAmt(\'half\')">&frac12;</button><button class="dg-sz-btn" onclick="lbSetAmt(\'2x\')">2x</button><button class="dg-sz-btn" onclick="lbSetAmt(\'max\')">MAX</button></div></div>';
 h+='<button class="dg-roll-btn" id="lbRollBtn" onclick="lbRoll()">Bet</button>';
 h+='</div>';
-// â”€â”€ AUTO â”€â”€
+// ── AUTO ──
 h+='<div id="lbAutoSec" style="display:none">';
 h+='<div class="dg-auto-cols"><div class="dg-auto-col"><div class="dg-auto-hd">On Win</div><div class="dg-aprow"><span>Change By</span><div class="dg-apinp"><input id="lbWinPct" type="number" value="0"><span>%</span></div></div><label class="dg-arl"><input type="radio" name="lbWin" value="reset" checked> Reset to Base</label><label class="dg-arl"><input type="radio" name="lbWin" value="stop"> Stop Betting</label></div>';
 h+='<div class="dg-auto-col"><div class="dg-auto-hd">On Lose</div><div class="dg-aprow"><span>Change By</span><div class="dg-apinp"><input id="lbLosePct" type="number" value="100"><span>%</span></div></div><label class="dg-arl"><input type="radio" name="lbLose" value="reset" checked> Reset to Base</label><label class="dg-arl"><input type="radio" name="lbLose" value="stop"> Stop Betting</label></div></div>';
@@ -1370,12 +1370,12 @@ h+='<div class="dg-alims"><div class="dg-alim"><div class="dg-slbl">Stop on Loss
 h+='<div class="lb-bet-row"><div class="dg-amt-lbl"><span class="dg-dot"></span> Bet Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="lbAmtA" type="number" value="0.0001" step="0.000001" min="0"></div></div>';
 h+='<button class="dg-roll-btn" id="lbAutoBtn" onclick="lbToggleAuto()">Start Auto</button>';
 h+='</div>';
-// â”€â”€ WIN ROW â”€â”€
+// ── WIN ROW ──
 h+='<div class="dg-win-row" id="lbPLRow"><span class="dg-wlbl" id="lbPLLbl">Win Amount</span><div class="dg-wval"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><span id="lbWinAmt">0.00019600</span></div></div>';
-// â”€â”€ BET HISTORY â”€â”€
+// ── BET HISTORY ──
 h+='<div class="dg-bsec"><div class="dg-bet-tabs"><button class="dg-btab dg-btab-act" id="lbTMyBets" onclick="lbBetTab()">My Bets</button></div><div class="dg-bet-list" id="lbBetList"><div class="dg-no-bets">No bets yet.</div></div></div>';
 h+='</div>';
-// â”€â”€ BET MODAL â”€â”€
+// ── BET MODAL ──
 h+='<div class="bet-modal" id="lbModal" onclick="closeLbModal()"><div class="bm-box" onclick="event.stopPropagation()"><div class="bm-hd"><div class="bm-title">&#x1F680; LIMBO</div><button class="bm-close" onclick="closeLbModal()">&#215;</button></div><div class="bm-result" id="lbBmResult"></div><div class="bm-sf-group" id="lbBmSeeds"></div><button class="bm-verify-btn" onclick="lbVerify()">VERIFY</button></div></div>';
 return h;
 }
@@ -1528,7 +1528,7 @@ window._lbVerifyIdx=i;
 var b=lbBetHistory[i];if(!b)return;
 var modal=document.getElementById('lbModal');if(!modal)return;
 var res=document.getElementById('lbBmResult');
-if(res){res.textContent=(b.win?'WIN &#10003; ':'LOSS &#10007; ')+b.result.toFixed(2)+'x â€” '+(b.profit>=0?'+':'')+b.profit.toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
+if(res){res.textContent=(b.win?'WIN &#10003; ':'LOSS &#10007; ')+b.result.toFixed(2)+'x — '+(b.profit>=0?'+':'')+b.profit.toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
 var seeds=document.getElementById('lbBmSeeds');
 if(seeds)seeds.innerHTML='<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
 modal.style.display='flex';
@@ -1540,9 +1540,9 @@ var data={game:'Limbo',clientSeed:clientSeed,serverSeedHash:serverSeedHash,serve
 localStorage.setItem('dgVerifyData',JSON.stringify(data));
 window.location.href='verify.php';
 }
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 // END LIMBO GAME
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════
 function buildDiceUI(){
 var h='';
 h+='<div class="dg-wrap" style="max-width:900px;margin:16px auto;">';
@@ -1567,7 +1567,7 @@ h+='</div>';
 return h;
 }
 
-// ── DICE AUTO BET ──
+// -- DICE AUTO BET --
 function toggleAuto(){
   var btn=document.getElementById('dgAutoBtn');
   if(!btn)return;
@@ -1672,8 +1672,8 @@ var hex=document.getElementById('hexBubble');if(hex)hex.textContent=rollVal.toFi
 var lbl=document.getElementById('dgDirLbl');if(lbl)lbl.textContent=dgDir==='under'?'Roll Under':'Roll Over';
 // GREEN = win zone (right of thumb for BOTH modes), RED = lose zone
 // Slider position sv = threshold value (0-96 scale)
-// Roll Over: win if roll > sv → win zone sv% to 100% (green right)
-// Roll Under: win if roll < sv → win zone 0% to sv% (green left)
+// Roll Over: win if roll > sv ? win zone sv% to 100% (green right)
+// Roll Under: win if roll < sv ? win zone 0% to sv% (green left)
 var sv=wc; // sv = wc (slider value = win chance, not threshold)
 var lz=dgDir==='under'?wc:(100-wc); // boundary between red and green
 var gr='#22c55e',rd='#ef4444';
@@ -1992,7 +1992,7 @@ if(seeds)seeds.innerHTML=
 modal.style.display='flex';
 }
 
-// ── CONTACT FORM FUNCTIONS ──
+// -- CONTACT FORM FUNCTIONS --
 var _contactImages = [];
 
 // Compress image via canvas before storing (keeps localStorage under quota)
@@ -2080,10 +2080,10 @@ function sendContact() {
     try {
       localStorage.setItem('adm_msgs', JSON.stringify(msgs));
     } catch(e) {
-      // localStorage quota exceeded — strip image data and retry
+      // localStorage quota exceeded � strip image data and retry
       msgs[0].imageData = msgs[0].imageData.map(function(img) { return { name: img.name, data: null }; });
       try { localStorage.setItem('adm_msgs', JSON.stringify(msgs)); } catch(e2) { /* still fail */ }
-      showToast('Images too large to store — sent without image data');
+      showToast('Images too large to store � sent without image data');
     }
     subj.value = ''; msg.value = '';
     _contactImages = []; _renderContactPreviews();
@@ -2102,11 +2102,11 @@ function sendContact() {
     setTimeout(loadMyTickets, 900);
   }, 800);
 }
-// ── END CONTACT FORM FUNCTIONS ──
+// -- END CONTACT FORM FUNCTIONS --
 
-// ══════════════════════════════════════════
-// ── SUPPORT TICKET SYSTEM (USER SIDE) ──
-// ══════════════════════════════════════════
+// ------------------------------------------
+// -- SUPPORT TICKET SYSTEM (USER SIDE) --
+// ------------------------------------------
 var _currentTicketId = null;
 var _ticketReplyImages = [];
 
@@ -2369,11 +2369,11 @@ function showImgFull(src, name) {
     }
   }, 500);
 })();
-// ── END TICKET SYSTEM ──
+// -- END TICKET SYSTEM --
 
-// ══════════════════════════════════════════════════════
-// 🪙 COIN FLIP GAME
-// ══════════════════════════════════════════════════════
+// ------------------------------------------------------
+// ?? COIN FLIP GAME
+// ------------------------------------------------------
 var cfNonce = 0;
 var cfBetHistory = [];
 var cfFlipping = false;
@@ -2429,18 +2429,18 @@ function buildCoinFlipUI(){
         '<label class="cf-bet-lbl">Bet Amount (TRX)</label>'+
         '<div class="cf-bet-inp-row">'+
           '<input class="cf-bet-inp" id="cfBet" type="number" value="0.00010" min="0.000001" step="0.00001"/>'+
-          '<button class="cf-half-btn" onclick="cfHalf()">½</button>'+
+          '<button class="cf-half-btn" onclick="cfHalf()">�</button>'+
           '<button class="cf-dbl-btn" onclick="cfDouble()">2x</button>'+
           '<button class="cf-max-btn" onclick="cfMax()">MAX</button>'+
         '</div>'+
       '</div>'+
       '<button class="cf-flip-btn" id="cfFlipBtn" onclick="cfFlip()">'+
-        '🪙 FLIP COIN'+
+        '?? FLIP COIN'+
       '</button>'+
     '</div>'+
     // Bet history
     '<div class="cf-hist-wrap">'+
-      '<div class="cf-hist-hd">🎯 Bet History</div>'+
+      '<div class="cf-hist-hd">?? Bet History</div>'+
       '<table class="dg-hist-tbl"><thead><tr><th>Bet</th><th>Choice</th><th>Result</th><th>Profit</th><th>Info</th></tr></thead>'+
       '<tbody id="cfHistBody"></tbody></table>'+
     '</div>'+
@@ -2463,7 +2463,7 @@ function cfSelect(side){
   if(hBtn) hBtn.classList.toggle('cf-choice-act', side==='heads');
   if(tBtn) tBtn.classList.toggle('cf-choice-act', side==='tails');
   var msg = document.getElementById('cfResultMsg');
-  if(msg){ msg.style.color='rgba(255,255,255,.5)'; msg.textContent = 'You chose: '+(side==='heads'?'HEADS ⬛':'TAILS ⬜'); }
+  if(msg){ msg.style.color='rgba(255,255,255,.5)'; msg.textContent = 'You chose: '+(side==='heads'?'HEADS ?':'TAILS ?'); }
 }
 
 function cfFlip(){
@@ -2538,7 +2538,7 @@ function cfFlip(){
     cfRenderHist();
     syncBal();
     cfFlipping = false;
-    if(flipBtn){ flipBtn.disabled=false; flipBtn.textContent='🪙 FLIP COIN'; }
+    if(flipBtn){ flipBtn.disabled=false; flipBtn.textContent='?? FLIP COIN'; }
   }, 1600);
 }
 
@@ -2555,7 +2555,7 @@ function cfRenderHist(){
       '<td style="text-transform:capitalize">'+b.choice+'</td>'+
       '<td style="text-transform:capitalize;color:'+(b.result===b.choice?'#3ecf8e':'#ef4444')+'">'+b.result+'</td>'+
       '<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+parseFloat(b.profit).toFixed(6)+'</td>'+
-      '<td><button class="dg-info-btn" onclick="event.stopPropagation();cfOpenBetInfo('+i+')">ℹ</button></td>'+
+      '<td><button class="dg-info-btn" onclick="event.stopPropagation();cfOpenBetInfo('+i+')">?</button></td>'+
     '</tr>';
   }).join('');
 }
@@ -2563,7 +2563,7 @@ function cfRenderHist(){
 function cfOpenBetInfo(idx){
   var b = cfBetHistory[idx];
   if(!b) return;
-  // Use _ensureBetModal() — same system as Dice game
+  // Use _ensureBetModal() � same system as Dice game
   var modal = _ensureBetModal();
   // Title
   var title = document.getElementById('bmTitle');
@@ -2576,7 +2576,7 @@ function cfOpenBetInfo(idx){
       ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e'
       : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
   }
-  // Seed fields — same style as Dice
+  // Seed fields � same style as Dice
   var seeds = document.getElementById('bmSeeds');
   if(seeds) seeds.innerHTML =
     '<div style="background:rgba(0,0,0,.15);border-radius:10px;padding:14px;margin-bottom:12px">'+
@@ -2596,7 +2596,7 @@ function cfOpenBetInfo(idx){
       '<div class="bm-sf-row" style="display:flex;align-items:center;gap:6px"><span class="bm-sf-ico" style="color:rgba(255,255,255,.4);font-size:13px">#</span>'+
       '<input class="bm-sf-inp" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:JetBrains Mono,monospace;font-size:20px;font-weight:900;border-radius:6px;padding:7px 10px;outline:none;width:100%" readonly value="'+(b.nonce||0)+'"></div></div>'+
     '</div>';
-  // Verify button — same as Dice
+  // Verify button � same as Dice
   var vl = document.getElementById('bmVerifyLink');
   if(vl){
     var vUrl = '/verify.php?game=coinflip&seed='+encodeURIComponent(b.serverSeed||'')+'&client='+encodeURIComponent(b.clientSeed||'')+'&nonce='+(b.nonce||0)+'&choice='+b.choice+'&result='+b.result+'&win='+(b.win?1:0)+'&bet='+b.bet;
@@ -2617,12 +2617,12 @@ function cfMax(){
   var el=document.getElementById('cfBet');
   if(el) el.value=parseFloat(localStorage.getItem('userBalance')||'0').toFixed(6);
 }
-// ── END COIN FLIP ──
+// -- END COIN FLIP --
 
 
-// ═══════════════════════════════════════
+// ---------------------------------------
 // OXAPAY DEPOSIT SYSTEM
-// ═══════════════════════════════════════
+// ---------------------------------------
 var _depPollTimer = null;
 
 function initDeposit(){
@@ -2638,14 +2638,14 @@ function initDeposit(){
         localStorage.setItem('dep_addr_' + user, d.address);
         _depShowAddress(d.address, d.qr_url);
       } else {
-        // If we already have a cached address, keep showing it — don't override with error
+        // If we already have a cached address, keep showing it � don't override with error
         if(cached){
           _depShowAddress(cached);
         } else {
           var addrEl = document.getElementById('depAddr');
           var ld = document.getElementById('depQrLoading');
           if(addrEl) addrEl.value = 'Unable to load address. Contact support.';
-          if(ld) ld.innerHTML = '<span style="color:#f59e0b;font-size:12px">⚠ ' + (d.error || 'Please try again') + '</span>';
+          if(ld) ld.innerHTML = '<span style="color:#f59e0b;font-size:12px">? ' + (d.error || 'Please try again') + '</span>';
         }
       }
     })
@@ -2721,7 +2721,7 @@ function _depRenderTx(txs){
   });
   body.innerHTML = html;
 }
-// ── SERVER BALANCE SYNC (polls every 30s to reflect admin changes) ──
+// -- SERVER BALANCE SYNC (polls every 30s to reflect admin changes) --
 function syncBalanceFromServer() {
   var uname = localStorage.getItem('userName') || '';
   if(!uname) return;
@@ -2756,9 +2756,9 @@ document.addEventListener('visibilitychange', function() {
 });
 // Initial sync after 2 seconds
 setTimeout(syncBalanceFromServer, 2000);
-// ══════════════════════════════════════════
+// ------------------------------------------
 // WITHDRAW FUNCTION
-// ══════════════════════════════════════════
+// ------------------------------------------
 function doWd() {
   var addr = (document.getElementById('wdAddr') || {}).value || '';
   var amt = parseFloat((document.getElementById('wdAmt') || {}).value) || 0;
@@ -2767,24 +2767,24 @@ function doWd() {
   // Validation
   addr = addr.trim();
   if(!addr || !addr.startsWith('T') || addr.length < 30) {
-    showToast('❌ Enter a valid TRX address (starts with T)');
+    showToast('? Enter a valid TRX address (starts with T)');
     return;
   }
   if(amt < 10) {
-    showToast('❌ Minimum withdrawal is 10 TRX');
+    showToast('? Minimum withdrawal is 10 TRX');
     return;
   }
 
   var bal = parseFloat(localStorage.getItem('userBalance') || '0');
   if(amt > bal) {
-    showToast('❌ Insufficient balance! Balance: ' + bal.toFixed(4) + ' TRX');
+    showToast('? Insufficient balance! Balance: ' + bal.toFixed(4) + ' TRX');
     return;
   }
 
   var fee = 0.1;
   var total = amt + fee;
   if(total > bal) {
-    showToast('❌ Not enough for amount + fee (0.1 TRX)');
+    showToast('? Not enough for amount + fee (0.1 TRX)');
     return;
   }
 
@@ -2832,14 +2832,14 @@ function doWd() {
 
   setTimeout(function() {
     if(btn) { btn.disabled = false; btn.textContent = 'WITHDRAW'; }
-    showToast('✅ Withdrawal request submitted! Processing in 1-3 minutes.');
+    showToast('? Withdrawal request submitted! Processing in 1-3 minutes.');
     wdRenderHistory();
   }, 1500);
 }
 
-// ══════════════════════════════════════════
+// ------------------------------------------
 // WITHDRAW HISTORY RENDER
-// ══════════════════════════════════════════
+// ------------------------------------------
 function wdRenderHistory() {
   var list = document.getElementById('wdHistoryList');
   if(!list) return;
@@ -2863,7 +2863,7 @@ function wdRenderHistory() {
 
   hist.forEach(function(r) {
     var statusColor = r.status === 'completed' ? '#3ecf8e' : r.status === 'failed' ? '#e74c3c' : '#f59e0b';
-    var statusLabel = r.status === 'completed' ? '✅ Done' : r.status === 'failed' ? '❌ Failed' : '⏳ Pending';
+    var statusLabel = r.status === 'completed' ? '? Done' : r.status === 'failed' ? '? Failed' : '? Pending';
     h += '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">' +
       '<td style="padding:10px 8px;color:rgba(255,255,255,.5)">' + (r.ts||'') + '</td>' +
       '<td style="padding:10px 8px;font-family:monospace;color:#3ecf8e">' + (r.addr||'').substr(0,14) + '...</td>' +
@@ -2887,9 +2887,9 @@ function wdRenderHistory() {
   }
 })();
 
-// ══════════════════════════════════════════
+// ------------------------------------------
 // WITHDRAW FUNCTIONS
-// ══════════════════════════════════════════
+// ------------------------------------------
 function doWd() {
   var addrEl = document.getElementById('wdAddr');
   var amtEl = document.getElementById('wdAmt');
@@ -2899,27 +2899,27 @@ function doWd() {
 
   // Validation
   if(!addr || !addr.startsWith('T') || addr.length < 30) {
-    alert('❌ Enter a valid TRX address (starts with T)');
+    alert('? Enter a valid TRX address (starts with T)');
     return;
   }
   if(amt < 10) {
-    alert('❌ Minimum withdrawal is 10 TRX');
+    alert('? Minimum withdrawal is 10 TRX');
     return;
   }
   var bal = parseFloat(localStorage.getItem('userBalance') || '0');
   if(amt > bal) {
-    alert('❌ Insufficient balance! Your balance: ' + bal.toFixed(6) + ' TRX');
+    alert('? Insufficient balance! Your balance: ' + bal.toFixed(6) + ' TRX');
     return;
   }
   var fee = parseFloat(localStorage.getItem('withdraw_fee') || '0.1');
   var net = amt - fee;
   if(net <= 0) {
-    alert('❌ Amount too small after fee deduction');
+    alert('? Amount too small after fee deduction');
     return;
   }
   if(!confirm('Confirm Withdrawal:\n\nAddress: ' + addr + '\nAmount: ' + amt.toFixed(6) + ' TRX\nFee: ' + fee.toFixed(6) + ' TRX\nYou Receive: ' + net.toFixed(6) + ' TRX\n\nProceed?')) return;
 
-  if(btn) { btn.disabled = true; btn.textContent = '⏳ Processing...'; }
+  if(btn) { btn.disabled = true; btn.textContent = '? Processing...'; }
 
   // Deduct balance immediately
   var newBal = Math.max(0, bal - amt);
@@ -2968,7 +2968,7 @@ function doWd() {
         } catch(e){}
 
         if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
-        alert('✅ Withdrawal request submitted!\nProcessing time: 1-3 minutes.\nCheck history below.');
+        alert('? Withdrawal request submitted!\nProcessing time: 1-3 minutes.\nCheck history below.');
         wdRenderHistory();
         if(addrEl) addrEl.value = '';
         if(amtEl) amtEl.value = '';
@@ -2978,7 +2978,7 @@ function doWd() {
         if(balEl) balEl.textContent = bal.toFixed(6);
         if(wdBal) wdBal.textContent = bal.toFixed(6) + ' TRX';
         if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
-        alert('❌ Error: ' + (d.error||'Server error. Try again.'));
+        alert('? Error: ' + (d.error||'Server error. Try again.'));
       }
     })
     .catch(function(err) {
@@ -2998,7 +2998,7 @@ function doWd() {
         localStorage.setItem('wdHistory', JSON.stringify(hist.slice(0,50)));
       } catch(e){}
       if(btn){ btn.disabled=false; btn.textContent='WITHDRAW'; }
-      alert('✅ Withdrawal request saved! Processing in 1-3 minutes.');
+      alert('? Withdrawal request saved! Processing in 1-3 minutes.');
       wdRenderHistory();
     });
 }
@@ -3025,7 +3025,7 @@ function wdRenderHistory() {
 
   hist.forEach(function(r) {
     var statusColor = r.status==='approved'||r.status==='completed' ? '#3ecf8e' : r.status==='rejected'||r.status==='failed' ? '#e74c3c' : '#f59e0b';
-    var statusLabel = r.status==='approved'||r.status==='completed' ? '✅ Approved' : r.status==='rejected'||r.status==='failed' ? '❌ Rejected' : '⏳ Pending';
+    var statusLabel = r.status==='approved'||r.status==='completed' ? '? Approved' : r.status==='rejected'||r.status==='failed' ? '? Rejected' : '? Pending';
     h += '<tr style="border-bottom:1px solid rgba(255,255,255,.05)">' +
       '<td style="padding:10px 8px;color:rgba(255,255,255,.5)">' + (r.ts||'') + '</td>' +
       '<td style="padding:10px 8px;font-family:monospace;font-size:11px;color:#3ecf8e">' + (r.addr||'').substr(0,16) + '...</td>' +
@@ -3046,65 +3046,65 @@ function setWdMax() {
   if(el) el.value = Math.max(0, bal - fee).toFixed(6);
 }
 
-// ══════════════════════════════════════════════
+// ----------------------------------------------
 // LANGUAGE SYSTEM
-// ══════════════════════════════════════════════
+// ----------------------------------------------
 var _SITE_LANGS = {
   en: { claim:'CLAIM', faucet:'Faucet', games:'Games', deposit:'Deposit', withdraw:'Withdraw',
         surveys:'Surveys', affiliates:'Affiliates', gifts:'Gift Cards', settings:'Settings',
         contact:'Contact', cashback:'Cashback', contest:'Contest', home:'Home', logout:'Logout',
         welcome:'Welcome back', balance:'Balance', level:'Your level is', stake:'Staking',
         langLabel:'Language' },
-  ru: { claim:'ПОЛУЧИТЬ', faucet:'Кран', games:'Игры', deposit:'Пополнить', withdraw:'Вывод',
-        surveys:'Опросы', affiliates:'Партнёры', gifts:'Подарки', settings:'Настройки',
-        contact:'Контакт', cashback:'Кэшбэк', contest:'Конкурс', home:'Главная', logout:'Выход',
-        welcome:'Добро пожаловать', balance:'Баланс', level:'Ваш уровень', stake:'Стейкинг',
-        langLabel:'Язык' },
-  ar: { claim:'استلام', faucet:'الصنبور', games:'الألعاب', deposit:'إيداع', withdraw:'سحب',
-        surveys:'استطلاعات', affiliates:'الإحالات', gifts:'بطاقات', settings:'الإعدادات',
-        contact:'اتصل', cashback:'استرداد', contest:'مسابقة', home:'الرئيسية', logout:'خروج',
-        welcome:'مرحباً', balance:'الرصيد', level:'مستواك', stake:'تخزين',
-        langLabel:'اللغة' },
-  fr: { claim:'RÉCLAMER', faucet:'Robinet', games:'Jeux', deposit:'Dépôt', withdraw:'Retrait',
-        surveys:'Sondages', affiliates:'Affiliés', gifts:'Cadeaux', settings:'Paramètres',
-        contact:'Contact', cashback:'Remise', contest:'Concours', home:'Accueil', logout:'Déconnexion',
+  ru: { claim:'????????', faucet:'????', games:'????', deposit:'?????????', withdraw:'?????',
+        surveys:'??????', affiliates:'????????', gifts:'???????', settings:'?????????',
+        contact:'???????', cashback:'??????', contest:'???????', home:'???????', logout:'?????',
+        welcome:'????? ??????????', balance:'??????', level:'??? ???????', stake:'????????',
+        langLabel:'????' },
+  ar: { claim:'??????', faucet:'???????', games:'???????', deposit:'?????', withdraw:'???',
+        surveys:'?????????', affiliates:'????????', gifts:'??????', settings:'?????????',
+        contact:'????', cashback:'???????', contest:'??????', home:'????????', logout:'????',
+        welcome:'??????', balance:'??????', level:'??????', stake:'?????',
+        langLabel:'?????' },
+  fr: { claim:'R�CLAMER', faucet:'Robinet', games:'Jeux', deposit:'D�p�t', withdraw:'Retrait',
+        surveys:'Sondages', affiliates:'Affili�s', gifts:'Cadeaux', settings:'Param�tres',
+        contact:'Contact', cashback:'Remise', contest:'Concours', home:'Accueil', logout:'D�connexion',
         welcome:'Bienvenue', balance:'Solde', level:'Votre niveau', stake:'Mise',
         langLabel:'Langue' },
-  es: { claim:'RECLAMAR', faucet:'Grifo', games:'Juegos', deposit:'Depósito', withdraw:'Retiro',
+  es: { claim:'RECLAMAR', faucet:'Grifo', games:'Juegos', deposit:'Dep�sito', withdraw:'Retiro',
         surveys:'Encuestas', affiliates:'Afiliados', gifts:'Tarjetas', settings:'Ajustes',
         contact:'Contacto', cashback:'Reembolso', contest:'Concurso', home:'Inicio', logout:'Salir',
         welcome:'Bienvenido', balance:'Saldo', level:'Tu nivel', stake:'Staking',
         langLabel:'Idioma' },
-  pt: { claim:'RESGATAR', faucet:'Torneira', games:'Jogos', deposit:'Depósito', withdraw:'Saque',
-        surveys:'Pesquisas', affiliates:'Afiliados', gifts:'Presentes', settings:'Configurações',
-        contact:'Contato', cashback:'Cashback', contest:'Concurso', home:'Início', logout:'Sair',
-        welcome:'Bem-vindo', balance:'Saldo', level:'Seu nível', stake:'Staking',
+  pt: { claim:'RESGATAR', faucet:'Torneira', games:'Jogos', deposit:'Dep�sito', withdraw:'Saque',
+        surveys:'Pesquisas', affiliates:'Afiliados', gifts:'Presentes', settings:'Configura��es',
+        contact:'Contato', cashback:'Cashback', contest:'Concurso', home:'In�cio', logout:'Sair',
+        welcome:'Bem-vindo', balance:'Saldo', level:'Seu n�vel', stake:'Staking',
         langLabel:'Idioma' },
   de: { claim:'EINFORDERN', faucet:'Wasserhahn', games:'Spiele', deposit:'Einzahlung', withdraw:'Auszahlung',
         surveys:'Umfragen', affiliates:'Partner', gifts:'Geschenke', settings:'Einstellungen',
         contact:'Kontakt', cashback:'Cashback', contest:'Wettbewerb', home:'Startseite', logout:'Abmelden',
         welcome:'Willkommen', balance:'Guthaben', level:'Dein Level', stake:'Staking',
         langLabel:'Sprache' },
-  tr: { claim:'TALEP ET', faucet:'Musluk', games:'Oyunlar', deposit:'Yatır', withdraw:'Çek',
+  tr: { claim:'TALEP ET', faucet:'Musluk', games:'Oyunlar', deposit:'Yatir', withdraw:'�ek',
         surveys:'Anketler', affiliates:'Ortaklar', gifts:'Hediyeler', settings:'Ayarlar',
-        contact:'İletişim', cashback:'Geri Ödeme', contest:'Yarışma', home:'Ana Sayfa', logout:'Çıkış',
-        welcome:'Hoşgeldiniz', balance:'Bakiye', level:'Seviyeniz', stake:'Stake',
+        contact:'Iletisim', cashback:'Geri �deme', contest:'Yarisma', home:'Ana Sayfa', logout:'�ikis',
+        welcome:'Hosgeldiniz', balance:'Bakiye', level:'Seviyeniz', stake:'Stake',
         langLabel:'Dil' },
   id: { claim:'KLAIM', faucet:'Faucet', games:'Game', deposit:'Setor', withdraw:'Tarik',
         surveys:'Survei', affiliates:'Afiliasi', gifts:'Hadiah', settings:'Pengaturan',
         contact:'Kontak', cashback:'Cashback', contest:'Kontes', home:'Beranda', logout:'Keluar',
         welcome:'Selamat datang', balance:'Saldo', level:'Level Anda', stake:'Staking',
         langLabel:'Bahasa' },
-  hi: { claim:'दावा करें', faucet:'फॉसेट', games:'गेम्स', deposit:'जमा', withdraw:'निकासी',
-        surveys:'सर्वेक्षण', affiliates:'रेफरल', gifts:'उपहार', settings:'सेटिंग्स',
-        contact:'संपर्क', cashback:'कैशबैक', contest:'प्रतियोगिता', home:'होम', logout:'लॉगआउट',
-        welcome:'स्वागत है', balance:'बैलेंस', level:'आपका स्तर', stake:'स्टेकिंग',
-        langLabel:'भाषा' },
-  ur: { claim:'حاصل کریں', faucet:'فاسیٹ', games:'گیمز', deposit:'جمع', withdraw:'نکاسی',
-        surveys:'سروے', affiliates:'ریفرل', gifts:'تحائف', settings:'ترتیبات',
-        contact:'رابطہ', cashback:'کیش بیک', contest:'مقابلہ', home:'ہوم', logout:'لاگ آوٹ',
-        welcome:'خوش آمدید', balance:'بیلنس', level:'آپ کی سطح', stake:'اسٹیکنگ',
-        langLabel:'زبان' },
+  hi: { claim:'???? ????', faucet:'?????', games:'?????', deposit:'???', withdraw:'??????',
+        surveys:'?????????', affiliates:'?????', gifts:'?????', settings:'????????',
+        contact:'??????', cashback:'??????', contest:'???????????', home:'???', logout:'??????',
+        welcome:'?????? ??', balance:'??????', level:'???? ????', stake:'????????',
+        langLabel:'????' },
+  ur: { claim:'???? ????', faucet:'?????', games:'????', deposit:'???', withdraw:'?????',
+        surveys:'????', affiliates:'?????', gifts:'?????', settings:'???????',
+        contact:'?????', cashback:'??? ???', contest:'??????', home:'???', logout:'??? ???',
+        welcome:'??? ?????', balance:'?????', level:'?? ?? ???', stake:'???????',
+        langLabel:'????' },
   mg: { claim:'ALAO', faucet:'Robinety', games:'Lalao', deposit:'Mampiditra', withdraw:'Miala',
         surveys:'Fanadihadiana', affiliates:'Mpandraharaha', gifts:'Fanomezana', settings:'Fikirana',
         contact:'Fifandraisana', cashback:'Averina', contest:'Fifaninanana', home:'Fandraisana', logout:'Mivoaka',
@@ -3115,61 +3115,61 @@ var _SITE_LANGS = {
         contact:'Wasiliana', cashback:'Cashback', contest:'Mashindano', home:'Nyumbani', logout:'Toka',
         welcome:'Karibu', balance:'Salio', level:'Kiwango chako', stake:'Staking',
         langLabel:'Lugha' },
-  zh: { claim:'领取', faucet:'水龙头', games:'游戏', deposit:'存款', withdraw:'提款',
-        surveys:'调查', affiliates:'推广', gifts:'礼品卡', settings:'设置',
-        contact:'联系', cashback:'返现', contest:'竞赛', home:'首页', logout:'退出',
-        welcome:'欢迎回来', balance:'余额', level:'你的等级', stake:'质押',
-        langLabel:'语言' },
-  ja: { claim:'受け取る', faucet:'フォーセット', games:'ゲーム', deposit:'入金', withdraw:'出金',
-        surveys:'アンケート', affiliates:'アフィリエイト', gifts:'ギフト', settings:'設定',
-        contact:'お問い合わせ', cashback:'キャッシュバック', contest:'コンテスト', home:'ホーム', logout:'ログアウト',
-        welcome:'おかえりなさい', balance:'残高', level:'あなたのレベル', stake:'ステーキング',
-        langLabel:'言語' },
-  ko: { claim:'청구', faucet:'수도꼭지', games:'게임', deposit:'입금', withdraw:'출금',
-        surveys:'설문조사', affiliates:'제휴', gifts:'선물', settings:'설정',
-        contact:'연락처', cashback:'캐시백', contest:'대회', home:'홈', logout:'로그아웃',
-        welcome:'환영합니다', balance:'잔액', level:'내 레벨', stake:'스테이킹',
-        langLabel:'언어' },
-  vi: { claim:'NHẬN', faucet:'Vòi', games:'Trò chơi', deposit:'Nạp tiền', withdraw:'Rút tiền',
-        surveys:'Khảo sát', affiliates:'Liên kết', gifts:'Quà tặng', settings:'Cài đặt',
-        contact:'Liên hệ', cashback:'Hoàn tiền', contest:'Cuộc thi', home:'Trang chủ', logout:'Đăng xuất',
-        welcome:'Chào mừng', balance:'Số dư', level:'Cấp độ', stake:'Staking',
-        langLabel:'Ngôn ngữ' },
-  th: { claim:'รับ', faucet:'ก๊อกน้ำ', games:'เกมส์', deposit:'ฝาก', withdraw:'ถอน',
-        surveys:'แบบสำรวจ', affiliates:'พันธมิตร', gifts:'บัตรของขวัญ', settings:'ตั้งค่า',
-        contact:'ติดต่อ', cashback:'เงินคืน', contest:'การแข่งขัน', home:'หน้าหลัก', logout:'ออกจากระบบ',
-        welcome:'ยินดีต้อนรับ', balance:'ยอดคงเหลือ', level:'ระดับของคุณ', stake:'Staking',
-        langLabel:'ภาษา' },
-  fa: { claim:'دریافت', faucet:'شیر', games:'بازی‌ها', deposit:'واریز', withdraw:'برداشت',
-        surveys:'نظرسنجی', affiliates:'همکاری', gifts:'کارت هدیه', settings:'تنظیمات',
-        contact:'تماس', cashback:'بازگشت وجه', contest:'مسابقه', home:'خانه', logout:'خروج',
-        welcome:'خوش آمدید', balance:'موجودی', level:'سطح شما', stake:'سهام‌گذاری',
-        langLabel:'زبان' },
-  pl: { claim:'ODBIERZ', faucet:'Kran', games:'Gry', deposit:'Wpłata', withdraw:'Wypłata',
+  zh: { claim:'??', faucet:'???', games:'??', deposit:'??', withdraw:'??',
+        surveys:'??', affiliates:'??', gifts:'???', settings:'??',
+        contact:'??', cashback:'??', contest:'??', home:'??', logout:'??',
+        welcome:'????', balance:'??', level:'????', stake:'??',
+        langLabel:'??' },
+  ja: { claim:'????', faucet:'??????', games:'???', deposit:'??', withdraw:'??',
+        surveys:'?????', affiliates:'???????', gifts:'???', settings:'??',
+        contact:'??????', cashback:'????????', contest:'?????', home:'???', logout:'?????',
+        welcome:'???????', balance:'??', level:'???????', stake:'??????',
+        langLabel:'??' },
+  ko: { claim:'??', faucet:'????', games:'??', deposit:'??', withdraw:'??',
+        surveys:'????', affiliates:'??', gifts:'??', settings:'??',
+        contact:'???', cashback:'???', contest:'??', home:'?', logout:'????',
+        welcome:'?????', balance:'??', level:'? ??', stake:'????',
+        langLabel:'??' },
+  vi: { claim:'NH?N', faucet:'V�i', games:'Tr� choi', deposit:'N?p ti?n', withdraw:'R�t ti?n',
+        surveys:'Kh?o s�t', affiliates:'Li�n k?t', gifts:'Qu� t?ng', settings:'C�i d?t',
+        contact:'Li�n h?', cashback:'Ho�n ti?n', contest:'Cu?c thi', home:'Trang ch?', logout:'�ang xu?t',
+        welcome:'Ch�o m?ng', balance:'S? du', level:'C?p d?', stake:'Staking',
+        langLabel:'Ng�n ng?' },
+  th: { claim:'???', faucet:'???????', games:'?????', deposit:'???', withdraw:'???',
+        surveys:'????????', affiliates:'????????', gifts:'???????????', settings:'???????',
+        contact:'??????', cashback:'???????', contest:'??????????', home:'????????', logout:'??????????',
+        welcome:'????????????', balance:'??????????', level:'???????????', stake:'Staking',
+        langLabel:'????' },
+  fa: { claim:'??????', faucet:'???', games:'???????', deposit:'?????', withdraw:'??????',
+        surveys:'???????', affiliates:'??????', gifts:'???? ????', settings:'???????',
+        contact:'????', cashback:'?????? ???', contest:'??????', home:'????', logout:'????',
+        welcome:'??? ?????', balance:'??????', level:'??? ???', stake:'??????????',
+        langLabel:'????' },
+  pl: { claim:'ODBIERZ', faucet:'Kran', games:'Gry', deposit:'Wplata', withdraw:'Wyplata',
         surveys:'Ankiety', affiliates:'Partnerzy', gifts:'Karty', settings:'Ustawienia',
-        contact:'Kontakt', cashback:'Zwrot', contest:'Konkurs', home:'Strona główna', logout:'Wyloguj',
-        welcome:'Witamy z powrotem', balance:'Saldo', level:'Twój poziom', stake:'Staking',
-        langLabel:'Język' },
-  uk: { claim:'ОТРИМАТИ', faucet:'Кран', games:'Ігри', deposit:'Поповнення', withdraw:'Виведення',
-        surveys:'Опитування', affiliates:'Партнери', gifts:'Подарунки', settings:'Налаштування',
-        contact:'Контакт', cashback:'Кешбек', contest:'Конкурс', home:'Головна', logout:'Вихід',
-        welcome:'Ласкаво просимо', balance:'Баланс', level:'Ваш рівень', stake:'Стейкінг',
-        langLabel:'Мова' },
+        contact:'Kontakt', cashback:'Zwrot', contest:'Konkurs', home:'Strona gl�wna', logout:'Wyloguj',
+        welcome:'Witamy z powrotem', balance:'Saldo', level:'Tw�j poziom', stake:'Staking',
+        langLabel:'Jezyk' },
+  uk: { claim:'????????', faucet:'????', games:'????', deposit:'??????????', withdraw:'?????????',
+        surveys:'??????????', affiliates:'????????', gifts:'?????????', settings:'????????????',
+        contact:'???????', cashback:'??????', contest:'???????', home:'???????', logout:'?????',
+        welcome:'??????? ???????', balance:'??????', level:'??? ??????', stake:'????????',
+        langLabel:'????' },
   ha: { claim:'KARBA', faucet:'Famfo', games:'Wasanni', deposit:'Saka', withdraw:'Fita',
         surveys:'Bincike', affiliates:'Abokai', gifts:'Kyautai', settings:'Saiti',
-        contact:'Tuntuɓa', cashback:'Dawo', contest:'Gasar', home:'Gida', logout:'Fita',
+        contact:'Tuntu?a', cashback:'Dawo', contest:'Gasar', home:'Gida', logout:'Fita',
         welcome:'Barka da zuwa', balance:'Asusun', level:'Matakinka', stake:'Staking',
         langLabel:'Harshe' },
-  yo: { claim:'GBA', faucet:'Faucet', games:'Ere', deposit:'Fi sii', withdraw:'Yọ kuro',
-        surveys:'Iwadi', affiliates:'Alabaṣiṣẹ', gifts:'Ẹbun', settings:'Eto',
-        contact:'Kan si', cashback:'Ipadabọ', contest:'Idije', home:'Ile', logout:'Jade',
-        welcome:'E kaabo', balance:'Owo', level:'Ipele rẹ', stake:'Staking',
+  yo: { claim:'GBA', faucet:'Faucet', games:'Ere', deposit:'Fi sii', withdraw:'Y? kuro',
+        surveys:'Iwadi', affiliates:'Alaba?i??', gifts:'?bun', settings:'Eto',
+        contact:'Kan si', cashback:'Ipadab?', contest:'Idije', home:'Ile', logout:'Jade',
+        welcome:'E kaabo', balance:'Owo', level:'Ipele r?', stake:'Staking',
         langLabel:'Ede' },
-  bn: { claim:'দাবি করুন', faucet:'ফসেট', games:'গেমস', deposit:'জমা', withdraw:'উত্তোলন',
-        surveys:'জরিপ', affiliates:'অ্যাফিলিয়েট', gifts:'উপহার', settings:'সেটিংস',
-        contact:'যোগাযোগ', cashback:'ক্যাশব্যাক', contest:'প্রতিযোগিতা', home:'হোম', logout:'লগআউট',
-        welcome:'স্বাগতম', balance:'ব্যালেন্স', level:'আপনার স্তর', stake:'স্টেকিং',
-        langLabel:'ভাষা' }
+  bn: { claim:'???? ????', faucet:'????', games:'????', deposit:'???', withdraw:'???????',
+        surveys:'????', affiliates:'????????????', gifts:'?????', settings:'??????',
+        contact:'???????', cashback:'??????????', contest:'???????????', home:'???', logout:'?????',
+        welcome:'???????', balance:'?????????', level:'????? ????', stake:'???????',
+        langLabel:'????' }
 };
 
 function setSiteLanguage(lang){
@@ -3216,9 +3216,9 @@ function setSiteLanguage(lang){
   }
 })();
 
-// ══════════════════════════════════════════════
+// ----------------------------------------------
 // FOOTER LANGUAGE BAR CSS (injected)
-// ══════════════════════════════════════════════
+// ----------------------------------------------
 (function(){
   var style=document.createElement('style');
   style.textContent=`
@@ -3243,4 +3243,5 @@ function setSiteLanguage(lang){
   `;
   document.head.appendChild(style);
 })();
+
 

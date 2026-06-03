@@ -1,4 +1,4 @@
-﻿?<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -748,11 +748,11 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
           <option value="en">&#127482;&#127480; English</option>
           <option value="ru">&#127479;&#127482; ??????? (Russian)</option>
           <option value="ar">&#127462;&#127466; ??????? (Arabic)</option>
-          <option value="fr">&#127467;&#127479; Fran�ais (French)</option>
-          <option value="es">&#127466;&#127480; Espa�ol (Spanish)</option>
-          <option value="pt">&#127477;&#127481; Portugu�s (Portuguese)</option>
+          <option value="fr">&#127467;&#127479; Fran?ais (French)</option>
+          <option value="es">&#127466;&#127480; Espa?ol (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Portugu?s (Portuguese)</option>
           <option value="de">&#127465;&#127466; Deutsch (German)</option>
-          <option value="tr">&#127481;&#127479; T�rk�e (Turkish)</option>
+          <option value="tr">&#127481;&#127479; T?rk?e (Turkish)</option>
           <option value="id">&#127470;&#127465; Indonesia</option>
           <option value="hi">&#127470;&#127475; ?????? (Hindi)</option>
           <option value="bn">&#127463;&#127465; ????? (Bengali)</option>
@@ -1014,5 +1014,6 @@ function renderContestLeaderboard(){
 </script>
 </body>
 </html>
+
 
 

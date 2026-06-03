@@ -1,4 +1,4 @@
-ï»¿?<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -696,11 +696,11 @@
           <option value="en">&#127482;&#127480; English</option>
           <option value="ru">&#127479;&#127482; ??????? (Russian)</option>
           <option value="ar">&#127462;&#127466; ??????? (Arabic)</option>
-          <option value="fr">&#127467;&#127479; FranÃ§ais (French)</option>
-          <option value="es">&#127466;&#127480; EspaÃ±ol (Spanish)</option>
-          <option value="pt">&#127477;&#127481; PortuguÃªs (Portuguese)</option>
+          <option value="fr">&#127467;&#127479; Français (French)</option>
+          <option value="es">&#127466;&#127480; Español (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Português (Portuguese)</option>
           <option value="de">&#127465;&#127466; Deutsch (German)</option>
-          <option value="tr">&#127481;&#127479; TÃ¼rkÃ§e (Turkish)</option>
+          <option value="tr">&#127481;&#127479; Türkçe (Turkish)</option>
           <option value="id">&#127470;&#127465; Indonesia</option>
           <option value="hi">&#127470;&#127475; ?????? (Hindi)</option>
           <option value="bn">&#127463;&#127465; ????? (Bengali)</option>
@@ -794,10 +794,10 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
     <!-- FREE TAB -->
     <div id="ldTabFree">
       <div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:10px;padding:14px;margin-bottom:16px">
-        <div style="color:#3ecf8e;font-weight:700;font-size:13px;margin-bottom:8px">&#127381; FREE DRAW â€” 1 Time Only</div>
+        <div style="color:#3ecf8e;font-weight:700;font-size:13px;margin-bottom:8px">&#127381; FREE DRAW — 1 Time Only</div>
         <div style="color:rgba(232,240,235,.75);font-size:12px;line-height:1.6">
           Spin once for free!<br>
-          You will win a <b style="color:#3ecf8e">random prize</b> â€” either <b style="color:#a0aab0">Iron Level upgrade</b> or <b style="color:#3ecf8e">0.05 TRX</b> added to balance.
+          You will win a <b style="color:#3ecf8e">random prize</b> — either <b style="color:#a0aab0">Iron Level upgrade</b> or <b style="color:#3ecf8e">0.05 TRX</b> added to balance.
         </div>
       </div>
       <div id="ldFreeStatus" style="text-align:center;margin-bottom:14px;font-size:13px"></div>
@@ -827,7 +827,7 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
     <!-- PAID TAB -->
     <div id="ldTabPaid" style="display:none">
       <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:14px;margin-bottom:16px">
-        <div style="color:#ffd700;font-weight:700;font-size:13px;margin-bottom:8px">&#128081; PAID DRAW â€” Rules</div>
+        <div style="color:#ffd700;font-weight:700;font-size:13px;margin-bottom:8px">&#128081; PAID DRAW — Rules</div>
         <div style="color:rgba(232,240,235,.75);font-size:12px;line-height:1.8">
           &#9658; Entry cost: <b style="color:#ffd700">500 TRX</b> from your balance<br>
           &#9658; 1 time only per account<br>
@@ -861,4 +861,5 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){};}
 
 </body>
 </html>
+
 

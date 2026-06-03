@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -181,7 +181,7 @@
         </div>
       </div>
 
-      <!-- 2FA field � hidden by default, shows only when user has 2FA enabled -->
+      <!-- 2FA field ? hidden by default, shows only when user has 2FA enabled -->
       <div class="ff ff-plain" id="twofa-wrap" style="display:none">
         <label>2FA Code <span class="opt-label">(Required ? your account has 2FA enabled)</span></label>
         <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
@@ -502,7 +502,7 @@ function handleLogin(e){
   if(secret2fa){
     if(!code2fa){ err.style.display='block'; err.textContent='Please enter your 2FA code from your authenticator app.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
     if(secret2fa === 'enabled'){
-      // 2FA enabled but secret missing � allow login (graceful fallback)
+      // 2FA enabled but secret missing ? allow login (graceful fallback)
       doLoginFinish(id, pw, btn);
     } else {
       verifyTOTP(secret2fa, code2fa).then(function(valid){
@@ -511,7 +511,7 @@ function handleLogin(e){
       });
     }
   } else {
-    // No 2FA � proceed directly to login
+    // No 2FA ? proceed directly to login
     doLoginFinish(id, pw, btn);
   }
 }
@@ -741,6 +741,7 @@ initStaffMode();
 
 </body>
 </html>
+
 
 
 
