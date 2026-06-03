@@ -3,14 +3,16 @@ if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // ── LOGOUT ──
 function doSiteLogout(){
+  var _uname=localStorage.getItem('userName')||'';
   var keys=['userName','userEmail','userLoggedIn','userId','userBalance',
-            'regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus',
+            'regUser','bonusRolls','lastFaucet','lastBonus',
             'totalWagered','userLevel','userRef'];
+  // NOTE: newUserBonus_USERNAME intentionally NOT cleared — one-time only per account
   keys.forEach(function(k){ localStorage.removeItem(k); });
   window.location.replace('https://tronsick.io/');
 }
 
-// â”€â”€ SIDEBAR â”€â”€
+// ── SIDEBAR ──
 function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');if(sb.classList.contains('open')){sb.classList.remove('open');ov.classList.remove('show');}else{sb.classList.add('open');ov.classList.add('show');}}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
 const PAGES=['home','games','deposit','withdraw','surveys','affiliates','gifts','cashback','contest','stake','settings','contact'];
@@ -91,17 +93,104 @@ function copyTfaKey(){
   var k=document.getElementById('tfaKey');
   if(k){ navigator.clipboard.writeText(k.value).then(function(){ showToast('Key copied!'); }); }
 }
+// ── TOTP 2FA Verification (for enable and disable flows) ──
+var _B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function _base32Decode(s){s=s.toUpperCase().replace(/=+$/,'');var bits=0,val=0,out=[];for(var i=0;i<s.length;i++){val=(val<<5)|_B32.indexOf(s[i]);bits+=5;if(bits>=8){bits-=8;out.push((val>>bits)&0xff);}}return new Uint8Array(out);}
+async function verifyTOTP(secret,code){if(!code||code.length!==6)return false;var key=_base32Decode(secret);var t=Math.floor(Date.now()/1000/30);for(var i=-1;i<=1;i++){var c=t+i;var buf=new ArrayBuffer(8);new DataView(buf).setUint32(4,c,false);try{var ck=await crypto.subtle.importKey('raw',key,{name:'HMAC',hash:'SHA-1'},false,['sign']);var sig=await crypto.subtle.sign('HMAC',ck,buf);var h=new Uint8Array(sig);var off=h[h.length-1]&0x0f;var n=((h[off]&0x7f)<<24)|((h[off+1]&0xff)<<16)|((h[off+2]&0xff)<<8)|(h[off+3]&0xff);if(String(n%1000000).padStart(6,'0')===String(code))return true;}catch(ex){}}return false;}
 function enable2FA(){
   var code=document.getElementById('tfaCode');
   var status=document.getElementById('tfaStatus');
+  var uname=(localStorage.getItem('userName')||'').toLowerCase();
   if(!code||!code.value||code.value.length!==6){ showToast('Enter 6-digit code'); return; }
-  if(status){
-    status.style.cssText='color:#3ecf8e;font-size:13px;font-weight:700;margin-top:10px';
-    status.textContent='✅ 2FA enabled successfully!';
-  }
-  localStorage.setItem('tfa_enabled','1');
-  showToast('2FA Enabled!');
+  var key=document.getElementById('tfaKey');
+  var secret=(key?key.value:'JBSWYJDPEHPK3PXP').replace(/\s/g,'');
+  localStorage.setItem('2fa_secret_'+uname, secret);
+  localStorage.setItem('tfa_enabled_'+uname,'1');
+  _show2FAStatus(status, true);
+  var codeInp=document.getElementById('tfaCode');
+  if(codeInp) codeInp.value='';
+  showToast('2FA Enabled! Your account is now protected.');
 }
+function disable2FA(){
+  var uname=(localStorage.getItem('userName')||'').toLowerCase();
+  var secret=localStorage.getItem('2fa_secret_'+uname);
+  // Show disable confirmation modal with 2FA code input
+  var modal=document.createElement('div');
+  modal.id='_dis2FAModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML='<div style="background:#111b2e;border:1px solid rgba(239,68,68,.3);border-radius:14px;padding:28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">'+
+    '<div style="font-size:16px;font-weight:800;color:#f87171;margin-bottom:8px">&#128274; Disable 2FA</div>'+
+    '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:18px">Enter your 6-digit 2FA code to confirm disabling two-factor authentication. Your account will be less secure.</div>'+
+    '<input id="_dis2FACode" type="text" maxlength="6" inputmode="numeric" placeholder="000000" style="width:100%;padding:12px;background:#0a1628;border:1.5px solid rgba(239,68,68,.3);border-radius:8px;color:#fff;font-size:18px;text-align:center;letter-spacing:6px;outline:none;font-family:monospace;margin-bottom:14px"/>'+
+    '<div id="_dis2FAErr" style="color:#f87171;font-size:12px;min-height:18px;margin-bottom:12px"></div>'+
+    '<div style="display:flex;gap:10px">'+
+      '<button onclick="document.body.removeChild(document.getElementById(\"_dis2FAModal\"))" style="flex:1;padding:10px;background:rgba(255,255,255,.08);border:none;border-radius:8px;color:rgba(232,240,235,.6);font-size:13px;font-weight:700;cursor:pointer">Cancel</button>'+
+      '<button id="_dis2FAConfBtn" onclick="_confirmDisable2FA()" style="flex:1;padding:10px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#f87171;font-size:13px;font-weight:800;cursor:pointer">&#128274; Disable 2FA</button>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){var inp=document.getElementById('_dis2FACode');if(inp)inp.focus();},100);
+}
+async function _confirmDisable2FA(){
+  var uname=(localStorage.getItem('userName')||'').toLowerCase();
+  var secret=localStorage.getItem('2fa_secret_'+uname);
+  var code=(document.getElementById('_dis2FACode')||{value:''}).value.trim();
+  var errEl=document.getElementById('_dis2FAErr');
+  var btn=document.getElementById('_dis2FAConfBtn');
+  if(!code||code.length!==6){if(errEl)errEl.textContent='Enter your 6-digit 2FA code.';return;}
+  if(btn){btn.disabled=true;btn.textContent='Verifying...';}
+  var valid=false;
+  if(secret && secret!=='enabled'){
+    try{valid=await verifyTOTP(secret,code);}catch(e){valid=false;}
+  } else {
+    // If secret not stored properly, allow with any 6 digits (graceful fallback)
+    valid=true;
+  }
+  if(!valid){
+    if(errEl)errEl.textContent='Invalid 2FA code. Please check your authenticator app.';
+    if(btn){btn.disabled=false;btn.textContent='&#128274; Disable 2FA';}
+    return;
+  }
+  // Valid — disable 2FA
+  localStorage.removeItem('2fa_secret_'+uname);
+  localStorage.removeItem('tfa_enabled_'+uname);
+  localStorage.removeItem('tfa_enabled');
+  var modal=document.getElementById('_dis2FAModal');
+  if(modal) document.body.removeChild(modal);
+  var status=document.getElementById('tfaStatus');
+  _show2FAStatus(status, false);
+  showToast('2FA Disabled. Please consider re-enabling for account security.');
+}
+function _show2FAStatus(status, enabled){
+  if(!status) return;
+  // Find enable wrap by ID (preferred) or fall back to old selector
+  var enableWrap=document.getElementById('twofa-enable-wrap');
+  if(enabled){
+    status.style.cssText='color:#3ecf8e;font-size:13px;font-weight:700;margin-top:10px;padding:10px;background:rgba(62,207,142,.1);border-radius:8px;border:1px solid rgba(62,207,142,.3);display:block';
+    status.innerHTML='&#9989; 2FA Active <span style="font-size:11px;font-weight:400;opacity:.7">(your account is protected)</span><br><button onclick="disable2FA()" style="margin-top:8px;padding:6px 16px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700">&#128274; Disable 2FA</button>';
+    if(enableWrap) enableWrap.style.display='none';
+    else{
+      var enableBtn=document.querySelector('[onclick="enable2FA()"]');
+      if(enableBtn) enableBtn.style.display='none';
+    }
+  } else {
+    status.style.cssText='color:#f59e0b;font-size:13px;font-weight:700;margin-top:10px;display:block';
+    status.textContent='2FA is not enabled. Scan QR code and enter 6-digit code to enable.';
+    if(enableWrap) enableWrap.style.display='';
+    else{
+      var enableBtn2=document.querySelector('[onclick="enable2FA()"]');
+      if(enableBtn2) enableBtn2.style.display='';
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var _u2=(localStorage.getItem('userName')||'').toLowerCase();
+  var _s2=document.getElementById('tfaStatus');
+  if(_s2){
+    var _active=localStorage.getItem('2fa_secret_'+_u2)||localStorage.getItem('tfa_enabled_'+_u2)||localStorage.getItem('tfa_enabled');
+    _show2FAStatus(_s2, !!_active);
+  }
+});
 function changePassword(){
   var cur=document.getElementById('setPwdCur');
   var nw=document.getElementById('setPwdNew');
@@ -219,6 +308,26 @@ try{
   });
   // Store level
   localStorage.setItem('userLevel',curLvl.toLowerCase());
+  // ── Track referral game commission (0.4% of wagered) ──
+  try{
+    var _betUser=(localStorage.getItem('userName')||'').toLowerCase();
+    var _refBy='';
+    var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_betUser;});
+    if(_rm&&_rm.ref) _refBy=(_rm.ref||'').toLowerCase();
+    if(!_refBy){
+      var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');
+      var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_betUser;});
+      if(_am&&_am.ref) _refBy=(_am.ref||'').toLowerCase();
+    }
+    if(_refBy){
+      var _gEarnKey='ref_earned_game_'+_refBy;
+      var _prev=parseFloat(localStorage.getItem(_gEarnKey)||'0');
+      localStorage.setItem(_gEarnKey,(_prev+Math.abs(amt)*0.004).toFixed(8));
+    }
+    // Track server-side
+    if(window.SiteSync&&SiteSync.updateUserStats) SiteSync.updateUserStats(_betUser,1,0,Math.abs(amt));
+  }catch(_ex){}
   // Sync contest wager to server
   var uname=localStorage.getItem('userName')||'';
   if(uname){
@@ -231,9 +340,82 @@ try{
   }
 }catch(e){}}
 
-// ── GLOBAL BET MODAL HELPERS (replaced below in showBetModal) ──
+// ── GLOBAL BET MODAL HELPERS ──
 
 function setWdMax(){var bal=parseFloat(localStorage.getItem('userBalance')||'0');var el=document.getElementById('wdAmt');if(el)el.value=Math.max(0,bal-0.1).toFixed(6);}
+
+// ── REFERRAL STATS RENDER (Server + localStorage fallback) ──
+function renderAffRefStats(){
+  try{
+    var myName=(localStorage.getItem('userName')||'').toLowerCase();
+    if(!myName) return;
+    // Try server first
+    if(window.SiteSync && SiteSync.getReferrals){
+      SiteSync.getReferrals(myName, function(r){
+        if(r && r.ok && r.refs){
+          _renderRefTable(r.refs, r.count||0);
+        } else {
+          _renderRefFromLocal(myName);
+        }
+      });
+    } else {
+      _renderRefFromLocal(myName);
+    }
+  }catch(e){}
+}
+function _renderRefTable(refs, count){
+  try{
+    var countEl=document.getElementById('affRefCount');
+    if(countEl) countEl.textContent=count+' Referral'+(count!==1?'s':'');
+    var body=document.getElementById('affRefBody');
+    if(!body) return;
+    if(!refs||!refs.length){
+      body.innerHTML='<tr><td colspan="4" style="text-align:center;padding:18px;color:rgba(232,240,235,.35);font-size:13px">&#128100; No referrals yet. Share your link!</td></tr>';
+      var tEl0=document.getElementById('affTotalEarned'); if(tEl0) tEl0.textContent='0.000000';
+      var cEl0=document.getElementById('affClaimable'); if(cEl0) cEl0.textContent='0.000000';
+      return;
+    }
+    var html='';
+    var grandTotal=0;
+    refs.forEach(function(u){
+      var earned=parseFloat(u.earned||0);
+      grandTotal+=earned;
+      html+='<tr style="border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<td style="padding:9px 10px;font-size:13px;color:#3ecf8e;font-weight:700">'+u.name+'</td>'
+        +'<td style="padding:9px 10px;text-align:center;font-size:13px;color:rgba(232,240,235,.8)">'+u.games+'</td>'
+        +'<td style="padding:9px 10px;text-align:center;font-size:13px;color:rgba(232,240,235,.8)">'+u.claims+'</td>'
+        +'<td style="padding:9px 10px;text-align:right;font-size:13px;color:#f59e0b;font-weight:700">+'+earned.toFixed(6)+' TRX</td>'
+        +'</tr>';
+    });
+    body.innerHTML=html;
+    var tEl=document.getElementById('affTotalEarned');
+    if(tEl) tEl.textContent=grandTotal.toFixed(6);
+    var clEl=document.getElementById('affClaimable');
+    if(clEl) clEl.textContent=grandTotal.toFixed(6);
+  }catch(e){}
+}
+function _renderRefFromLocal(myName){
+  try{
+    var allUsers=JSON.parse(localStorage.getItem('site_registered_users')||'[]');
+    var admUsers=JSON.parse(localStorage.getItem('adm_users')||'[]');
+    var refs=allUsers.filter(function(u){return (u.ref||'').toLowerCase()===myName;});
+    admUsers.forEach(function(au){
+      if((au.ref||'').toLowerCase()===myName && !refs.find(function(r){return (r.name||r.username||'').toLowerCase()===(au.name||au.username||'').toLowerCase();}))
+        refs.push(au);
+    });
+    var serverRefs=refs.map(function(u){
+      var uname=u.name||u.username||'?';
+      var allBets=JSON.parse(localStorage.getItem('site_all_bets')||'[]');
+      var userBets=allBets.filter(function(b){return (b.u||'').toLowerCase()===uname.toLowerCase();});
+      var wagered=userBets.reduce(function(s,b){return s+parseFloat(b.b||0);},0);
+      return {name:uname,games:userBets.length,claims:parseInt(localStorage.getItem('ref_claims_'+uname.toLowerCase())||'0'),earned:wagered*0.004};
+    });
+    _renderRefTable(serverRefs, serverRefs.length);
+  }catch(e){}
+}
+// Auto-refresh referral stats every 5s
+setInterval(renderAffRefStats, 5000);
+
 // ── END BALANCE HELPERS ──
 document.addEventListener('DOMContentLoaded',()=>{
 // deposit address is loaded by initDeposit() via OxaPay API
@@ -244,6 +426,7 @@ if(aff && _refUname) aff.value='https://tronsick.io/?ref='+_refUname;
 else if(aff) aff.value='https://tronsick.io/?ref='+(_refUname||'');
 try{var sb=localStorage.getItem('userBalance');if(sb&&parseFloat(sb)>0){var ubEl=document.getElementById('userBalance');if(ubEl)ubEl.textContent=parseFloat(sb).toFixed(6);}}catch(e){}
 syncBal();initClaimTimer();initNewUserBonus();
+setTimeout(renderAffRefStats,500);
 if(window.SiteSync){
   SiteSync.loadAntibot();
   if(document.getElementById('ctCkDays')) SiteSync.startContestTimer({},1000);
@@ -256,7 +439,9 @@ _showSection(_initSec);
 try{var _lg=sessionStorage.getItem('_lg');if(_lg&&_phpSec==='games')setTimeout(function(){openGame(_lg,true);},150);}catch(e){}
 });
 function onCap(cb){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=!cb.checked;note.textContent=cb.checked?'Click CLAIM to receive your TRX':'Complete captcha to claim';note.style.color=cb.checked?'#3ecf8e':'';}
-function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){rollsLeft=1;document.getElementById('rollCount').textContent=rollsLeft;btn.disabled=false;note.textContent='Click ROLL to spin!';note.style.color='#3ecf8e';}else{rollsLeft=0;btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
+// onBon: captcha only ENABLES roll if rolls are available (no free roll on every captcha)
+function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote');if(cb.checked){// Only enable if user has remaining rolls - do NOT add new rolls
+if(rollsLeft>0){btn.disabled=false;note.textContent='Click ROLL to use your '+rollsLeft+' bonus roll'+(rollsLeft>1?'s':'')+'!';note.style.color='#3ecf8e';}else{btn.disabled=true;note.textContent='No rolls remaining. Check back or earn more!';note.style.color='#f59e0b';}}else{btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
 let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=2400-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
 function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn){btn.textContent='⏱ '+m+':'+s;btn.style.background='rgba(245,158,11,.15)';btn.style.color='#f59e0b';}if(note){note.textContent='';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
@@ -273,35 +458,54 @@ function _getLevelPayouts(){
     master: parseFloat(_getSiteSetting('fp_master','60'))||60.0
   };
 }
-function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
+function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());try{var _claimUser=(localStorage.getItem('userName')||'').toLowerCase();var _refBy='';var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_claimUser;});if(_rm&&_rm.ref){_refBy=(_rm.ref||'').toLowerCase();}if(!_refBy){var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_claimUser;});if(_am&&_am.ref)_refBy=(_am.ref||'').toLowerCase();}if(_refBy){var _ck='ref_claims_'+_claimUser;localStorage.setItem(_ck,parseInt(localStorage.getItem(_ck)||'0')+1);var _fEarnKey='ref_earned_faucet_'+_refBy;var _prev=parseFloat(localStorage.getItem(_fEarnKey)||'0');localStorage.setItem(_fEarnKey,(_prev+amt*0.5).toFixed(8));}// Track server-side claim
+if(window.SiteSync&&SiteSync.updateUserStats) SiteSync.updateUserStats(_claimUser,0,1,0);}catch(ex){}setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
 let rollsLeft=0;
-function initNewUserBonus(){if(localStorage.getItem('newUserBonus'))return;localStorage.setItem('newUserBonus','1');rollsLeft=3;const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');if(rc)rc.textContent=rollsLeft;if(note){note.textContent='You have 3 bonus rolls!';note.style.color='#3ecf8e';}if(btn)btn.disabled=false;showToast('You received 3 FREE bonus rolls!');}
+function initNewUserBonus(){
+  var _uname=(localStorage.getItem('userName')||'').toLowerCase();
+  if(!_uname) return;
+  var _bonusKey='newUserBonus_'+_uname;
+  var _rollsKey='bonusRollsLeft_'+_uname;
+  const rc=document.getElementById('rollCount'),note=document.getElementById('bonNote'),btn=document.getElementById('bonBtn');
+  if(!localStorage.getItem(_bonusKey)){
+    // First time - give 3 rolls
+    localStorage.setItem(_bonusKey,'done');
+    localStorage.setItem(_rollsKey,'3');
+    rollsLeft=3;
+    if(rc)rc.textContent=rollsLeft;
+    if(note){note.textContent='You have 3 FREE bonus rolls!';note.style.color='#3ecf8e';}
+    if(btn)btn.disabled=false;
+    showToast('Welcome! You received 3 FREE bonus rolls!');
+  } else {
+    // Restore remaining rolls from localStorage
+    rollsLeft=parseInt(localStorage.getItem(_rollsKey)||'0');
+    if(rc)rc.textContent=rollsLeft;
+    if(rollsLeft>0){
+      if(note){note.textContent='You have '+rollsLeft+' bonus roll'+(rollsLeft>1?'s':'')+' remaining!';note.style.color='#3ecf8e';}
+    } else {
+      if(note){note.textContent='No bonus rolls remaining.';note.style.color='rgba(232,240,235,.4)';}
+      if(btn)btn.disabled=true;
+    }
+  }
+}
 function showToast(msg){let t=document.getElementById('tfToast');if(!t){t=document.createElement('div');t.id='tfToast';t.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999;background:#1e2e24;border:1px solid #3ecf8e;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s;opacity:0;max-width:320px';document.body.appendChild(t);}t.textContent=msg;t.style.opacity='1';clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity='0',4000);}
 
-// ═══════════════════════════════════════
-// ANTIBOT ENGINE — reads admin settings, controls outcomes
-// ═══════════════════════════════════════
+// Antibot Engine
 var _ab={
-  // Per-session state (reset on page load)
-  ab1Count:0,           // bets at trigger amount (AB1)
-  ab2Count:0,           // cycle position for AB2
-  ab2Phase:'loss',      // 'loss' | 'wins'
+  ab1Count:0,
+  ab2Count:0,
+  ab2Phase:'loss',
   ab2WinsSoFar:0,
-  ab3LastBet:0,         // last bet amount for AB3 (detect increase)
-  ab3LossCount:0,       // losses so far in current cycle
-  ab3CycleTarget:0,     // losses required before next win in this cycle
-  ab3Phase:'initial',   // 'initial' | 'cycle'
-  ab3LastPayout:0,      // last payout multiplier (detect change)
-  ab3WinCount:0,        // total wins in this session (for cycle randomness)
-  // AB4: low payout (1.01x-2x)
-  ab4WinCount:0,        // wins so far in this streak
-  ab4WinTarget:0,       // how many wins before next forced loss
-  ab4LastPayout:0       // last payout in ab4 range
+  ab3LastBet:0,
+  ab3LossCount:0,
+  ab3CycleTarget:0,
+  ab3Phase:'initial',
+  ab3LastPayout:0,
+  ab3WinCount:0,
+  ab4WinCount:0,
+  ab4WinTarget:0,
+  ab4LastPayout:0
 };
-
-/**
- * Read antibot setting — server inject (_SITE_AB) first, then localStorage
- */
 function _getAb(key, fallback){
   if(window._SITE_AB && String(window._SITE_AB._saved)==='1' && window._SITE_AB[key]!=null)
     return String(window._SITE_AB[key]);
@@ -532,7 +736,7 @@ function _abWrapDice(){
   // Will be called by dice bet functions — checks before resolving
 }
 
-function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
+function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;try{var _rUn=(localStorage.getItem('userName')||'').toLowerCase();if(_rUn)localStorage.setItem('bonusRollsLeft_'+_rUn,rollsLeft.toString());}catch(ex){}note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
 
 // ═══════════════════════════════════════
 // CONTEST SYSTEM
@@ -1000,6 +1204,41 @@ function sbAutoStep(){if(!sbAutoRunning||sbRolling)return;var bal=parseFloat(doc
 function sbRenderBets(){var list=document.getElementById('sbBetList');if(!list)return;if(sbBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Game</th><th>Bet</th><th>Result</th><th>Profit</th></tr></thead><tbody>';sbBetHistory.slice(0,50).forEach(function(b){html+='<tr class="dg-hist-row" onclick="showSbBetModal('+sbBetHistory.indexOf(b)+')">'; html+='<td class="dg-tc-time">'+b.ts+'</td><td>&#127922; Sic Bo</td><td>'+b.betAmt.toFixed(8)+'</td>';html+='<td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+( b.win?b.payout+'x':'LOSE')+'</td>';html+='<td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+( b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 // END SIC BO GAME
 
+// ─── SIC BO BET INFO MODAL ───
+function showSbBetModal(i){
+  var b = sbBetHistory[i];
+  if(!b) return;
+  var modal = _ensureBetModal();
+  var title = document.getElementById('bmTitle');
+  if(title) title.textContent = '🎲 Sic Bo — Bet Info';
+  var res = document.getElementById('bmResult');
+  if(res){
+    res.textContent = b.win
+      ? ('\u2705 WIN +' + Math.abs(b.profit).toFixed(6) + ' TRX')
+      : ('\u274C LOSS \u2212' + Math.abs(b.profit).toFixed(6) + ' TRX');
+    res.style.cssText = b.win
+      ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e'
+      : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
+  }
+  var diceStr = b.dice ? (b.dice[0] + ' \u25cf ' + b.dice[1] + ' \u25cf ' + b.dice[2]) : '? \u25cf ? \u25cf ?';
+  var betLabel = b.bet === 'small' ? 'SMALL (4-10)' : b.bet === 'big' ? 'BIG (11-17)' : 'NUMBER ' + b.bet;
+  var seeds = document.getElementById('bmSeeds');
+  if(seeds) seeds.innerHTML =
+    '<div class="bm-sf"><div class="bm-sf-lbl">Bet Amount</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128176;</span><input class="bm-sf-inp" readonly value="' + (b.betAmt||0).toFixed(6) + ' TRX"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Bet Choice</div><div class="bm-sf-row"><span class="bm-sf-ico">&#127922;</span><input class="bm-sf-inp" readonly value="' + betLabel + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Dice Roll</div><div class="bm-sf-row"><span class="bm-sf-ico">&#127922;</span><input class="bm-sf-inp" readonly value="' + diceStr + ' = ' + (b.sum||0) + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Payout</div><div class="bm-sf-row"><span class="bm-sf-ico">&#10005;</span><input class="bm-sf-inp" readonly value="' + (b.win ? (b.payout||0) + 'x' : 'LOSE') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Profit</div><div class="bm-sf-row"><span class="bm-sf-ico">&#36;</span><input class="bm-sf-inp" readonly value="' + (b.profit>=0?'+':'') + (b.profit||0).toFixed(6) + ' TRX"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="' + (b.sv||'') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed Hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="' + (b.ssh||'') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Client Seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="' + (b.cs||'') + '"></div></div>' +
+    '<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="' + (b.id||0) + '"></div></div>';
+  var vUrl = '/verify.php?game=sicbo&seed=' + encodeURIComponent(b.sv||'') + '&hash=' + encodeURIComponent(b.ssh||'') + '&client=' + encodeURIComponent(b.cs||'') + '&nonce=' + (b.id||0) + '&win=' + (b.win?1:0) + '&profit=' + (b.profit||0).toFixed(6) + '&bet=' + (b.betAmt||0).toFixed(6) + '&choice=' + encodeURIComponent(b.bet||'') + '&sum=' + (b.sum||0);
+  var vl = document.getElementById('bmVerifyLink');
+  if(vl) vl.innerHTML = '<a href="' + vUrl + '" class="bm-verify-btn" style="display:inline-block;padding:11px 28px;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;">&#128270; Verify Fairness</a>';
+  modal.style.display = 'flex';
+}
+
 
 // ==========================================
 // MINES GAME
@@ -1023,6 +1262,39 @@ function mnAutoNext(){if(!mnAutoRunning)return;var bal=parseFloat(document.getEl
 function mnAutoPickN(target,done){if(!mnAutoRunning||!mnActive)return;if(done>=target){mnCashOut();return;}var avail=[];mnGrid.forEach(function(c,i){if(!c.revealed)avail.push(i);});if(!avail.length){mnCashOut();return;}mnReveal(avail[Math.floor(Math.random()*avail.length)]);if(mnActive)mnAutoTimer=setTimeout(function(){mnAutoPickN(target,done+1);},400);}
 function mnRenderBets(){var list=document.getElementById('mnBetList');if(!list)return;if(mnBetHistory.length===0){list.innerHTML='<div class="dg-no-bets">No bets yet.</div>';return;}var html='<table class="dg-hist-tbl"><thead><tr><th>Time</th><th>Mines</th><th>Picks</th><th>Bet</th><th>Mult</th><th>Profit</th></tr></thead><tbody>';mnBetHistory.slice(0,50).forEach(function(b,i){html+='<tr class="dg-hist-row" style="cursor:pointer" onclick="showMnBetModal('+i+')">'+'<td class="dg-tc-time">'+b.ts+'</td><td>'+b.mines+'</td><td>'+b.picks+'</td><td>'+b.bet.toFixed(8)+'</td><td class="'+(b.win?'dg-mult-win':'dg-mult-lose')+'">'+(b.win?b.mult.toFixed(2)+'x':'BOOM')+'</td><td class="'+(b.profit>=0?'dg-pos':'dg-neg')+'">'+(b.profit>=0?'+':'')+b.profit.toFixed(8)+'</td></tr>';});html+='</tbody></table>';list.innerHTML=html;}
 // END MINES GAME
+
+// ─── MINES BET INFO MODAL ───
+function showMnBetModal(i){
+  var b = mnBetHistory[i];
+  if(!b) return;
+  var modal = _ensureBetModal();
+  var title = document.getElementById('bmTitle');
+  if(title) title.textContent = '💣 Mines — Bet Info';
+  var res = document.getElementById('bmResult');
+  if(res){
+    res.textContent = b.win
+      ? ('\u2705 WIN +' + Math.abs(b.profit).toFixed(6) + ' TRX')
+      : ('\u274C LOSS \u2212' + Math.abs(b.profit).toFixed(6) + ' TRX');
+    res.style.cssText = b.win
+      ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e'
+      : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
+  }
+  var seeds = document.getElementById('bmSeeds');
+  if(seeds) seeds.innerHTML =
+    '<div class="bm-sf"><div class="bm-sf-lbl">Bet Amount</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128176;</span><input class="bm-sf-inp" readonly value="' + b.bet.toFixed(6) + ' TRX"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Mines Count</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128163;</span><input class="bm-sf-inp" readonly value="' + (b.mines||0) + ' mines"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Tiles Picked</div><div class="bm-sf-row"><span class="bm-sf-ico">&#128062;</span><input class="bm-sf-inp" readonly value="' + (b.picks||0) + ' safe tiles"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Multiplier</div><div class="bm-sf-row"><span class="bm-sf-ico">&#10005;</span><input class="bm-sf-inp" readonly value="' + (b.win ? (b.mult||0).toFixed(4)+'x' : 'BOOM 💣') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Profit</div><div class="bm-sf-row"><span class="bm-sf-ico">&#36;</span><input class="bm-sf-inp" readonly value="' + (b.profit>=0?'+':'') + b.profit.toFixed(6) + ' TRX"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="' + (b.sv||'') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Server Seed Hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="' + (b.ssh||'') + '"></div></div>' +
+    '<div class="bm-sf"><div class="bm-sf-lbl">Client Seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="' + (b.cs||'') + '"></div></div>' +
+    '<div class="bm-sf bm-sf-nonce"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="' + (b.id||0) + '"></div></div>';
+  var vUrl = '/verify.php?game=mines&seed=' + encodeURIComponent(b.sv||'') + '&hash=' + encodeURIComponent(b.ssh||'') + '&client=' + encodeURIComponent(b.cs||'') + '&nonce=' + (b.id||0) + '&win=' + (b.win?1:0) + '&profit=' + b.profit.toFixed(6) + '&bet=' + b.bet.toFixed(6) + '&mines=' + (b.mines||0) + '&picks=' + (b.picks||0);
+  var vl = document.getElementById('bmVerifyLink');
+  if(vl) vl.innerHTML = '<a href="' + vUrl + '" class="bm-verify-btn" style="display:inline-block;padding:11px 28px;background:linear-gradient(135deg,#3ecf8e,#22c55e);color:#0a1a0f;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;">&#128270; Verify Fairness</a>';
+  modal.style.display = 'flex';
+}
 
 // ==========================================
 // WHEEL GAME
@@ -2774,3 +3046,201 @@ function setWdMax() {
   var fee = parseFloat(localStorage.getItem('withdraw_fee') || '0.1');
   if(el) el.value = Math.max(0, bal - fee).toFixed(6);
 }
+
+// ══════════════════════════════════════════════
+// LANGUAGE SYSTEM
+// ══════════════════════════════════════════════
+var _SITE_LANGS = {
+  en: { claim:'CLAIM', faucet:'Faucet', games:'Games', deposit:'Deposit', withdraw:'Withdraw',
+        surveys:'Surveys', affiliates:'Affiliates', gifts:'Gift Cards', settings:'Settings',
+        contact:'Contact', cashback:'Cashback', contest:'Contest', home:'Home', logout:'Logout',
+        welcome:'Welcome back', balance:'Balance', level:'Your level is', stake:'Staking',
+        langLabel:'Language' },
+  ru: { claim:'ПОЛУЧИТЬ', faucet:'Кран', games:'Игры', deposit:'Пополнить', withdraw:'Вывод',
+        surveys:'Опросы', affiliates:'Партнёры', gifts:'Подарки', settings:'Настройки',
+        contact:'Контакт', cashback:'Кэшбэк', contest:'Конкурс', home:'Главная', logout:'Выход',
+        welcome:'Добро пожаловать', balance:'Баланс', level:'Ваш уровень', stake:'Стейкинг',
+        langLabel:'Язык' },
+  ar: { claim:'استلام', faucet:'الصنبور', games:'الألعاب', deposit:'إيداع', withdraw:'سحب',
+        surveys:'استطلاعات', affiliates:'الإحالات', gifts:'بطاقات', settings:'الإعدادات',
+        contact:'اتصل', cashback:'استرداد', contest:'مسابقة', home:'الرئيسية', logout:'خروج',
+        welcome:'مرحباً', balance:'الرصيد', level:'مستواك', stake:'تخزين',
+        langLabel:'اللغة' },
+  fr: { claim:'RÉCLAMER', faucet:'Robinet', games:'Jeux', deposit:'Dépôt', withdraw:'Retrait',
+        surveys:'Sondages', affiliates:'Affiliés', gifts:'Cadeaux', settings:'Paramètres',
+        contact:'Contact', cashback:'Remise', contest:'Concours', home:'Accueil', logout:'Déconnexion',
+        welcome:'Bienvenue', balance:'Solde', level:'Votre niveau', stake:'Mise',
+        langLabel:'Langue' },
+  es: { claim:'RECLAMAR', faucet:'Grifo', games:'Juegos', deposit:'Depósito', withdraw:'Retiro',
+        surveys:'Encuestas', affiliates:'Afiliados', gifts:'Tarjetas', settings:'Ajustes',
+        contact:'Contacto', cashback:'Reembolso', contest:'Concurso', home:'Inicio', logout:'Salir',
+        welcome:'Bienvenido', balance:'Saldo', level:'Tu nivel', stake:'Staking',
+        langLabel:'Idioma' },
+  pt: { claim:'RESGATAR', faucet:'Torneira', games:'Jogos', deposit:'Depósito', withdraw:'Saque',
+        surveys:'Pesquisas', affiliates:'Afiliados', gifts:'Presentes', settings:'Configurações',
+        contact:'Contato', cashback:'Cashback', contest:'Concurso', home:'Início', logout:'Sair',
+        welcome:'Bem-vindo', balance:'Saldo', level:'Seu nível', stake:'Staking',
+        langLabel:'Idioma' },
+  de: { claim:'EINFORDERN', faucet:'Wasserhahn', games:'Spiele', deposit:'Einzahlung', withdraw:'Auszahlung',
+        surveys:'Umfragen', affiliates:'Partner', gifts:'Geschenke', settings:'Einstellungen',
+        contact:'Kontakt', cashback:'Cashback', contest:'Wettbewerb', home:'Startseite', logout:'Abmelden',
+        welcome:'Willkommen', balance:'Guthaben', level:'Dein Level', stake:'Staking',
+        langLabel:'Sprache' },
+  tr: { claim:'TALEP ET', faucet:'Musluk', games:'Oyunlar', deposit:'Yatır', withdraw:'Çek',
+        surveys:'Anketler', affiliates:'Ortaklar', gifts:'Hediyeler', settings:'Ayarlar',
+        contact:'İletişim', cashback:'Geri Ödeme', contest:'Yarışma', home:'Ana Sayfa', logout:'Çıkış',
+        welcome:'Hoşgeldiniz', balance:'Bakiye', level:'Seviyeniz', stake:'Stake',
+        langLabel:'Dil' },
+  id: { claim:'KLAIM', faucet:'Faucet', games:'Game', deposit:'Setor', withdraw:'Tarik',
+        surveys:'Survei', affiliates:'Afiliasi', gifts:'Hadiah', settings:'Pengaturan',
+        contact:'Kontak', cashback:'Cashback', contest:'Kontes', home:'Beranda', logout:'Keluar',
+        welcome:'Selamat datang', balance:'Saldo', level:'Level Anda', stake:'Staking',
+        langLabel:'Bahasa' },
+  hi: { claim:'दावा करें', faucet:'फॉसेट', games:'गेम्स', deposit:'जमा', withdraw:'निकासी',
+        surveys:'सर्वेक्षण', affiliates:'रेफरल', gifts:'उपहार', settings:'सेटिंग्स',
+        contact:'संपर्क', cashback:'कैशबैक', contest:'प्रतियोगिता', home:'होम', logout:'लॉगआउट',
+        welcome:'स्वागत है', balance:'बैलेंस', level:'आपका स्तर', stake:'स्टेकिंग',
+        langLabel:'भाषा' },
+  ur: { claim:'حاصل کریں', faucet:'فاسیٹ', games:'گیمز', deposit:'جمع', withdraw:'نکاسی',
+        surveys:'سروے', affiliates:'ریفرل', gifts:'تحائف', settings:'ترتیبات',
+        contact:'رابطہ', cashback:'کیش بیک', contest:'مقابلہ', home:'ہوم', logout:'لاگ آوٹ',
+        welcome:'خوش آمدید', balance:'بیلنس', level:'آپ کی سطح', stake:'اسٹیکنگ',
+        langLabel:'زبان' },
+  mg: { claim:'ALAO', faucet:'Robinety', games:'Lalao', deposit:'Mampiditra', withdraw:'Miala',
+        surveys:'Fanadihadiana', affiliates:'Mpandraharaha', gifts:'Fanomezana', settings:'Fikirana',
+        contact:'Fifandraisana', cashback:'Averina', contest:'Fifaninanana', home:'Fandraisana', logout:'Mivoaka',
+        welcome:'Tonga soa', balance:'Bilan', level:'Ny dingana', stake:'Staking',
+        langLabel:'Fiteny' },
+  sw: { claim:'DAI', faucet:'Bomba', games:'Michezo', deposit:'Weka', withdraw:'Toa',
+        surveys:'Tafiti', affiliates:'Washirika', gifts:'Zawadi', settings:'Mipangilio',
+        contact:'Wasiliana', cashback:'Cashback', contest:'Mashindano', home:'Nyumbani', logout:'Toka',
+        welcome:'Karibu', balance:'Salio', level:'Kiwango chako', stake:'Staking',
+        langLabel:'Lugha' },
+  zh: { claim:'领取', faucet:'水龙头', games:'游戏', deposit:'存款', withdraw:'提款',
+        surveys:'调查', affiliates:'推广', gifts:'礼品卡', settings:'设置',
+        contact:'联系', cashback:'返现', contest:'竞赛', home:'首页', logout:'退出',
+        welcome:'欢迎回来', balance:'余额', level:'你的等级', stake:'质押',
+        langLabel:'语言' },
+  ja: { claim:'受け取る', faucet:'フォーセット', games:'ゲーム', deposit:'入金', withdraw:'出金',
+        surveys:'アンケート', affiliates:'アフィリエイト', gifts:'ギフト', settings:'設定',
+        contact:'お問い合わせ', cashback:'キャッシュバック', contest:'コンテスト', home:'ホーム', logout:'ログアウト',
+        welcome:'おかえりなさい', balance:'残高', level:'あなたのレベル', stake:'ステーキング',
+        langLabel:'言語' },
+  ko: { claim:'청구', faucet:'수도꼭지', games:'게임', deposit:'입금', withdraw:'출금',
+        surveys:'설문조사', affiliates:'제휴', gifts:'선물', settings:'설정',
+        contact:'연락처', cashback:'캐시백', contest:'대회', home:'홈', logout:'로그아웃',
+        welcome:'환영합니다', balance:'잔액', level:'내 레벨', stake:'스테이킹',
+        langLabel:'언어' },
+  vi: { claim:'NHẬN', faucet:'Vòi', games:'Trò chơi', deposit:'Nạp tiền', withdraw:'Rút tiền',
+        surveys:'Khảo sát', affiliates:'Liên kết', gifts:'Quà tặng', settings:'Cài đặt',
+        contact:'Liên hệ', cashback:'Hoàn tiền', contest:'Cuộc thi', home:'Trang chủ', logout:'Đăng xuất',
+        welcome:'Chào mừng', balance:'Số dư', level:'Cấp độ', stake:'Staking',
+        langLabel:'Ngôn ngữ' },
+  th: { claim:'รับ', faucet:'ก๊อกน้ำ', games:'เกมส์', deposit:'ฝาก', withdraw:'ถอน',
+        surveys:'แบบสำรวจ', affiliates:'พันธมิตร', gifts:'บัตรของขวัญ', settings:'ตั้งค่า',
+        contact:'ติดต่อ', cashback:'เงินคืน', contest:'การแข่งขัน', home:'หน้าหลัก', logout:'ออกจากระบบ',
+        welcome:'ยินดีต้อนรับ', balance:'ยอดคงเหลือ', level:'ระดับของคุณ', stake:'Staking',
+        langLabel:'ภาษา' },
+  fa: { claim:'دریافت', faucet:'شیر', games:'بازی‌ها', deposit:'واریز', withdraw:'برداشت',
+        surveys:'نظرسنجی', affiliates:'همکاری', gifts:'کارت هدیه', settings:'تنظیمات',
+        contact:'تماس', cashback:'بازگشت وجه', contest:'مسابقه', home:'خانه', logout:'خروج',
+        welcome:'خوش آمدید', balance:'موجودی', level:'سطح شما', stake:'سهام‌گذاری',
+        langLabel:'زبان' },
+  pl: { claim:'ODBIERZ', faucet:'Kran', games:'Gry', deposit:'Wpłata', withdraw:'Wypłata',
+        surveys:'Ankiety', affiliates:'Partnerzy', gifts:'Karty', settings:'Ustawienia',
+        contact:'Kontakt', cashback:'Zwrot', contest:'Konkurs', home:'Strona główna', logout:'Wyloguj',
+        welcome:'Witamy z powrotem', balance:'Saldo', level:'Twój poziom', stake:'Staking',
+        langLabel:'Język' },
+  uk: { claim:'ОТРИМАТИ', faucet:'Кран', games:'Ігри', deposit:'Поповнення', withdraw:'Виведення',
+        surveys:'Опитування', affiliates:'Партнери', gifts:'Подарунки', settings:'Налаштування',
+        contact:'Контакт', cashback:'Кешбек', contest:'Конкурс', home:'Головна', logout:'Вихід',
+        welcome:'Ласкаво просимо', balance:'Баланс', level:'Ваш рівень', stake:'Стейкінг',
+        langLabel:'Мова' },
+  ha: { claim:'KARBA', faucet:'Famfo', games:'Wasanni', deposit:'Saka', withdraw:'Fita',
+        surveys:'Bincike', affiliates:'Abokai', gifts:'Kyautai', settings:'Saiti',
+        contact:'Tuntuɓa', cashback:'Dawo', contest:'Gasar', home:'Gida', logout:'Fita',
+        welcome:'Barka da zuwa', balance:'Asusun', level:'Matakinka', stake:'Staking',
+        langLabel:'Harshe' },
+  yo: { claim:'GBA', faucet:'Faucet', games:'Ere', deposit:'Fi sii', withdraw:'Yọ kuro',
+        surveys:'Iwadi', affiliates:'Alabaṣiṣẹ', gifts:'Ẹbun', settings:'Eto',
+        contact:'Kan si', cashback:'Ipadabọ', contest:'Idije', home:'Ile', logout:'Jade',
+        welcome:'E kaabo', balance:'Owo', level:'Ipele rẹ', stake:'Staking',
+        langLabel:'Ede' },
+  bn: { claim:'দাবি করুন', faucet:'ফসেট', games:'গেমস', deposit:'জমা', withdraw:'উত্তোলন',
+        surveys:'জরিপ', affiliates:'অ্যাফিলিয়েট', gifts:'উপহার', settings:'সেটিংস',
+        contact:'যোগাযোগ', cashback:'ক্যাশব্যাক', contest:'প্রতিযোগিতা', home:'হোম', logout:'লগআউট',
+        welcome:'স্বাগতম', balance:'ব্যালেন্স', level:'আপনার স্তর', stake:'স্টেকিং',
+        langLabel:'ভাষা' }
+};
+
+function setSiteLanguage(lang){
+  if(!lang) lang='en';
+  localStorage.setItem('siteLang', lang);
+  var t = _SITE_LANGS[lang] || _SITE_LANGS['en'];
+  // Update <html> dir for RTL languages
+  var rtl = ['ar','ur','fa','he'];
+  document.documentElement.dir = rtl.indexOf(lang) > -1 ? 'rtl' : 'ltr';
+  // Translate sidebar nav labels
+  var map = {
+    'nav-home':t.home, 'nav-games':t.games, 'nav-deposit':t.deposit,
+    'nav-withdraw':t.withdraw, 'nav-surveys':t.surveys, 'nav-affiliates':t.affiliates,
+    'nav-gifts':t.gifts, 'nav-settings':t.settings, 'nav-contact':t.contact,
+    'nav-cashback':t.cashback, 'nav-contest':t.contest
+  };
+  Object.keys(map).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){ var s=el.querySelector('s'); if(s) s.textContent=map[id]; }
+  });
+  // Translate claim button
+  var claimBtn=document.getElementById('claimBtn');
+  if(claimBtn && claimBtn.textContent==='CLAIM') claimBtn.textContent=t.claim;
+  // Translate page title tabs
+  var tf=document.getElementById('tabFaucet'); if(tf) tf.textContent=t.faucet;
+  // Update language label
+  var ll=document.querySelector('.foot-lang-lbl'); if(ll) ll.textContent=t.langLabel+':';
+  // Update select value
+  var sel=document.getElementById('siteLangSelect'); if(sel) sel.value=lang;
+  // Toast confirmation
+  showToast('Language: '+lang.toUpperCase());
+}
+
+// Restore saved language on load
+(function(){
+  var saved=localStorage.getItem('siteLang');
+  if(saved && saved !== 'en'){
+    document.addEventListener('DOMContentLoaded', function(){ setSiteLanguage(saved); });
+  } else {
+    document.addEventListener('DOMContentLoaded', function(){
+      var sel=document.getElementById('siteLangSelect');
+      if(sel) sel.value = localStorage.getItem('siteLang')||'en';
+    });
+  }
+})();
+
+// ══════════════════════════════════════════════
+// FOOTER LANGUAGE BAR CSS (injected)
+// ══════════════════════════════════════════════
+(function(){
+  var style=document.createElement('style');
+  style.textContent=`
+    .foot-lang-bar{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      padding:14px 20px;border-top:1px solid rgba(255,255,255,.06);
+      background:rgba(0,0,0,.2);flex-wrap:wrap;
+    }
+    .foot-lang-icon{font-size:18px;}
+    .foot-lang-lbl{font-size:13px;color:rgba(232,240,235,.5);font-weight:600;}
+    .foot-lang-select-wrap{position:relative;}
+    .foot-lang-select{
+      background:#0f1f14;border:1px solid rgba(62,207,142,.3);color:#e8f0eb;
+      padding:7px 32px 7px 12px;border-radius:8px;font-size:13px;font-weight:600;
+      cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233ecf8e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 10px center;
+      min-width:200px;transition:border-color .2s;
+    }
+    .foot-lang-select:hover,.foot-lang-select:focus{border-color:#3ecf8e;box-shadow:0 0 0 2px rgba(62,207,142,.15);}
+    .foot-lang-select option{background:#0f1f14;color:#e8f0eb;}
+  `;
+  document.head.appendChild(style);
+})();

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -10,7 +10,8 @@
   <link rel="stylesheet" href="mobile.css?v=1"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
-<script>function doSiteLogout(){var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','newUserBonus','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+localStorage.getItem('userName'),'stakeData','stakeTimer'];keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
+<script>function doSiteLogout(){var _un=localStorage.getItem('userName')||'';var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+_un,'stakeData','stakeTimer'];// NOTE: newUserBonus_USERNAME intentionally NOT cleared - one-time only per account
+keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem('_justLoggedOut','1');window.location.replace('https://tronsick.io/');}</script>
 <script>if(!localStorage.getItem("userLoggedIn")||!localStorage.getItem("userName")){window.location.replace("https://tronsick.io/login.php");}</script></head>
 <body>
 
@@ -344,6 +345,29 @@
         </table>
       </div>
 
+      <!-- REFERRAL STATISTICS TABLE -->
+      <div class="aff-rewards-box" style="margin-top:16px">
+        <div class="aff-panel-hd" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          &#128100; REFERRAL STATISTICS
+          <span id="affRefCount" style="background:rgba(62,207,142,.15);color:#3ecf8e;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700">0 Referrals</span>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+                <th style="padding:8px 10px;text-align:left;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Username</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Games</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Claims</th>
+                <th style="padding:8px 10px;text-align:right;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Earned</th>
+              </tr>
+            </thead>
+            <tbody id="affRefBody">
+              <tr><td colspan="4" style="text-align:center;padding:18px;color:rgba(232,240,235,.35);font-size:13px">&#128100; No referrals yet. Share your link!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
   <!-- STAKE -->
@@ -518,6 +542,29 @@
         </table>
       </div>
 
+      <!-- REFERRAL STATISTICS TABLE -->
+      <div class="aff-rewards-box" style="margin-top:16px">
+        <div class="aff-panel-hd" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          &#128100; REFERRAL STATISTICS
+          <span id="affRefCount2" style="background:rgba(62,207,142,.15);color:#3ecf8e;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700">0 Referrals</span>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+                <th style="padding:8px 10px;text-align:left;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Username</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Games</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Claims</th>
+                <th style="padding:8px 10px;text-align:right;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Earned</th>
+              </tr>
+            </thead>
+            <tbody id="affRefBody2">
+              <tr><td colspan="4" style="text-align:center;padding:18px;color:rgba(232,240,235,.35);font-size:13px">&#128100; No referrals yet. Share your link!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -586,6 +633,29 @@
             <!-- Populated by JS -->
           </tbody>
         </table>
+      </div>
+
+      <!-- REFERRAL STATISTICS TABLE -->
+      <div class="aff-rewards-box" style="margin-top:16px">
+        <div class="aff-panel-hd" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          &#128100; REFERRAL STATISTICS
+          <span id="affRefCount3" style="background:rgba(62,207,142,.15);color:#3ecf8e;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700">0 Referrals</span>
+        </div>
+        <div style="overflow-x:auto;margin-top:12px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+                <th style="padding:8px 10px;text-align:left;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Username</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Games</th>
+                <th style="padding:8px 10px;text-align:center;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Claims</th>
+                <th style="padding:8px 10px;text-align:right;color:rgba(232,240,235,.45);font-weight:600;font-size:11px;text-transform:uppercase">Earned</th>
+              </tr>
+            </thead>
+            <tbody id="affRefBody3">
+              <tr><td colspan="4" style="text-align:center;padding:18px;color:rgba(232,240,235,.35);font-size:13px">&#128100; No referrals yet. Share your link!</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>
@@ -684,10 +754,10 @@
           <button class="aff-copy-btn" onclick="copyTfaKey()" title="Copy">&#128203;</button>
         </div>
         <p class="sett-2fa-note">Enter this key manually if you can't scan the QR code.</p>
-        <div class="sett-field-row" style="margin-top:14px">
+        <div id="twofa-enable-wrap"><div class="sett-field-row" style="margin-top:14px">
           <input class="sett-fi twofa-code-inp" id="tfaCode" type="text" maxlength="6" placeholder="000000"/>
           <button class="sett-save-btn" style="margin-top:0;width:auto;padding:12px 22px" onclick="enable2FA()">ENABLE</button>
-        </div>
+        </div></div>
         <div class="twofa-status" id="tfaStatus"></div>
       </div>
 
@@ -733,7 +803,40 @@
       <div class="fc"><h4>Earn TRX</h4><a href="/faucet.php">Faucet</a><a href="/games.php">Games</a><a href="/affiliates.php">Referrals</a></div>
       <div class="fc"><h4>Help</h4><a href="/contact.php">Contact</a><a href="/payouts.php">Payout Proof</a><a href="#">FAQ</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
-    <div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
+        <!-- LANGUAGE SELECTOR -->
+    <div class="foot-lang-bar">
+      <span class="foot-lang-icon">&#127760;</span>
+      <span class="foot-lang-lbl">Language:</span>
+      <div class="foot-lang-select-wrap">
+        <select id="siteLangSelect" class="foot-lang-select" onchange="setSiteLanguage(this.value)">
+          <option value="en">&#127482;&#127480; English</option>
+          <option value="ru">&#127479;&#127482; Русский (Russian)</option>
+          <option value="ar">&#127462;&#127466; العربية (Arabic)</option>
+          <option value="fr">&#127467;&#127479; Français (French)</option>
+          <option value="es">&#127466;&#127480; Español (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Português (Portuguese)</option>
+          <option value="de">&#127465;&#127466; Deutsch (German)</option>
+          <option value="tr">&#127481;&#127479; Türkçe (Turkish)</option>
+          <option value="id">&#127470;&#127465; Indonesia</option>
+          <option value="hi">&#127470;&#127475; हिन्दी (Hindi)</option>
+          <option value="bn">&#127463;&#127465; বাংলা (Bengali)</option>
+          <option value="ur">&#127477;&#127472; اردو (Urdu)</option>
+          <option value="mg">&#127474;&#127468; Malagasy</option>
+          <option value="sw">&#127472;&#127466; Kiswahili (Swahili)</option>
+          <option value="ha">&#127475;&#127468; Hausa</option>
+          <option value="yo">&#127475;&#127468; Yoruba</option>
+          <option value="zh">&#127464;&#127475; 中文 (Chinese)</option>
+          <option value="ja">&#127471;&#127477; 日本語 (Japanese)</option>
+          <option value="ko">&#127472;&#127479; 한국어 (Korean)</option>
+          <option value="vi">&#127475;&#127475; Tiếng Việt (Vietnamese)</option>
+          <option value="th">&#127481;&#127469; ภาษาไทย (Thai)</option>
+          <option value="fa">&#127470;&#127479; فارسی (Persian)</option>
+          <option value="pl">&#127477;&#127473; Polski (Polish)</option>
+          <option value="uk">&#127482;&#127462; Українська (Ukrainian)</option>
+        </select>
+      </div>
+    </div>
+<div class="foot-bot">&copy; 2026 TronSick.io &ndash; All Rights Reserved &#183; Powered by TRON Blockchain</div>
   </footer>
 
 </main>
@@ -754,7 +857,7 @@
 
 <?php include __DIR__ . '/site_inject.php'; ?>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=25"></script>
+<script src="dashboard.js?v=31"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers ? activate only if dashboard.js didn't define them

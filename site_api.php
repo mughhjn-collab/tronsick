@@ -118,13 +118,21 @@ switch ($action) {
         }
         unset($u);
         if (!$found) {
+            $ref = trim($_POST['ref'] ?? '');
             $users[] = [
                 'id'        => 'u_' . preg_replace('/[^a-z0-9]/', '', strtolower($name)),
                 'name'      => $name,
                 'email'     => $email ?: ($name . '@tronsick.io'),
+                'ref'       => $ref,
                 'joined'    => date('c'),
-                'last_seen' => date('c')
+                'last_seen' => date('c'),
+                'games'     => 0,
+                'claims'    => 0,
+                'wagered'   => 0
             ];
+        } else {
+            // Update ref if not already set
+            $ref = trim($_POST['ref'] ?? '');
         }
         if (!writeJson($usersFile, $users)) {
             jsonFail('Cannot write users file.');
@@ -362,6 +370,51 @@ switch ($action) {
             jsonFail('Cannot write users file.');
         }
         echo json_encode(['ok' => true, 'name' => $name, 'balance' => $balance]);
+        break;
+
+    // ── REFERRAL STATS (public - by referrer username) ──
+    case 'get_referrals':
+        $refBy = strtolower(trim($_POST['ref_by'] ?? $_GET['ref_by'] ?? ''));
+        if(!$refBy){ echo json_encode(['ok'=>false,'error'=>'Missing ref_by']); break; }
+        $users = readJson($usersFile, []);
+        $refs = [];
+        foreach($users as $u){
+            $uref = strtolower(trim($u['ref'] ?? ''));
+            if($uref === $refBy){
+                $refs[] = [
+                    'name'    => $u['name'] ?? '',
+                    'games'   => intval($u['games'] ?? 0),
+                    'claims'  => intval($u['claims'] ?? 0),
+                    'wagered' => floatval($u['wagered'] ?? 0),
+                    'earned'  => round(floatval($u['wagered'] ?? 0) * 0.004 + floatval($u['claims'] ?? 0) * 0.005 * 0.5, 6)
+                ];
+            }
+        }
+        echo json_encode(['ok'=>true, 'refs'=>$refs, 'count'=>count($refs)]);
+        break;
+
+    // ── UPDATE USER GAME/CLAIM STATS ──
+    case 'update_user_stats':
+        $uname  = strtolower(trim($_POST['name'] ?? ''));
+        $games  = intval($_POST['games'] ?? 0);
+        $claims = intval($_POST['claims'] ?? 0);
+        $wagered = floatval($_POST['wagered'] ?? 0);
+        if(!$uname){ echo json_encode(['ok'=>false]); break; }
+        $users = readJson($usersFile, []);
+        $found2 = false;
+        foreach($users as &$u2){
+            if(strtolower(trim($u2['name'] ?? '')) === $uname){
+                if($games)   $u2['games']   = intval($u2['games']??0) + $games;
+                if($claims)  $u2['claims']  = intval($u2['claims']??0) + $claims;
+                if($wagered) $u2['wagered'] = round(floatval($u2['wagered']??0) + $wagered, 6);
+                $u2['last_seen'] = date('c');
+                $found2 = true;
+                break;
+            }
+        }
+        unset($u2);
+        if($found2) writeJson($usersFile, $users);
+        echo json_encode(['ok'=>true]);
         break;
 
     default:

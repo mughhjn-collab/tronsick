@@ -263,6 +263,13 @@ window.SiteSync = (function(){
         if(cb) cb(r);
       });
     },
+    getReferrals: function(refBy, cb){
+      post('get_referrals', { ref_by: refBy }, cb);
+    },
+    updateUserStats: function(name, games, claims, wagered){
+      if(!name) return;
+      post('update_user_stats', { name:name, games:games||0, claims:claims||0, wagered:wagered||0 });
+    },
     getContestEnd: getContestEnd,
     tickContestTimer: tickContestTimer,
     startContestTimer: startContestTimer

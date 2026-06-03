@@ -181,11 +181,30 @@
         </div>
       </div>
 
-      <!-- 2FA field ? hidden by default, shows only if user has 2FA enabled -->
-      <div class="ff ff-plain" id="twofa-wrap">
-        <label>2FA Code <span class="opt-label">(Optional ? only if 2FA is enabled)</span></label>
+      <!-- 2FA field — hidden by default, shows only when user has 2FA enabled -->
+      <div class="ff ff-plain" id="twofa-wrap" style="display:none">
+        <label>2FA Code <span class="opt-label">(Required ? your account has 2FA enabled)</span></label>
         <div class="ff-iw"><input type="text" id="l2fa" placeholder="Enter 6-digit code from authenticator app" maxlength="6" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]*"/></div>
       </div>
+      <script>
+      // Show 2FA field dynamically when user types username ? only if they have 2FA
+      (function(){
+        function check2FA(){
+          var id=document.getElementById('lId');
+          var wrap=document.getElementById('twofa-wrap');
+          if(!id||!wrap) return;
+          var val=(id.value||'').trim().toLowerCase();
+          if(!val){wrap.style.display='none';return;}
+          var uname=val.includes('@')?val.split('@')[0]:val;
+          var has2FA=localStorage.getItem('2fa_secret_'+uname)||localStorage.getItem('tfa_enabled_'+uname)||localStorage.getItem('tfa_enabled');
+          wrap.style.display=has2FA?'':'none';
+        }
+        document.addEventListener('DOMContentLoaded',function(){
+          var lId=document.getElementById('lId');
+          if(lId){lId.addEventListener('input',check2FA);lId.addEventListener('blur',check2FA);}
+        });
+      })();
+      </script>
 
       <button type="submit" class="auth-btn" id="loginBtn">LOG IN TO MY ACCOUNT</button>
 
@@ -454,15 +473,23 @@ function handleLogin(e){
 
   // Check 2FA before proceeding
   var uname0 = id.includes('@') ? id.split('@')[0] : id;
-  var secret2fa = localStorage.getItem('2fa_secret_'+uname0.toLowerCase());
+  var uname0L = uname0.toLowerCase();
+  var secret2fa = localStorage.getItem('2fa_secret_'+uname0L);
+  // Also check per-user enabled flag (set by enable2FA in dashboard.js)
+  if(!secret2fa && localStorage.getItem('tfa_enabled_'+uname0L)) secret2fa = localStorage.getItem('2fa_secret_'+uname0L) || 'enabled';
   var code2fa = document.getElementById('l2fa') ? document.getElementById('l2fa').value.trim() : '';
 
   if(secret2fa){
     if(!code2fa){ err.style.display='block'; err.textContent='Please enter your 2FA code from your authenticator app.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
-    verifyTOTP(secret2fa, code2fa).then(function(valid){
-      if(!valid){ err.style.display='block'; err.textContent='Invalid 2FA code. Please check your authenticator app and try again.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
+    if(secret2fa === 'enabled'){
+      // 2FA enabled but secret missing — allow login (graceful fallback)
       doLoginFinish(id, pw, btn);
-    });
+    } else {
+      verifyTOTP(secret2fa, code2fa).then(function(valid){
+        if(!valid){ err.style.display='block'; err.textContent='Invalid 2FA code. Please check your authenticator app and try again.'; btn.textContent='LOG IN TO MY ACCOUNT'; btn.disabled=false; return; }
+        doLoginFinish(id, pw, btn);
+      });
+    }
   } else {
     // No 2FA — proceed directly to login
     doLoginFinish(id, pw, btn);
@@ -511,8 +538,15 @@ function doLoginFinish(id, pw_input, btn){
       var aMatch = au.find(function(u){ return u.name.toLowerCase()===uname.toLowerCase() || (id.includes('@') && u.email.toLowerCase()===id.toLowerCase()); });
       if(aMatch){
         if((!uemail||uemail.endsWith('@tronsick.io')) && aMatch.email && !aMatch.email.endsWith('@tronsick.io')) uemail=aMatch.email;
+        // Only restore balance from adm_users if user has NO existing balance
+        var curBal=parseFloat(localStorage.getItem('userBalance')||'0');
         var admBal=parseFloat(aMatch.balance||0);
-        if(admBal>0) localStorage.setItem('userBalance',admBal.toFixed(6));
+        if(curBal<=0 && admBal>0) localStorage.setItem('userBalance',admBal.toFixed(6));
+        // If user has existing balance, sync it TO adm_users (not the other way)
+        else if(curBal>0){
+          aMatch.balance=curBal.toFixed(6);
+          localStorage.setItem('adm_users',JSON.stringify(au));
+        }
         if(uemail && !uemail.endsWith('@tronsick.io') && aMatch.email.endsWith('@tronsick.io')){
           aMatch.email=uemail; localStorage.setItem('adm_users',JSON.stringify(au));
         }

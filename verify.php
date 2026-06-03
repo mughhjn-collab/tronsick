@@ -112,7 +112,7 @@ body{font-family:'Inter',sans-serif;background:#0b1120;color:#e8f0eb;min-height:
   // ── 1. Load data — try ALL sources ──
   var d = null;
 
-  // Primary: localStorage dgVerifyData (set by all games)
+  // Primary: localStorage dgVerifyData (set by Diamond, Wheel, Limbo old)
   try {
     var raw = localStorage.getItem('dgVerifyData');
     if(raw) d = JSON.parse(raw);
@@ -135,6 +135,43 @@ body{font-family:'Inter',sans-serif;background:#0b1120;color:#e8f0eb;min-height:
           roll:   parseFloat(sessionStorage.getItem('vfy_roll')||'0'),
           mult:   parseFloat(sessionStorage.getItem('vfy_mult')||'1'),
           wc:     parseFloat(sessionStorage.getItem('vfy_wc')||'0')
+        }
+      };
+    }
+  }
+
+  // Tertiary: URL params (used by Tower, Mines, SicBo verify buttons)
+  if(!d || !d.bet){
+    var params = new URLSearchParams(window.location.search);
+    var gParam = params.get('game');
+    if(gParam){
+      var betWin = params.get('win') === '1';
+      var betAmt = parseFloat(params.get('bet')||'0');
+      var betProfit = parseFloat(params.get('profit')||'0');
+      d = {
+        game:          gParam,
+        clientSeed:    decodeURIComponent(params.get('client')||''),
+        serverSeed:    decodeURIComponent(params.get('seed')||''),
+        serverSeedHash:decodeURIComponent(params.get('hash')||''),
+        nonce:         parseInt(params.get('nonce')||'1'),
+        bet: {
+          win:    betWin,
+          bet:    betAmt,
+          profit: betProfit,
+          mult:   parseFloat(params.get('mult')||'0'),
+          payout: parseFloat(params.get('mult')||'0'),
+          wc:     parseFloat(params.get('wc')||'0'),
+          roll:   parseFloat(params.get('roll')||'0'),
+          // Mines
+          mines:  params.get('mines') || '',
+          picks:  params.get('picks') || '',
+          // SicBo
+          choice: decodeURIComponent(params.get('choice')||''),
+          sum:    params.get('sum') || '',
+          // Tower
+          mode:   params.get('mode') || '',
+          // Wheel
+          segment: params.get('segment') || ''
         }
       };
     }
