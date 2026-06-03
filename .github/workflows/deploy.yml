@@ -1,4 +1,4 @@
-﻿name: Deploy to Hostinger via FTPS
+name: Deploy to Hostinger via FTP
 
 on:
   push:
@@ -13,35 +13,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via FTPS to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: 153.92.11.34
-          username: u895912460
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftps
-          local-dir: ./
-          server-dir: /domains/tronsick.io/public_html/
-          timeout: 180000
-          log-level: verbose
-          dangerous-clean-slate: false
-          security: loose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.github/**
-            **/fix_*.js
-            **/append_*.js
-            **/rename_*.js
-            **/add_*.js
-            **/verify_*.js
-            **/deploy_*.js
-            **/data/users.json
-            **/data/contest_wagers.json
-            **/data/antibot.json
-            **/data/site_settings.json
-            **/data/gen_payouts.json
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
 
-
+      - name: Deploy via FTP (lftp passive mode)
+        env:
+          FTP_SERVER: 153.92.11.34
+          FTP_USER: u895912460
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: /domains/tronsick.io/public_html/
+        run: |
+          lftp -c "
+          set ftp:ssl-allow no;
+          set net:max-retries 5;
+          set net:reconnect-interval-base 5;
+          set net:reconnect-interval-multiplier 1;
+          set ftp:passive-mode true;
+          open -u $FTP_USER,$FTP_PASS ftp://$FTP_SERVER;
+          mirror --reverse --delete --verbose \
+            --exclude-glob .git \
+            --exclude-glob .github \
+            --exclude-glob fix_*.js \
+            --exclude-glob append_*.js \
+            --exclude-glob rename_*.js \
+            --exclude-glob add_*.js \
+            --exclude-glob verify_*.js \
+            --exclude-glob deploy_*.js \
+            --exclude-glob data/users.json \
+            --exclude-glob data/contest_wagers.json \
+            --exclude-glob data/antibot.json \
+            --exclude-glob data/site_settings.json \
+            --exclude-glob data/gen_payouts.json \
+            ./ $FTP_DIR;
+          bye;
+          "
