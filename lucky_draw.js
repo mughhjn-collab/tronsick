@@ -1,76 +1,39 @@
-
-// ═══════════════════════════════════════════════════════
-// LUCKY DRAW — Full Logic v4
-// ═══════════════════════════════════════════════════════
+﻿
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// LUCKY DRAW â€” Full Logic v4
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 // Level targets & names (same as dashboard.js)
 var _LD_LEVEL_TARGETS = [300, 300, 3000, 30000, 300000, 3000000, 30000000];
 var _LD_LEVEL_NAMES   = ['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
 var _LD_LEVEL_ORDER   = {stone:0, iron:1, bronze:2, silver:3, gold:4, platinum:5, diamond:6, master:7};
 
-// Apply a level from Lucky Draw — updates localStorage + all visible UI elements
+// Apply a level from Lucky Draw â€” updates localStorage + all visible UI elements
 function _ldApplyLevel(levelId) {
   var levelName = levelId.charAt(0).toUpperCase() + levelId.slice(1);
+
+  // === CRITICAL FIX ===
+  // faucet.php's updateLevelUI() calculates level ONLY from totalWagered.
+  // It completely ignores userLevel in localStorage.
+  // If totalWagered < levelMin, updateLevelUI() resets to Stone, overriding the win.
+  // Solution: boost totalWagered to the level minimum before calling updateLevelUI().
+  var _LD_MIN_WAGER = {
+    stone: 0, iron: 300, bronze: 300, silver: 1000,
+    gold: 3000, platinum: 10000, diamond: 30000, master: 100000
+  };
+  var levelMin = _LD_MIN_WAGER[levelId.toLowerCase()] || 0;
+  var currentWager = parseFloat(localStorage.getItem('totalWagered') || '0');
+
+  // Only set wager to minimum if user is below it â€” never reduce existing wager
+  if (currentWager < levelMin) {
+    localStorage.setItem('totalWagered', levelMin.toString());
+  }
   localStorage.setItem('userLevel', levelName);
 
-  var lvlIdx = _LD_LEVEL_ORDER[levelId.toLowerCase()] || 0;
-
-  // 1) Update level label (header / faucet page)
-  ['curLevelLabel','gCurLevelLabel'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.textContent = levelName;
-  });
-
-  // 2) Update progress bar TARGET to next level's wager requirement
-  var nextTarget = lvlIdx < _LD_LEVEL_TARGETS.length ? _LD_LEVEL_TARGETS[lvlIdx] : _LD_LEVEL_TARGETS[_LD_LEVEL_TARGETS.length-1];
-  var targetStr  = nextTarget + ' TRX';
-  ['progTarget','gProgTarget','levelTarget'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.textContent = targetStr;
-  });
-
-  // 3) Update "from" and "to" level labels on progress bar
-  ['progFrom','gProgFrom'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.textContent = levelName;
-  });
-  ['progTo','gProgTo'].forEach(function(id){
-    var nextName = _LD_LEVEL_NAMES[Math.min(lvlIdx+1,7)];
-    var el = document.getElementById(id); if(el) el.textContent = nextName;
-  });
-
-  // 4) Update level table row highlights (remove tbl-on from all, add to current)
-  var levels = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
-  var payoutMap = {stone:'0.005000',iron:'0.010000',bronze:'0.020000',silver:'0.070000',gold:'0.500000',platinum:'5.000000',diamond:'15.000000',master:'60.000000'};
-  levels.forEach(function(l){
-    var row = document.getElementById('lvl-'+l);
-    if(!row) return;
-    var isActive = (l === levelId.toLowerCase());
-    row.classList.remove('tbl-on');
-    var lName = l.charAt(0).toUpperCase()+l.slice(1);
-    var payout = (payoutMap[l]||'0.000000') + ' TRX';
-    if(isActive){
-      row.classList.add('tbl-on');
-      row.innerHTML = '<td><strong>'+lName+' &#10003;</strong></td><td><strong>'+payout+'</strong></td>';
-    } else {
-      row.innerHTML = '<td>'+lName+'</td><td>'+payout+'</td>';
-    }
-  });
-
-  // 5) Update wager progress bar to reflect new level
-  var wagerVal = parseFloat(localStorage.getItem('totalWagered')||'0');
-  var wagerTargets = {stone:0,iron:30,bronze:100,silver:500,gold:2000,platinum:5000,diamond:15000,master:50000};
-  var lvlList = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
-  var curIdx = lvlList.indexOf(levelId.toLowerCase());
-  var nextIdx = Math.min(curIdx+1, 7);
-  var nextTgt = wagerTargets[lvlList[nextIdx]] || 50000;
-  var pct = nextTgt > 0 ? Math.min(100, (wagerVal/nextTgt)*100) : 100;
-  ['progFill','gProgFill'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width=pct.toFixed(1)+'%'; });
-  ['progPct','gProgPct'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=pct.toFixed(0)+'%'; });
-  ['progTarget','gProgTarget','levelTarget'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=nextTgt+' TRX'; });
-  ['wagered','gWagered'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=wagerVal.toFixed(6); });
-
-  // 6) Try calling syncBal / updateLevelUI to re-render everything
-  try { syncBal(); } catch(e) {}
-  try { if(typeof updateLevelUI==='function') updateLevelUI(); } catch(e2) {}
-  try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e3) {}
+  // Now updateLevelUI sees totalWagered >= levelMin and correctly shows won level
+  try { if (typeof updateLevelUI === 'function') updateLevelUI(); } catch(e) {}
+  try { if (typeof updateLevelDisplay === 'function') updateLevelDisplay(); } catch(e2) {}
+  try { syncBal(); } catch(e3) {}
 }
 
 function openLuckyDraw() {
@@ -111,8 +74,8 @@ function _luckyDrawHTML() {
     '<!-- FREE TAB -->' +
     '<div id="ldTabFree">' +
       '<div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.18);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(232,240,235,.65);line-height:1.6">' +
-        '<strong style="color:#3ecf8e">&#127920; Free Draw — How it works:</strong><br>' +
-        'Every new account gets <strong>1 free spin</strong> — no cost! Randomly win: <strong style="color:#a0aab0">Iron Level upgrade</strong> (80%) or <strong style="color:#3ecf8e">0.05 TRX</strong> added to balance (20%). One-time per account.' +
+        '<strong style="color:#3ecf8e">&#127920; Free Draw â€” How it works:</strong><br>' +
+        'Every new account gets <strong>1 free spin</strong> â€” no cost! Randomly win: <strong style="color:#a0aab0">Iron Level upgrade</strong> (80%) or <strong style="color:#3ecf8e">0.05 TRX</strong> added to balance (20%). One-time per account.' +
       '</div>' +
       '<div style="font-size:11px;color:rgba(232,240,235,.45);text-align:center;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">&#127381; Prize Wheel</div>' +
       '<div style="display:flex;gap:10px;margin-bottom:16px">' +
@@ -136,8 +99,8 @@ function _luckyDrawHTML() {
     '<!-- PAID TAB -->' +
     '<div id="ldTabPaid" style="display:none">' +
       '<div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.18);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(232,240,235,.65);line-height:1.6">' +
-        '<strong style="color:#ffd700">&#128176; Paid Draw — How it works:</strong><br>' +
-        'Entry: <strong>500 TRX</strong> from your balance (1 time per account). Randomly win one of three premium level upgrades (≈33% each). Level upgraded instantly!' +
+        '<strong style="color:#ffd700">&#128176; Paid Draw â€” How it works:</strong><br>' +
+        'Entry: <strong>500 TRX</strong> from your balance (1 time per account). Randomly win one of three premium level upgrades (â‰ˆ33% each). Level upgraded instantly!' +
       '</div>' +
       '<div style="font-size:11px;color:rgba(232,240,235,.45);text-align:center;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px">&#127942; Prize Wheel</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:16px">' +
@@ -195,18 +158,18 @@ function ldRefreshStatus() {
 
   if(freeDone) {
     if(freeStatus) { freeStatus.innerHTML = '&#9989; You have already used your Free Draw!'; freeStatus.style.color = '#3ecf8e'; }
-    if(freeBtn) { freeBtn.disabled = true; freeBtn.textContent = '✅ Free Draw Used'; freeBtn.style.opacity = '0.5'; freeBtn.style.cursor = 'not-allowed'; }
+    if(freeBtn) { freeBtn.disabled = true; freeBtn.textContent = 'âœ… Free Draw Used'; freeBtn.style.opacity = '0.5'; freeBtn.style.cursor = 'not-allowed'; }
     var stored = localStorage.getItem('ld_free_result_' + user);
     if(stored && freeResult) { freeResult.innerHTML = stored; freeResult.style.display = 'block'; }
   } else {
-    if(freeStatus) { freeStatus.innerHTML = '&#127881; You have <strong>1 Free Draw</strong> available — spin now!'; freeStatus.style.color = '#3ecf8e'; }
+    if(freeStatus) { freeStatus.innerHTML = '&#127881; You have <strong>1 Free Draw</strong> available â€” spin now!'; freeStatus.style.color = '#3ecf8e'; }
     if(freeBtn) { freeBtn.disabled = false; freeBtn.innerHTML = '&#127920; SPIN FREE DRAW'; freeBtn.style.opacity = '1'; freeBtn.style.cursor = 'pointer'; }
     if(freeResult) freeResult.style.display = 'none';
   }
 
   if(paidDone) {
     if(paidStatus) { paidStatus.innerHTML = '&#9989; You have already used your Paid Draw!'; paidStatus.style.color = '#ffd700'; }
-    if(paidBtn) { paidBtn.disabled = true; paidBtn.textContent = '✅ Paid Draw Used'; paidBtn.style.opacity = '0.5'; paidBtn.style.cursor = 'not-allowed'; }
+    if(paidBtn) { paidBtn.disabled = true; paidBtn.textContent = 'âœ… Paid Draw Used'; paidBtn.style.opacity = '0.5'; paidBtn.style.cursor = 'not-allowed'; }
     var storedP = localStorage.getItem('ld_paid_result_' + user);
     if(storedP && paidResult) { paidResult.innerHTML = storedP; paidResult.style.display = 'block'; }
   } else {
@@ -226,7 +189,7 @@ function ldRefreshStatus() {
   }
 }
 
-// ── FREE DRAW ──
+// â”€â”€ FREE DRAW â”€â”€
 function doFreeDraw() {
   var user = (localStorage.getItem('userName') || 'guest').toLowerCase();
   if(localStorage.getItem('ld_free_' + user) === '1') {
@@ -248,10 +211,10 @@ function doFreeDraw() {
 
   setTimeout(function() {
     var prizes = [
-      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: 'âš™ï¸ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: 'âš™ï¸ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: 'âš™ï¸ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: 'âš™ï¸ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
       { id: 'trx005', label: '0.05 TRX',      icon: '&#128176;', htmlLabel: '&#128176; 0.05 TRX',      desc: '<strong>0.05 TRX</strong> has been added to your balance!', color: '#3ecf8e', bg: 'rgba(62,207,142,.1)',   border: 'rgba(62,207,142,.3)'  }
     ];
     var won = prizes[Math.floor(Math.random() * prizes.length)];
@@ -287,11 +250,11 @@ function doFreeDraw() {
     }
 
     ldRefreshStatus();
-    try { showToast('🎉 ' + won.label + ' — Won!'); } catch(e) {}
+    try { showToast('ðŸŽ‰ ' + won.label + ' â€” Won!'); } catch(e) {}
   }, 1800);
 }
 
-// ── PAID DRAW ──
+// â”€â”€ PAID DRAW â”€â”€
 function doPaidDraw() {
   var user = (localStorage.getItem('userName') || 'guest').toLowerCase();
   if(localStorage.getItem('ld_paid_' + user) === '1') {
@@ -326,9 +289,9 @@ function doPaidDraw() {
     }
 
     var prizes = [
-      { id: 'gold',     label: '🥇 Gold Level',     htmlLabel: '&#127942; Gold Level',     color: '#ffd700', bg: 'rgba(255,215,0,.1)',     border: 'rgba(255,215,0,.4)',     desc: 'Earn <strong>0.5 TRX</strong> per faucet claim!' },
-      { id: 'platinum', label: '🪧 Platinum Level', htmlLabel: '&#129351; Platinum Level', color: '#e5e4e2', bg: 'rgba(229,228,226,.1)',   border: 'rgba(229,228,226,.4)',   desc: 'Earn <strong>5 TRX</strong> per faucet claim!' },
-      { id: 'diamond',  label: '💎 Diamond Level',  htmlLabel: '&#128142; Diamond Level',  color: '#b9f2ff', bg: 'rgba(185,242,255,.1)',   border: 'rgba(185,242,255,.4)',   desc: 'Earn <strong>15 TRX</strong> per faucet claim!' }
+      { id: 'gold',     label: 'ðŸ¥‡ Gold Level',     htmlLabel: '&#127942; Gold Level',     color: '#ffd700', bg: 'rgba(255,215,0,.1)',     border: 'rgba(255,215,0,.4)',     desc: 'Earn <strong>0.5 TRX</strong> per faucet claim!' },
+      { id: 'platinum', label: 'ðŸª§ Platinum Level', htmlLabel: '&#129351; Platinum Level', color: '#e5e4e2', bg: 'rgba(229,228,226,.1)',   border: 'rgba(229,228,226,.4)',   desc: 'Earn <strong>5 TRX</strong> per faucet claim!' },
+      { id: 'diamond',  label: 'ðŸ’Ž Diamond Level',  htmlLabel: '&#128142; Diamond Level',  color: '#b9f2ff', bg: 'rgba(185,242,255,.1)',   border: 'rgba(185,242,255,.4)',   desc: 'Earn <strong>15 TRX</strong> per faucet claim!' }
     ];
     var won = prizes[Math.floor(Math.random() * prizes.length)];
 
@@ -365,7 +328,7 @@ function doPaidDraw() {
     }
 
     ldRefreshStatus();
-    try { showToast('🎉 ' + won.label + ' — Level Upgraded!'); } catch(e) {}
+    try { showToast('ðŸŽ‰ ' + won.label + ' â€” Level Upgraded!'); } catch(e) {}
   }, 2200);
 }
 
