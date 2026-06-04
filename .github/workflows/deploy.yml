@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,43 +17,11 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Deploy via lftp parallel mirror
+      - name: Deploy via lftp
         env:
           FTP_USER: u895912460
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: 153.92.11.34
           FTP_DIR: /domains/tronsick.io/public_html/
         run: |
-          lftp -c "
-          set ftp:ssl-allow no;
-          set ftp:passive-mode yes;
-          set net:timeout 20;
-          set net:max-retries 2;
-          set net:reconnect-interval-base 3;
-          set mirror:parallel-directories yes;
-          open -u $FTP_USER,$FTP_PASS ftp://$FTP_HOST;
-          mirror --reverse --only-newer --parallel=4 --verbose \
-            --exclude-glob .git \
-            --exclude-glob .git/ \
-            --exclude-glob .github \
-            --exclude-glob .github/ \
-            --exclude-glob fix_*.js \
-            --exclude-glob append_*.js \
-            --exclude-glob rename_*.js \
-            --exclude-glob add_*.js \
-            --exclude-glob verify_*.js \
-            --exclude-glob deploy_*.js \
-            --exclude-glob push.js \
-            --exclude-glob bump_version.ps1 \
-            --exclude-glob strip_hash_final.js \
-            --exclude-glob tower_extracted.js \
-            --exclude-glob restore_tower.js \
-            --exclude-glob tronsite/ \
-            --exclude-glob data/users.json \
-            --exclude-glob data/contest_wagers.json \
-            --exclude-glob data/antibot.json \
-            --exclude-glob data/site_settings.json \
-            --exclude-glob data/gen_payouts.json \
-            ./ $FTP_DIR;
-          bye;
-          "
+          lftp -c "set ftp:ssl-allow no; set ftp:passive-mode yes; set net:timeout 25; set net:max-retries 2; open -u $FTP_USER,$FTP_PASS ftp://$FTP_HOST; mirror --reverse --only-newer --parallel=3 --verbose --exclude-glob .git --exclude-glob .github --exclude-glob fix_*.js --exclude-glob append_*.js --exclude-glob rename_*.js --exclude-glob add_*.js --exclude-glob verify_*.js --exclude-glob deploy_fix.js --exclude-glob push.js --exclude-glob bump_version.ps1 --exclude-glob strip_hash_final.js --exclude-glob tower_extracted.js --exclude-glob restore_tower.js --exclude-glob tronsite/ --exclude-glob *.bak --exclude-glob dashboard.js.bak ./ $FTP_DIR; bye"
