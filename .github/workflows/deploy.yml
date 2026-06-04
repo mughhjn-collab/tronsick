@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      force_files:
+        description: 'Force upload specific files (comma separated, leave empty for auto-detect)'
+        required: false
+        default: ''
 
 jobs:
   deploy:
@@ -26,14 +31,22 @@ jobs:
           FTP_HOST: 153.92.11.34
           FTP_DIR: /domains/tronsick.io/public_html
         run: |
-          # Get changed files
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            CHANGED=$(git diff --name-only HEAD~10 HEAD 2>/dev/null || echo "")
-          else
-            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
-          fi
+          # If force_files input provided, use those directly
+          FORCE_INPUT="${{ github.event.inputs.force_files }}"
 
-          FILTERED=$(echo "$CHANGED" | grep -E '\.(php|js|css|html)$' | grep -v '^\.github/' | grep -v '^fix_' | grep -v '^append_' | grep -v '^rename_' | grep -v '^push\.js' | grep -v '^bump_' | grep -v '^verify_' | grep -v '^deploy_' | grep -v '^add_' | grep -v '\.bak$' | grep -v '\.py$' | grep -v '\.ps1$' || echo "")
+          if [ -n "$FORCE_INPUT" ]; then
+            echo "=== FORCE DEPLOY MODE ==="
+            FILTERED=$(echo "$FORCE_INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          else
+            # Get changed files
+            if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+              CHANGED=$(git diff --name-only HEAD~10 HEAD 2>/dev/null || echo "")
+            else
+              CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
+            fi
+
+            FILTERED=$(echo "$CHANGED" | grep -E '\.(php|js|css|html)$' | grep -v '^\.' | grep -v '^fix_' | grep -v '^append_' | grep -v '^rename_' | grep -v '^push\.js' | grep -v '^bump_' | grep -v '^verify_' | grep -v '^deploy_' | grep -v '^add_' | grep -v '^update_' | grep -v '\.bak$' | grep -v '\.py$' | grep -v '\.ps1$' || echo "")
+          fi
 
           echo "=== Files to deploy ==="
           echo "$FILTERED"
@@ -49,7 +62,7 @@ jobs:
           FAIL=0
           while IFS= read -r file; do
             [ -z "$file" ] && continue
-            [ -f "$file" ] || continue
+            [ -f "$file" ] || { echo "  SKIP (not found): $file"; continue; }
             echo ">>> Uploading: $file"
             if lftp -c "set ftp:ssl-allow no; set ftp:passive-mode yes; set net:timeout 30; set net:max-retries 2; open -u $FTP_USER,$FTP_PASS ftp://$FTP_HOST; put $file -o $FTP_DIR/$file; bye"; then
               echo "    OK: $file"
