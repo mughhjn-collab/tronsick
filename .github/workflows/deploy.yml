@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 15
 
       - name: Upload changed files via curl FTP
         env:
@@ -23,7 +23,14 @@ jobs:
           FTP_HOST: 153.92.11.34
           FTP_DIR: /domains/tronsick.io/public_html
         run: |
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
+          # Manual dispatch = last 10 commits, auto push = last 1 commit
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            CHANGED=$(git diff --name-only HEAD~10 HEAD 2>/dev/null || echo "")
+            echo "Manual dispatch: checking last 10 commits"
+          else
+            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
+            echo "Push event: checking last 1 commit"
+          fi
 
           FILTERED=$(echo "$CHANGED" \
             | grep -E '\.(php|js|css|html)$' \
