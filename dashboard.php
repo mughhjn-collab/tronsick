@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -32,7 +32,7 @@
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item" id="nav-bonus" href="/bonus.php"><i>&#127873;</i><s>Bonus</s></a>
+    <a class="sb-item" id="nav-lucky" href="javascript:void(0)" onclick="openLuckyDraw()"><i>&#127381;</i><s>Lucky Draw</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -745,29 +745,29 @@
       <div class="foot-lang-select-wrap">
         <select id="siteLangSelect" class="foot-lang-select" onchange="setSiteLanguage(this.value)">
           <option value="en">&#127482;&#127480; English</option>
-          <option value="ru">&#127479;&#127482; Русский (Russian)</option>
-          <option value="ar">&#127462;&#127466; العربية (Arabic)</option>
-          <option value="fr">&#127467;&#127479; Français (French)</option>
-          <option value="es">&#127466;&#127480; Español (Spanish)</option>
-          <option value="pt">&#127477;&#127481; Português (Portuguese)</option>
+          <option value="ru">&#127479;&#127482; ??????? (Russian)</option>
+          <option value="ar">&#127462;&#127466; ??????? (Arabic)</option>
+          <option value="fr">&#127467;&#127479; Fran�ais (French)</option>
+          <option value="es">&#127466;&#127480; Espa�ol (Spanish)</option>
+          <option value="pt">&#127477;&#127481; Portugu�s (Portuguese)</option>
           <option value="de">&#127465;&#127466; Deutsch (German)</option>
-          <option value="tr">&#127481;&#127479; Türkçe (Turkish)</option>
+          <option value="tr">&#127481;&#127479; T�rk�e (Turkish)</option>
           <option value="id">&#127470;&#127465; Indonesia</option>
-          <option value="hi">&#127470;&#127475; हिन्दी (Hindi)</option>
-          <option value="bn">&#127463;&#127465; বাংলা (Bengali)</option>
-          <option value="ur">&#127477;&#127472; اردو (Urdu)</option>
+          <option value="hi">&#127470;&#127475; ?????? (Hindi)</option>
+          <option value="bn">&#127463;&#127465; ????? (Bengali)</option>
+          <option value="ur">&#127477;&#127472; ???? (Urdu)</option>
           <option value="mg">&#127474;&#127468; Malagasy</option>
           <option value="sw">&#127472;&#127466; Kiswahili (Swahili)</option>
           <option value="ha">&#127475;&#127468; Hausa</option>
           <option value="yo">&#127475;&#127468; Yoruba</option>
-          <option value="zh">&#127464;&#127475; 中文 (Chinese)</option>
-          <option value="ja">&#127471;&#127477; 日本語 (Japanese)</option>
-          <option value="ko">&#127472;&#127479; 한국어 (Korean)</option>
-          <option value="vi">&#127475;&#127475; Tiếng Việt (Vietnamese)</option>
-          <option value="th">&#127481;&#127469; ภาษาไทย (Thai)</option>
-          <option value="fa">&#127470;&#127479; فارسی (Persian)</option>
+          <option value="zh">&#127464;&#127475; ?? (Chinese)</option>
+          <option value="ja">&#127471;&#127477; ??? (Japanese)</option>
+          <option value="ko">&#127472;&#127479; ??? (Korean)</option>
+          <option value="vi">&#127475;&#127475; Ti?ng Vi?t (Vietnamese)</option>
+          <option value="th">&#127481;&#127469; ??????? (Thai)</option>
+          <option value="fa">&#127470;&#127479; ????? (Persian)</option>
           <option value="pl">&#127477;&#127473; Polski (Polish)</option>
-          <option value="uk">&#127482;&#127462; Українська (Ukrainian)</option>
+          <option value="uk">&#127482;&#127462; ?????????? (Ukrainian)</option>
         </select>
       </div>
     </div>
@@ -793,5 +793,5 @@
 <?php include __DIR__ . '/site_inject.php'; ?>
 <script src="site_sync.js?v=4"></script>
 <script src="dashboard.js?v=31"></script>
-</body>
+<script src="/lucky_draw.js?v=3"></script></body>
 </html>
