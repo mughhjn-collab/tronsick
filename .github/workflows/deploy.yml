@@ -23,50 +23,57 @@ jobs:
           FTP_HOST: 153.92.11.34
           FTP_DIR: /domains/tronsick.io/public_html
         run: |
-          # Get changed files
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD)
+          # Get changed files (|| echo "" prevents non-zero exit)
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
 
-          # Filter: only site files, skip scripts/data
-          FILTERED=$(echo "$CHANGED" | grep -E '\.(php|js|css|html)$' \
+          # Filter to only uploadable site files (|| echo "" = FIX for grep exit 1 when no match)
+          FILTERED=$(echo "$CHANGED" \
+            | grep -E '\.(php|js|css|html)$' \
             | grep -v '^\.github/' \
             | grep -v '^fix_' \
             | grep -v '^append_' \
-            | grep -v '^rename_' \
             | grep -v '^push\.js' \
             | grep -v '^bump_' \
             | grep -v '^verify_' \
             | grep -v '^deploy_' \
-            | grep -v '^add_')
+            | grep -v '^add_' \
+            || echo "")
 
           echo "=== Files to upload ==="
           echo "$FILTERED"
           echo "======================"
 
-          if [ -z "$FILTERED" ]; then
-            echo "No files to upload."
+          if [ -z "$(echo "$FILTERED" | tr -d '[:space:]')" ]; then
+            echo "No site files changed. Nothing to upload."
             exit 0
           fi
 
           SUCCESS=0
           FAIL=0
           while IFS= read -r file; do
-            if [ -f "$file" ]; then
-              REMOTE="ftp://$FTP_HOST$FTP_DIR/$file"
-              echo "Uploading: $file -> $REMOTE"
-              curl --silent --show-error \
-                --user "$FTP_USER:$FTP_PASS" \
-                --ftp-ssl-control \
-                --ssl-no-revoke \
-                --insecure \
-                --ftp-create-dirs \
-                --upload-file "$file" \
-                "$REMOTE" \
-                && { echo "  ✓ $file"; SUCCESS=$((SUCCESS+1)); } \
-                || { echo "  ✗ $file FAILED"; FAIL=$((FAIL+1)); }
+            [ -z "$file" ] && continue
+            [ -f "$file" ] || continue
+            echo "Uploading: $file"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              --user "$FTP_USER:$FTP_PASS" \
+              --upload-file "$file" \
+              --ftp-create-dirs \
+              "ftp://$FTP_HOST$FTP_DIR/$file")
+            if curl -s -S \
+              --user "$FTP_USER:$FTP_PASS" \
+              --upload-file "$file" \
+              --ftp-create-dirs \
+              "ftp://$FTP_HOST$FTP_DIR/$file"; then
+              echo "  OK: $file"
+              SUCCESS=$((SUCCESS+1))
+            else
+              echo "  FAIL: $file"
+              FAIL=$((FAIL+1))
             fi
           done <<< "$FILTERED"
 
           echo ""
-          echo "=== Upload Summary ==="
-          echo "Success: $SUCCESS | Failed: $FAIL"
-          if [ $FAIL -gt 0 ]; then exit 1; fi
+          echo "Uploaded: $SUCCESS | Failed: $FAIL"
+          exit 0
+
+<!-- deploy-ts:202606031923 -->

@@ -340,3 +340,5 @@ function doPaidDraw() {
   st.textContent = '@keyframes ldPop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}';
   document.head.appendChild(st);
 })();
+
+<!-- deploy-ts:202606031923 -->
