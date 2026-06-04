@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Faucet &ndash; TronSick</title>
+  <title>Faucet - TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="dashboard.css?v=17"/>
@@ -1012,7 +1012,44 @@ function renderContestLeaderboard(){
   else try{ draw(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(x){ draw({}); }
 }
 </script>
-</body>
+
+<!-- LUCKY DRAW MODAL -->
+<div id="luckyDrawModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#111b2e;border:1px solid rgba(62,207,142,.25);border-radius:18px;max-width:480px;width:100%;padding:28px 22px;position:relative;max-height:90vh;overflow-y:auto">
+    <button onclick="document.getElementById('luckyDrawModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;line-height:1">&times;</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:36px;margin-bottom:6px">&#127881;</div>
+      <div style="font-size:20px;font-weight:900;color:#fff">Lucky Draw</div>
+      <div style="font-size:13px;color:rgba(232,240,235,.5);margin-top:4px">Try your luck and win amazing prizes!</div>
+    </div>
+    <!-- TABS -->
+    <div style="display:flex;gap:10px;margin-bottom:20px">
+      <button id="ldTabFreeBtn" onclick="ldShowTab('free')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#3ecf8e;color:#0a1628;border:2px solid #3ecf8e">&#127920; Free Draw</button>
+      <button id="ldTabPaidBtn" onclick="ldShowTab('paid')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.06);color:rgba(232,240,235,.7);border:2px solid rgba(255,255,255,.15)">&#128176; Paid Draw</button>
+    </div>
+    <!-- FREE TAB -->
+    <div id="ldTabFree">
+      <div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:18px;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:#3ecf8e;margin-bottom:6px">&#127920; Free Draw</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">One free draw per account. Win level upgrade or TRX!</div>
+        <div id="ldFreeStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
+        <button id="ldFreeBtn" onclick="doFreeDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">&#127920; SPIN FREE DRAW</button>
+        <div id="ldFreeResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
+      </div>
+    </div>
+    <!-- PAID TAB -->
+    <div id="ldTabPaid" style="display:none">
+      <div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:18px;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:6px">&#128176; Paid Draw (500 TRX)</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">Spend 500 TRX for a chance to win Gold, Platinum, or Diamond level!</div>
+        <div id="ldPaidStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
+        <button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#b8860b,#ffd700);border:none;border-radius:10px;color:#0a1628;font-size:15px;font-weight:800;cursor:pointer">&#128176; ENTER PAID DRAW</button>
+        <div id="ldPaidResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="lucky_draw.js?v=2"></script></body>
 </html>
 
 
