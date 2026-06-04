@@ -1037,14 +1037,14 @@ function renderContestLeaderboard(){
             <div style="font-size:30px;margin-bottom:4px">&#129704;</div>
             <div style="font-size:13px;font-weight:800;color:#c0c8cc">Iron</div>
             <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:3px">Level Upgrade</div>
-            <div style="margin-top:8px;background:linear-gradient(135deg,#8a9299,#5a6268);color:#fff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;display:inline-block">80% Chance</div>
+            
           </div>
           <div style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-weight:900;font-size:14px">OR</div>
           <div style="flex:1;background:linear-gradient(135deg,rgba(62,207,142,.15),rgba(62,207,142,.06));border:2px solid rgba(62,207,142,.4);border-radius:12px;padding:14px 10px;text-align:center">
             <div style="font-size:30px;margin-bottom:4px">&#128176;</div>
             <div style="font-size:13px;font-weight:800;color:#3ecf8e">0.05 TRX</div>
             <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:3px">Added to Balance</div>
-            <div style="margin-top:8px;background:linear-gradient(135deg,#3ecf8e,#22a06b);color:#0a1628;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;display:inline-block">20% Chance</div>
+            
           </div>
         </div>
         <div id="ldFreeStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
@@ -1061,19 +1061,19 @@ function renderContestLeaderboard(){
             <div style="font-size:26px;margin-bottom:4px">&#127942;</div>
             <div style="font-size:13px;font-weight:800;color:#ffd700">Gold</div>
             <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">0.5 TRX/claim</div>
-            <div style="margin-top:6px;background:#ffd700;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+            
           </div>
           <div style="flex:1;background:linear-gradient(135deg,rgba(229,228,226,.15),rgba(229,228,226,.06));border:2px solid rgba(229,228,226,.4);border-radius:12px;padding:14px 8px;text-align:center">
             <div style="font-size:26px;margin-bottom:4px">&#128142;</div>
             <div style="font-size:13px;font-weight:800;color:#e5e4e2">Platinum</div>
             <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">5 TRX/claim</div>
-            <div style="margin-top:6px;background:#e5e4e2;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+            
           </div>
           <div style="flex:1;background:linear-gradient(135deg,rgba(185,242,255,.15),rgba(185,242,255,.06));border:2px solid rgba(185,242,255,.4);border-radius:12px;padding:14px 8px;text-align:center">
             <div style="font-size:26px;margin-bottom:4px">&#128163;</div>
             <div style="font-size:13px;font-weight:800;color:#b9f2ff">Diamond</div>
             <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">15 TRX/claim</div>
-            <div style="margin-top:6px;background:#b9f2ff;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+            
           </div>
         </div>
         <div id="ldPaidStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
@@ -1083,8 +1083,9 @@ function renderContestLeaderboard(){
     </div>
   </div>
 </div>
-<script src="lucky_draw.js?v=6"></script></body>
+<script src="lucky_draw.js?v=7"></script></body>
 </html>
 <!-- deploy-stamp:2026-06-04T04:53:41.456Z -->
+
 
 

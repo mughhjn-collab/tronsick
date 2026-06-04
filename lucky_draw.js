@@ -1,4 +1,4 @@
-﻿
+
 // ═══════════════════════════════════════════════════════
 // LUCKY DRAW — Full Logic v4
 // ═══════════════════════════════════════════════════════
@@ -38,26 +38,39 @@ function _ldApplyLevel(levelId) {
 
   // 4) Update level table row highlights (remove tbl-on from all, add to current)
   var levels = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
+  var payoutMap = {stone:'0.005000',iron:'0.010000',bronze:'0.020000',silver:'0.070000',gold:'0.500000',platinum:'5.000000',diamond:'15.000000',master:'60.000000'};
   levels.forEach(function(l){
     var row = document.getElementById('lvl-'+l);
     if(!row) return;
+    var isActive = (l === levelId.toLowerCase());
     row.classList.remove('tbl-on');
-    row.innerHTML = '<td>'+l.charAt(0).toUpperCase()+l.slice(1)+'</td>' + row.innerHTML.match(/<td>.*?<\/td>$/)?.[0];
-  });
-  var activeRow = document.getElementById('lvl-'+levelId.toLowerCase());
-  if(activeRow){
-    activeRow.classList.add('tbl-on');
-    // Add checkmark to level name
-    var firstTd = activeRow.querySelector('td');
-    if(firstTd && !firstTd.querySelector('strong')){
-      firstTd.innerHTML = '<strong>'+levelName+' &#10003;</strong>';
+    var lName = l.charAt(0).toUpperCase()+l.slice(1);
+    var payout = (payoutMap[l]||'0.000000') + ' TRX';
+    if(isActive){
+      row.classList.add('tbl-on');
+      row.innerHTML = '<td><strong>'+lName+' &#10003;</strong></td><td><strong>'+payout+'</strong></td>';
+    } else {
+      row.innerHTML = '<td>'+lName+'</td><td>'+payout+'</td>';
     }
-  }
+  });
 
-  // 5) Try calling syncBal to re-render everything if available
+  // 5) Update wager progress bar to reflect new level
+  var wagerVal = parseFloat(localStorage.getItem('totalWagered')||'0');
+  var wagerTargets = {stone:0,iron:30,bronze:100,silver:500,gold:2000,platinum:5000,diamond:15000,master:50000};
+  var lvlList = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
+  var curIdx = lvlList.indexOf(levelId.toLowerCase());
+  var nextIdx = Math.min(curIdx+1, 7);
+  var nextTgt = wagerTargets[lvlList[nextIdx]] || 50000;
+  var pct = nextTgt > 0 ? Math.min(100, (wagerVal/nextTgt)*100) : 100;
+  ['progFill','gProgFill'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width=pct.toFixed(1)+'%'; });
+  ['progPct','gProgPct'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=pct.toFixed(0)+'%'; });
+  ['progTarget','gProgTarget','levelTarget'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=nextTgt+' TRX'; });
+  ['wagered','gWagered'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=wagerVal.toFixed(6); });
+
+  // 6) Try calling syncBal / updateLevelUI to re-render everything
   try { syncBal(); } catch(e) {}
-  // 6) Try native updateLevelDisplay if it exists
-  try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e2) {}
+  try { if(typeof updateLevelUI==='function') updateLevelUI(); } catch(e2) {}
+  try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e3) {}
 }
 
 function openLuckyDraw() {
@@ -107,14 +120,12 @@ function _luckyDrawHTML() {
           '<div style="font-size:38px;margin-bottom:6px">&#129704;</div>' +
           '<div style="font-size:15px;font-weight:900;color:#c8cfd3">Iron Level</div>' +
           '<div style="font-size:10px;color:rgba(232,240,235,.4);margin-top:3px">Account Upgrade</div>' +
-          '<div style="margin-top:10px;background:linear-gradient(135deg,#8a9299,#5a6268);color:#fff;font-size:11px;font-weight:900;padding:4px 12px;border-radius:99px;display:inline-block;letter-spacing:.5px">80% Chance</div>' +
         '</div>' +
         '<div style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.35);font-size:14px;font-weight:900;min-width:24px">OR</div>' +
         '<div class="ld-prize-card" style="flex:1;background:linear-gradient(135deg,rgba(62,207,142,.18),rgba(62,207,142,.06));border:2px solid rgba(62,207,142,.45);border-radius:14px;padding:16px 10px;text-align:center">' +
           '<div style="font-size:38px;margin-bottom:6px">&#128176;</div>' +
           '<div style="font-size:15px;font-weight:900;color:#3ecf8e">0.05 TRX</div>' +
           '<div style="font-size:10px;color:rgba(232,240,235,.4);margin-top:3px">Added to Balance</div>' +
-          '<div style="margin-top:10px;background:linear-gradient(135deg,#3ecf8e,#22a06b);color:#0a1628;font-size:11px;font-weight:900;padding:4px 12px;border-radius:99px;display:inline-block;letter-spacing:.5px">20% Chance</div>' +
         '</div>' +
       '</div>' +
       '<div id="ldFreeStatus" style="text-align:center;font-size:13px;margin-bottom:12px;font-weight:600"></div>' +
@@ -134,19 +145,16 @@ function _luckyDrawHTML() {
           '<div style="font-size:34px;margin-bottom:5px">&#127942;</div>' +
           '<div style="font-size:14px;font-weight:900;color:#ffd700">Gold</div>' +
           '<div style="font-size:9px;color:rgba(232,240,235,.4);margin-top:2px">0.5 TRX/claim</div>' +
-          '<div style="margin-top:8px;background:linear-gradient(135deg,#ffd700,#b8860b);color:#0a1628;font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;display:inline-block">~33%</div>' +
         '</div>' +
         '<div class="ld-prize-card" style="flex:1;background:linear-gradient(135deg,rgba(229,228,226,.18),rgba(229,228,226,.06));border:2px solid rgba(229,228,226,.45);border-radius:14px;padding:16px 8px;text-align:center">' +
           '<div style="font-size:34px;margin-bottom:5px">&#129351;</div>' +
           '<div style="font-size:14px;font-weight:900;color:#e5e4e2">Platinum</div>' +
           '<div style="font-size:9px;color:rgba(232,240,235,.4);margin-top:2px">5 TRX/claim</div>' +
-          '<div style="margin-top:8px;background:linear-gradient(135deg,#e5e4e2,#9a9998);color:#0a1628;font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;display:inline-block">~33%</div>' +
         '</div>' +
         '<div class="ld-prize-card" style="flex:1;background:linear-gradient(135deg,rgba(185,242,255,.18),rgba(185,242,255,.06));border:2px solid rgba(185,242,255,.45);border-radius:14px;padding:16px 8px;text-align:center">' +
           '<div style="font-size:34px;margin-bottom:5px">&#128142;</div>' +
           '<div style="font-size:14px;font-weight:900;color:#b9f2ff">Diamond</div>' +
           '<div style="font-size:9px;color:rgba(232,240,235,.4);margin-top:2px">15 TRX/claim</div>' +
-          '<div style="margin-top:8px;background:linear-gradient(135deg,#b9f2ff,#6dd5ed);color:#0a1628;font-size:10px;font-weight:900;padding:3px 8px;border-radius:99px;display:inline-block">~33%</div>' +
         '</div>' +
       '</div>' +
       '<div id="ldPaidStatus" style="text-align:center;font-size:13px;margin-bottom:12px;font-weight:600"></div>' +
@@ -240,11 +248,11 @@ function doFreeDraw() {
 
   setTimeout(function() {
     var prizes = [
-      { id: 'iron', label: '&#129704; Iron Level', desc: 'Your account level has been upgraded to <strong>Iron</strong>!', color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron', label: '&#129704; Iron Level', desc: 'Your account level has been upgraded to <strong>Iron</strong>!', color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron', label: '&#129704; Iron Level', desc: 'Your account level has been upgraded to <strong>Iron</strong>!', color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'iron', label: '&#129704; Iron Level', desc: 'Your account level has been upgraded to <strong>Iron</strong>!', color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
-      { id: 'trx005', label: '&#128142; 0.05 TRX', desc: '<strong>0.05 TRX</strong> has been added to your balance!', color: '#3ecf8e', bg: 'rgba(62,207,142,.1)', border: 'rgba(62,207,142,.3)' }
+      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'iron',   label: '⚙️ Iron Level', icon: '&#129704;', htmlLabel: '&#129704; Iron Level',   desc: 'Your account level has been upgraded to <strong>Iron</strong>!',    color: '#a0aab0', bg: 'rgba(160,170,176,.12)', border: 'rgba(160,170,176,.3)' },
+      { id: 'trx005', label: '0.05 TRX',      icon: '&#128176;', htmlLabel: '&#128176; 0.05 TRX',      desc: '<strong>0.05 TRX</strong> has been added to your balance!', color: '#3ecf8e', bg: 'rgba(62,207,142,.1)',   border: 'rgba(62,207,142,.3)'  }
     ];
     var won = prizes[Math.floor(Math.random() * prizes.length)];
 
@@ -268,19 +276,18 @@ function doFreeDraw() {
 
     var resultHTML = '<div style="font-size:38px;margin-bottom:10px">&#127881;</div>' +
       '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px">You Won!</div>' +
-      '<div style="color:' + won.color + ';font-size:24px;font-weight:900;margin-bottom:8px">' + won.label + '</div>' +
+      '<div style="color:' + won.color + ';font-size:24px;font-weight:900;margin-bottom:8px">' + won.htmlLabel + '</div>' +
       '<div style="color:rgba(232,240,235,.7);font-size:13px">' + won.desc + '</div>';
     localStorage.setItem('ld_free_result_' + user, resultHTML);
 
     var res = document.getElementById('ldFreeResult');
     if(res) {
       res.innerHTML = resultHTML;
-      res.style.display = 'block';
       res.style.cssText = 'display:block;margin-top:16px;text-align:center;padding:20px;border-radius:14px;background:' + won.bg + ';border:2px solid ' + won.border + ';animation:ldPop .4s ease';
     }
 
     ldRefreshStatus();
-    try { showToast('&#127881; ' + won.label.replace(/<[^>]+>/g,'') + ' — Won!'); } catch(e) {}
+    try { showToast('🎉 ' + won.label + ' — Won!'); } catch(e) {}
   }, 1800);
 }
 
@@ -319,9 +326,9 @@ function doPaidDraw() {
     }
 
     var prizes = [
-      { id: 'gold',     label: '&#127942; Gold Level',     color: '#ffd700', bg: 'rgba(255,215,0,.1)',     border: 'rgba(255,215,0,.4)',     desc: 'Earn <strong>0.5 TRX</strong> per faucet claim!' },
-      { id: 'platinum', label: '&#129351; Platinum Level', color: '#e5e4e2', bg: 'rgba(229,228,226,.1)',   border: 'rgba(229,228,226,.4)',   desc: 'Earn <strong>5 TRX</strong> per faucet claim!' },
-      { id: 'diamond',  label: '&#128142; Diamond Level',  color: '#b9f2ff', bg: 'rgba(185,242,255,.1)',   border: 'rgba(185,242,255,.4)',   desc: 'Earn <strong>15 TRX</strong> per faucet claim!' }
+      { id: 'gold',     label: '🥇 Gold Level',     htmlLabel: '&#127942; Gold Level',     color: '#ffd700', bg: 'rgba(255,215,0,.1)',     border: 'rgba(255,215,0,.4)',     desc: 'Earn <strong>0.5 TRX</strong> per faucet claim!' },
+      { id: 'platinum', label: '🪧 Platinum Level', htmlLabel: '&#129351; Platinum Level', color: '#e5e4e2', bg: 'rgba(229,228,226,.1)',   border: 'rgba(229,228,226,.4)',   desc: 'Earn <strong>5 TRX</strong> per faucet claim!' },
+      { id: 'diamond',  label: '💎 Diamond Level',  htmlLabel: '&#128142; Diamond Level',  color: '#b9f2ff', bg: 'rgba(185,242,255,.1)',   border: 'rgba(185,242,255,.4)',   desc: 'Earn <strong>15 TRX</strong> per faucet claim!' }
     ];
     var won = prizes[Math.floor(Math.random() * prizes.length)];
 
@@ -346,7 +353,7 @@ function doPaidDraw() {
 
     var resultHTML = '<div style="font-size:42px;margin-bottom:10px">&#127881;</div>' +
       '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Congratulations!</div>' +
-      '<div style="color:' + won.color + ';font-size:26px;font-weight:900;margin-bottom:8px">' + won.label + '</div>' +
+      '<div style="color:' + won.color + ';font-size:26px;font-weight:900;margin-bottom:8px">' + won.htmlLabel + '</div>' +
       '<div style="color:rgba(232,240,235,.7);font-size:13px;margin-bottom:6px">' + won.desc + '</div>' +
       '<div style="color:rgba(232,240,235,.4);font-size:11px">500 TRX entry fee deducted</div>';
     localStorage.setItem('ld_paid_result_' + user, resultHTML);
@@ -358,7 +365,7 @@ function doPaidDraw() {
     }
 
     ldRefreshStatus();
-    try { showToast('&#127881; ' + won.label.replace(/<[^>]+>/g,'') + ' — Level Upgraded!'); } catch(e) {}
+    try { showToast('🎉 ' + won.label + ' — Level Upgraded!'); } catch(e) {}
   }, 2200);
 }
 
