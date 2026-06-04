@@ -1,4 +1,4 @@
-?<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -100,6 +100,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
           </table>
         </div>
 
+        <div id="faucetTimerBox" style="display:none;text-align:center;margin-bottom:18px;padding:20px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:2px solid rgba(245,158,11,.35);border-radius:16px;"><div style="font-size:12px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏳ Next Claim Available In</div><div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="capChk" onchange="onCap(this)"/>
@@ -141,6 +142,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
         </div>
 
         <!-- CAPTCHA + ROLL BUTTON -->
+        <div id="faucetTimerBox" style="display:none;text-align:center;margin-bottom:18px;padding:20px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:2px solid rgba(245,158,11,.35);border-radius:16px;"><div style="font-size:12px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏳ Next Claim Available In</div><div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="bonChk" onchange="onBon(this)"/>
@@ -813,7 +815,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
 })();
 </script>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=31"></script>
+<script src="dashboard.js?v=32"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers ? activate only if dashboard.js didn't define them
@@ -1031,7 +1033,7 @@ function renderContestLeaderboard(){
     <div id="ldTabFree">
       <div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:18px;margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:#3ecf8e;margin-bottom:6px">&#127920; Free Draw</div>
-        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">One free draw per account. Win level upgrade or TRX!</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">One Free Draw per account — no cost! Randomly win: Iron Level upgrade OR 0.05 TRX (50/50 chance).</div>
         <div id="ldFreeStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
         <button id="ldFreeBtn" onclick="doFreeDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">&#127920; SPIN FREE DRAW</button>
         <div id="ldFreeResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
@@ -1041,7 +1043,7 @@ function renderContestLeaderboard(){
     <div id="ldTabPaid" style="display:none">
       <div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:18px;margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:6px">&#128176; Paid Draw (500 TRX)</div>
-        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">Spend 500 TRX for a chance to win Gold, Platinum, or Diamond level!</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">Entry: 500 TRX from your balance (1 time per account). Randomly win: Gold, Platinum, or Diamond level upgrade (≈33% each)!</div>
         <div id="ldPaidStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
         <button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#b8860b,#ffd700);border:none;border-radius:10px;color:#0a1628;font-size:15px;font-weight:800;cursor:pointer">&#128176; ENTER PAID DRAW</button>
         <div id="ldPaidResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
@@ -1049,7 +1051,7 @@ function renderContestLeaderboard(){
     </div>
   </div>
 </div>
-<script src="lucky_draw.js?v=3"></script></body>
+<script src="lucky_draw.js?v=4"></script></body>
 </html>
 
 

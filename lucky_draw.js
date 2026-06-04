@@ -97,7 +97,7 @@ function _luckyDrawHTML() {
     '<div id="ldTabFree">' +
       '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:14px;line-height:1.6;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:10px;padding:12px 14px">' +
         '<strong style="color:#3ecf8e">&#127920; Free Draw — How it works:</strong><br>' +
-        'Every new account gets <strong>1 free spin</strong>. You will randomly win one of the two prizes shown below. No cost required!' +
+        'Every new account gets <b>1 Free Draw</b> — completely free, no deposit needed! Spin the wheel and randomly win one of two prizes: either an <b style="color:#a0aab0">Iron Level</b> account upgrade OR <b style="color:#3ecf8e">0.05 TRX</b> added directly to your balance. Both prizes have equal chance (50/50 random). One-time only per account.' +
       '</div>' +
       '<div style="font-size:12px;color:rgba(232,240,235,.5);text-align:center;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Possible Prizes</div>' +
       '<div style="display:flex;gap:12px;margin-bottom:18px">' +
@@ -122,7 +122,7 @@ function _luckyDrawHTML() {
     '<div id="ldTabPaid" style="display:none">' +
       '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:14px;line-height:1.6;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px 14px">' +
         '<strong style="color:#ffd700">&#128176; Paid Draw — How it works:</strong><br>' +
-        'Pay <strong>500 TRX</strong> for one spin. You are guaranteed to win one of three premium levels: <strong>Gold</strong>, <strong>Platinum</strong>, or <strong>Diamond</strong>. Your level will be upgraded immediately!' +
+        '<b style="color:#ffd700">Entry Cost: 500 TRX</b> (deducted from your balance). One spin per account.<br><br><b>What you can win (randomly):</b><br>&#127942; <b style="color:#ffd700">Gold Level</b> — earn 0.5 TRX per faucet claim<br>&#129352; <b style="color:#e5e4e2">Platinum Level</b> — earn 5 TRX per faucet claim<br>&#128142; <b style="color:#b9f2ff">Diamond Level</b> — earn 15 TRX per faucet claim<br><br>Each prize has equal probability (approx. 33% each). Your account level is upgraded <b>immediately</b> after the spin. This offer is available <b>1 time per account</b>.' +
       '</div>' +
       '<div style="font-size:12px;color:rgba(232,240,235,.5);text-align:center;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Possible Prizes</div>' +
       '<div style="display:flex;gap:10px;margin-bottom:18px">' +

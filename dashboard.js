@@ -1,4 +1,4 @@
-// Strip any hash fragment from URL on load
+﻿// Strip any hash fragment from URL on load
 if(window.location.hash)history.replaceState(null,'',window.location.pathname);
 
 // -- LOGOUT --
@@ -7,7 +7,7 @@ function doSiteLogout(){
   var keys=['userName','userEmail','userLoggedIn','userId','userBalance',
             'regUser','bonusRolls','lastFaucet','lastBonus',
             'totalWagered','userLevel','userRef'];
-  // NOTE: newUserBonus_USERNAME intentionally NOT cleared � one-time only per account
+  // NOTE: newUserBonus_USERNAME intentionally NOT cleared — one-time only per account
   keys.forEach(function(k){ localStorage.removeItem(k); });
   window.location.replace('https://tronsick.io/');
 }
@@ -20,7 +20,7 @@ var PAGE_TITLES={home:'Faucet',games:'Games',deposit:'Deposit',withdraw:'Withdra
 
 var PAGE_URLS={home:'/faucet.php',games:'/games.php',deposit:'/deposit.php',withdraw:'/withdraw.php',surveys:'/surveys.php',affiliates:'/affiliates.php',gifts:'/gifts.php',cashback:'/cashback.php',contest:'/contest.php',stake:'/faucet.php',settings:'/settings.php',contact:'/contact.php'};
 
-function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' � TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
+function _showSection(key){PAGES.forEach(k=>{const p=document.getElementById('sec-'+k);if(p)p.classList.remove('active');const n=document.getElementById('nav-'+k);if(n)n.classList.remove('active');});const p=document.getElementById('sec-'+key);if(p)p.classList.add('active');const n=document.getElementById('nav-'+key);if(n)n.classList.add('active');closeSidebar();window.scrollTo(0,0);document.title=(PAGE_TITLES[key]||key)+' – TronSick';if(key==='stake')try{initStake();}catch(e){}if(key==='deposit')try{initDeposit();}catch(e){}if(key==='contest')try{initContest();}catch(e){}}
 
 
 function go(key,skipHistory){if(skipHistory){_showSection(key);return;}window.location.href=PAGE_URLS[key]||'/faucet.php';}
@@ -151,7 +151,7 @@ async function _confirmDisable2FA(){
     if(btn){btn.disabled=false;btn.textContent='&#128274; Disable 2FA';}
     return;
   }
-  // Valid � disable 2FA
+  // Valid — disable 2FA
   localStorage.removeItem('2fa_secret_'+uname);
   localStorage.removeItem('tfa_enabled_'+uname);
   localStorage.removeItem('tfa_enabled');
@@ -465,7 +465,7 @@ function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.get
 if(rollsLeft>0){btn.disabled=false;note.textContent='Click ROLL to use your '+rollsLeft+' bonus roll'+(rollsLeft>1?'s':'')+'!';note.style.color='#3ecf8e';}else{btn.disabled=true;note.textContent='No rolls remaining. Check back or earn more!';note.style.color='#f59e0b';}}else{btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
 let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=2400-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
-function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn)btn.disabled=true;let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(btn){btn.textContent=m+':'+s;btn.style.background='rgba(245,158,11,.2)';btn.style.color='#f59e0b';btn.style.fontSize='22px';btn.style.fontWeight='800';btn.style.letterSpacing='2px';}if(note){note.textContent='';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';}}else r();},1000);}
+function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk'),timerBox=document.getElementById('faucetTimerBox'),timerDisp=document.getElementById('faucetTimerDisplay');if(cap)cap.disabled=true;if(btn){btn.disabled=true;btn.textContent='CLAIM';btn.style.background='';btn.style.color='';btn.style.fontSize='';btn.style.fontWeight='';btn.style.letterSpacing='';}if(timerBox)timerBox.style.display='block';let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(timerDisp)timerDisp.textContent=m+':'+s;if(note){note.textContent='\u23F3 Next claim in: '+m+'m '+s+'s';note.style.color='#f59e0b';note.style.fontSize='15px';note.style.fontWeight='700';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(timerBox)timerBox.style.display='none';if(timerDisp)timerDisp.textContent='00:00';if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';note.style.fontSize='14px';}}else r();},1000);}
 var LEVEL_PAYOUTS={stone:0.005,iron:0.01,bronze:0.02,silver:0.07,gold:0.5,platinum:5.0,diamond:15.0,master:60.0};
 function _getLevelPayouts(){
   return {
@@ -540,7 +540,7 @@ function _getSiteSetting(key, fallback){
   return v!=null?v:(fallback!=null?String(fallback):'');
 }
 
-/** Random dice roll for forced win/loss � full range below/above threshold */
+/** Random dice roll for forced win/loss — full range below/above threshold */
 function _abDiceRoll(forceWin, dir, wc, threshold){
   wc=parseFloat(wc)||50;
   dir=dir||'under';
@@ -590,13 +590,13 @@ function _abCheckWin(betAmt, winPct, payout){
   var ab2Amt    = parseFloat(_getAb('ab2_amount','0'));
   var ab2Wins   = parseInt(_getAb('ab2_wins','6'));
   var ab3On     = _getAb('ab3_on','0')==='1';
-  // AB4 piggybacks on AB3 being enabled � applies to low payout range 1.01x-2x
+  // AB4 piggybacks on AB3 being enabled — applies to low payout range 1.01x-2x
   var ab4On     = ab3On; // same toggle as AB3
 
   var amtMatch1 = ab1On && _abAmtMatch(betAmt, ab1Amt);
   var amtMatch2 = ab2On && _abAmtMatch(betAmt, ab2Amt);
 
-  // -- ANTIBOT 2 check (96%�65% range + amount match) --
+  // -- ANTIBOT 2 check (96%–65% range + amount match) --
   if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
     // AB2 overrides AB1 for this range
     if(_ab.ab2Phase==='loss'){
@@ -608,7 +608,7 @@ function _abCheckWin(betAmt, winPct, payout){
       // In win phase
       _ab.ab2WinsSoFar++;
       if(_ab.ab2WinsSoFar>=ab2Wins){
-        // Enough wins � next is loss again
+        // Enough wins — next is loss again
         _ab.ab2Phase='loss';
         _ab.ab2WinsSoFar=0;
       }
@@ -621,7 +621,7 @@ function _abCheckWin(betAmt, winPct, payout){
     _ab.ab2WinsSoFar=0;
   }
 
-  // -- ANTIBOT 3: Payout-Proportional Loss Control (3x � 4850x) --
+  // -- ANTIBOT 3: Payout-Proportional Loss Control (3x – 4850x) --
   // Logic: losses = ~payout value before first win, then random cycles.
   // If user increases bet ? reset back to initial (full payout-losses again).
   if(ab3On && payout >= 3 && payout <= 4850){
@@ -661,7 +661,7 @@ function _abCheckWin(betAmt, winPct, payout){
     if(_ab.ab3Phase === 'initial'){
       _ab.ab3LossCount++;
 
-      // Allow �1 randomness on when win happens
+      // Allow ±1 randomness on when win happens
       var winAt = payoutLoss + Math.floor(Math.random() * 3) - 1; // payoutLoss-1 to payoutLoss+1
       winAt = Math.max(winAt, 1);
 
@@ -747,13 +747,13 @@ function _abCheckWin(betAmt, winPct, payout){
     }
   }
 
-  return null; // No antibot active � normal RNG
+  return null; // No antibot active — normal RNG
 }
 
 // Hook antibot into Dice game win resolution
 var _origDiceWin=null;
 function _abWrapDice(){
-  // Will be called by dice bet functions � checks before resolving
+  // Will be called by dice bet functions — checks before resolving
 }
 
 function doRoll(){const btn=document.getElementById('bonBtn'),note=document.getElementById('bonNote'),chk=document.getElementById('bonChk'),rc=document.getElementById('rollCount');if(rollsLeft<=0){note.textContent='No rolls left.';return;}btn.disabled=true;btn.textContent='Rolling...';const digits=[0,1,2,3,4].map(i=>document.getElementById('rd'+i));digits.forEach(d=>d.classList.add('spin'));let ticks=0;const iv=setInterval(()=>{digits.forEach(d=>d.textContent=Math.floor(Math.random()*10));ticks++;if(ticks>=18){clearInterval(iv);const roll=Math.floor(Math.random()*10001),s=String(roll).padStart(5,'0');digits.forEach((d,i)=>{d.textContent=s[i];d.classList.remove('spin');});let p;if(roll===10000)p=1500;else if(roll>=9998)p=150;else if(roll>=9994)p=15;else if(roll>=9986)p=1.5;else if(roll>=9886)p=0.15;else p=0.005;addBal(p);rollsLeft=Math.max(0,rollsLeft-1);if(rc)rc.textContent=rollsLeft;try{var _rUn=(localStorage.getItem('userName')||'').toLowerCase();if(_rUn)localStorage.setItem('bonusRollsLeft_'+_rUn,rollsLeft.toString());}catch(ex){}note.textContent='Rolled '+roll+'! Won '+p.toFixed(6)+' TRX';note.style.color='#3ecf8e';btn.textContent='ROLL';if(rollsLeft>0)btn.disabled=false;else{btn.disabled=true;chk.checked=false;setTimeout(()=>{note.textContent='Complete captcha to roll';note.style.color='';},5000);}}},80);}
@@ -825,7 +825,7 @@ function _ctRenderLeaderboard(){
     for(var u in cw){ if(cw.hasOwnProperty(u)) list.push({u:u,w:parseFloat(cw[u])||0,isMe:u===myName}); }
     list.sort(function(a,b){return b.w-a.w;});
     if(!list.length){
-      lb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet � play a game to appear here!</td></tr>';
+      lb.innerHTML='<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,.35);padding:28px;font-size:14px">No wagers yet — play a game to appear here!</td></tr>';
       return;
     }
     var html='';
@@ -842,7 +842,7 @@ function _ctRenderLeaderboard(){
       html+='<td>'+rankStr+'</td>';
       html+='<td>'+(item.isMe?'<strong style="color:#3ecf8e">'+item.u+' (You)</strong>':item.u)+'</td>';
       html+='<td class="ct-wager">'+item.w.toFixed(6)+'</td>';
-      html+='<td class="ct-reward-val">'+(prize?prize+' TRX':'�')+'</td>';
+      html+='<td class="ct-reward-val">'+(prize?prize+' TRX':'—')+'</td>';
       html+='</tr>';
     });
     lb.innerHTML=html;
@@ -864,9 +864,9 @@ function _ctUpdateMyStats(){
     var rank=list.indexOf(myWager)+1;
     if(myWager<=0||rank<1) rank=0;
     var rankEl=document.getElementById('ctMyRank');
-    if(rankEl)rankEl.textContent=rank>0?'#'+rank:'�';
+    if(rankEl)rankEl.textContent=rank>0?'#'+rank:'—';
     var prizeEl=document.getElementById('ctMyReward');
-    if(prizeEl)prizeEl.textContent=rank>0&&_getCTPRizes()[rank-1]?_getCTPRizes()[rank-1]+' TRX':'�';
+    if(prizeEl)prizeEl.textContent=rank>0&&_getCTPRizes()[rank-1]?_getCTPRizes()[rank-1]+' TRX':'—';
   }
   if(window.SiteSync) SiteSync.getContestWagers(function(r){ update(r.ok?(r.wagers||{}):{}); });
   else try{ update(JSON.parse(localStorage.getItem('contest_wagers')||'{}')); }catch(e){ update({}); }
@@ -1071,7 +1071,7 @@ window.scrollTo(0,0);
 }
 function closeGame(skipHistory){
 try{sessionStorage.removeItem('_lg');}catch(e){}
-// Remove game-open class � CSS restores grid automatically
+// Remove game-open class — CSS restores grid automatically
 var sec=document.getElementById('sec-games');
 if(sec)sec.classList.remove('game-open');
 var frame=document.getElementById('gameFrame');
@@ -1230,7 +1230,7 @@ function showSbBetModal(i){
   if(!b) return;
   var modal = _ensureBetModal();
   var title = document.getElementById('bmTitle');
-  if(title) title.textContent = '?? Sic Bo � Bet Info';
+  if(title) title.textContent = '?? Sic Bo — Bet Info';
   var res = document.getElementById('bmResult');
   if(res){
     res.textContent = b.win
@@ -1289,7 +1289,7 @@ function showMnBetModal(i){
   if(!b) return;
   var modal = _ensureBetModal();
   var title = document.getElementById('bmTitle');
-  if(title) title.textContent = '?? Mines � Bet Info';
+  if(title) title.textContent = '?? Mines — Bet Info';
   var res = document.getElementById('bmResult');
   if(res){
     res.textContent = b.win
@@ -1358,32 +1358,32 @@ function wlVerify(){var b=wlBetHistory[window._wlVerifyIdx||0];localStorage.setI
 // ==========================================
 // END WHEEL GAME
 // ==========================================
-// ══════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // LIMBO GAME
-// ══════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var lbBetHistory=[];
 function buildLimboUI(){
 var h='';
 h+='<div class="lb-wrap">';
-// ── GAME DISPLAY ──
+// â”€â”€ GAME DISPLAY â”€â”€
 h+='<div class="lb-display" id="lbDisplay">';
 h+='<div class="lb-stars"></div>';
 h+='<div class="lb-multiplier" id="lbMult"><span id="lbMultNum">1.00</span>&times;</div>';
 h+='<div class="lb-rocket-area"><div class="lb-rocket" id="lbRocket">&#x1F680;</div><div class="lb-moon"></div></div>';
 h+='</div>';
-// ── STATS: Payout | Win Chance ──
+// â”€â”€ STATS: Payout | Win Chance â”€â”€
 h+='<div class="lb-stats">';
 h+='<div class="lb-stat"><div class="dg-slbl">Payout</div><div class="lb-srow"><input class="lb-sinp" id="lbPayout" type="number" value="1.96" step="0.01" min="1.01" oninput="lbByPayout()"><span class="lb-sx">x</span><button class="lb-arr" onclick="lbAdj(-0.1)">&#8249;</button><button class="lb-arr" onclick="lbAdj(0.1)">&#8250;</button></div></div>';
 h+='<div class="lb-stat"><div class="dg-slbl">Win Chance</div><div class="lb-srow"><input class="lb-sinp" id="lbWinCh" type="number" value="50.51" step="0.01" oninput="lbByChance()"><span class="lb-sx">%</span></div></div>';
 h+='</div>';
-// ── TABS ──
+// â”€â”€ TABS â”€â”€
 h+='<div class="dg-tabs" style="margin-top:10px"><button class="dg-tab dg-tab-act" id="lbTManual" onclick="lbMode(\'man\')">Manual</button><button class="dg-tab" id="lbTAuto" onclick="lbMode(\'auto\')">Auto</button></div>';
-// ── MANUAL ──
+// â”€â”€ MANUAL â”€â”€
 h+='<div id="lbManSec">';
 h+='<div class="lb-bet-row"><div class="dg-amt-lbl"><span class="dg-dot"></span> Bet Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="lbAmt" type="number" value="0.0001" step="0.000001" min="0"><button class="dg-sz-btn" onclick="lbSetAmt(\'min\')">MIN</button><button class="dg-sz-btn" onclick="lbSetAmt(\'half\')">&frac12;</button><button class="dg-sz-btn" onclick="lbSetAmt(\'2x\')">2x</button><button class="dg-sz-btn" onclick="lbSetAmt(\'max\')">MAX</button></div></div>';
 h+='<button class="dg-roll-btn" id="lbRollBtn" onclick="lbRoll()">Bet</button>';
 h+='</div>';
-// ── AUTO ──
+// â”€â”€ AUTO â”€â”€
 h+='<div id="lbAutoSec" style="display:none">';
 h+='<div class="dg-auto-cols"><div class="dg-auto-col"><div class="dg-auto-hd">On Win</div><div class="dg-aprow"><span>Change By</span><div class="dg-apinp"><input id="lbWinPct" type="number" value="0"><span>%</span></div></div><label class="dg-arl"><input type="radio" name="lbWin" value="reset" checked> Reset to Base</label><label class="dg-arl"><input type="radio" name="lbWin" value="stop"> Stop Betting</label></div>';
 h+='<div class="dg-auto-col"><div class="dg-auto-hd">On Lose</div><div class="dg-aprow"><span>Change By</span><div class="dg-apinp"><input id="lbLosePct" type="number" value="100"><span>%</span></div></div><label class="dg-arl"><input type="radio" name="lbLose" value="reset" checked> Reset to Base</label><label class="dg-arl"><input type="radio" name="lbLose" value="stop"> Stop Betting</label></div></div>';
@@ -1391,12 +1391,12 @@ h+='<div class="dg-alims"><div class="dg-alim"><div class="dg-slbl">Stop on Loss
 h+='<div class="lb-bet-row"><div class="dg-amt-lbl"><span class="dg-dot"></span> Bet Amount</div><div class="dg-amt-row"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><input class="dg-amt-inp" id="lbAmtA" type="number" value="0.0001" step="0.000001" min="0"></div></div>';
 h+='<button class="dg-roll-btn" id="lbAutoBtn" onclick="lbToggleAuto()">Start Auto</button>';
 h+='</div>';
-// ── WIN ROW ──
+// â”€â”€ WIN ROW â”€â”€
 h+='<div class="dg-win-row" id="lbPLRow"><span class="dg-wlbl" id="lbPLLbl">Win Amount</span><div class="dg-wval"><img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="dg-trx-logo" alt="TRX"><span id="lbWinAmt">0.00019600</span></div></div>';
-// ── BET HISTORY ──
+// â”€â”€ BET HISTORY â”€â”€
 h+='<div class="dg-bsec"><div class="dg-bet-tabs"><button class="dg-btab dg-btab-act" id="lbTMyBets" onclick="lbBetTab()">My Bets</button></div><div class="dg-bet-list" id="lbBetList"><div class="dg-no-bets">No bets yet.</div></div></div>';
 h+='</div>';
-// ── BET MODAL ──
+// â”€â”€ BET MODAL â”€â”€
 h+='<div class="bet-modal" id="lbModal" onclick="closeLbModal()"><div class="bm-box" onclick="event.stopPropagation()"><div class="bm-hd"><div class="bm-title">&#x1F680; LIMBO</div><button class="bm-close" onclick="closeLbModal()">&#215;</button></div><div class="bm-result" id="lbBmResult"></div><div class="bm-sf-group" id="lbBmSeeds"></div><button class="bm-verify-btn" onclick="lbVerify()">VERIFY</button></div></div>';
 return h;
 }
@@ -1549,7 +1549,7 @@ window._lbVerifyIdx=i;
 var b=lbBetHistory[i];if(!b)return;
 var modal=document.getElementById('lbModal');if(!modal)return;
 var res=document.getElementById('lbBmResult');
-if(res){res.textContent=(b.win?'WIN &#10003; ':'LOSS &#10007; ')+b.result.toFixed(2)+'x — '+(b.profit>=0?'+':'')+b.profit.toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
+if(res){res.textContent=(b.win?'WIN &#10003; ':'LOSS &#10007; ')+b.result.toFixed(2)+'x â€” '+(b.profit>=0?'+':'')+b.profit.toFixed(6)+' TRX';res.className='bm-result '+(b.win?'bm-win':'bm-lose');}
 var seeds=document.getElementById('lbBmSeeds');
 if(seeds)seeds.innerHTML='<div class="bm-sf"><div class="bm-sf-lbl">Server seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#8801;</span><input class="bm-sf-inp" readonly value="'+b.sv+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Server seed hash</div><div class="bm-sf-row"><span class="bm-sf-ico">&lt;/&gt;</span><input class="bm-sf-inp" readonly value="'+b.ssh+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Client seed</div><div class="bm-sf-row"><span class="bm-sf-ico">&#9000;</span><input class="bm-sf-inp" readonly value="'+b.cs+'"></div></div>'+'<div class="bm-sf"><div class="bm-sf-lbl">Nonce</div><div class="bm-sf-row"><span class="bm-sf-ico">#</span><input class="bm-sf-inp" readonly value="'+b.id+'"></div></div>';
 modal.style.display='flex';
@@ -1561,9 +1561,9 @@ var data={game:'Limbo',clientSeed:clientSeed,serverSeedHash:serverSeedHash,serve
 localStorage.setItem('dgVerifyData',JSON.stringify(data));
 window.location.href='verify.php';
 }
-// ══════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // END LIMBO GAME
-// ══════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function buildDiceUI(){
 var h='';
 h+='<div class="dg-wrap" style="max-width:900px;margin:16px auto;">';
@@ -2101,10 +2101,10 @@ function sendContact() {
     try {
       localStorage.setItem('adm_msgs', JSON.stringify(msgs));
     } catch(e) {
-      // localStorage quota exceeded � strip image data and retry
+      // localStorage quota exceeded — strip image data and retry
       msgs[0].imageData = msgs[0].imageData.map(function(img) { return { name: img.name, data: null }; });
       try { localStorage.setItem('adm_msgs', JSON.stringify(msgs)); } catch(e2) { /* still fail */ }
-      showToast('Images too large to store � sent without image data');
+      showToast('Images too large to store — sent without image data');
     }
     subj.value = ''; msg.value = '';
     _contactImages = []; _renderContactPreviews();
@@ -2450,7 +2450,7 @@ function buildCoinFlipUI(){
         '<label class="cf-bet-lbl">Bet Amount (TRX)</label>'+
         '<div class="cf-bet-inp-row">'+
           '<input class="cf-bet-inp" id="cfBet" type="number" value="0.00010" min="0.000001" step="0.00001"/>'+
-          '<button class="cf-half-btn" onclick="cfHalf()">�</button>'+
+          '<button class="cf-half-btn" onclick="cfHalf()">½</button>'+
           '<button class="cf-dbl-btn" onclick="cfDouble()">2x</button>'+
           '<button class="cf-max-btn" onclick="cfMax()">MAX</button>'+
         '</div>'+
@@ -2584,7 +2584,7 @@ function cfRenderHist(){
 function cfOpenBetInfo(idx){
   var b = cfBetHistory[idx];
   if(!b) return;
-  // Use _ensureBetModal() � same system as Dice game
+  // Use _ensureBetModal() — same system as Dice game
   var modal = _ensureBetModal();
   // Title
   var title = document.getElementById('bmTitle');
@@ -2597,7 +2597,7 @@ function cfOpenBetInfo(idx){
       ? 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e'
       : 'text-align:center;padding:14px;border-radius:10px;font-size:15px;font-weight:900;margin-bottom:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444';
   }
-  // Seed fields � same style as Dice
+  // Seed fields — same style as Dice
   var seeds = document.getElementById('bmSeeds');
   if(seeds) seeds.innerHTML =
     '<div style="background:rgba(0,0,0,.15);border-radius:10px;padding:14px;margin-bottom:12px">'+
@@ -2617,7 +2617,7 @@ function cfOpenBetInfo(idx){
       '<div class="bm-sf-row" style="display:flex;align-items:center;gap:6px"><span class="bm-sf-ico" style="color:rgba(255,255,255,.4);font-size:13px">#</span>'+
       '<input class="bm-sf-inp" style="flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:JetBrains Mono,monospace;font-size:20px;font-weight:900;border-radius:6px;padding:7px 10px;outline:none;width:100%" readonly value="'+(b.nonce||0)+'"></div></div>'+
     '</div>';
-  // Verify button � same as Dice
+  // Verify button — same as Dice
   var vl = document.getElementById('bmVerifyLink');
   if(vl){
     var vUrl = '/verify.php?game=coinflip&seed='+encodeURIComponent(b.serverSeed||'')+'&client='+encodeURIComponent(b.clientSeed||'')+'&nonce='+(b.nonce||0)+'&choice='+b.choice+'&result='+b.result+'&win='+(b.win?1:0)+'&bet='+b.bet;
@@ -2659,7 +2659,7 @@ function initDeposit(){
         localStorage.setItem('dep_addr_' + user, d.address);
         _depShowAddress(d.address, d.qr_url);
       } else {
-        // If we already have a cached address, keep showing it � don't override with error
+        // If we already have a cached address, keep showing it — don't override with error
         if(cached){
           _depShowAddress(cached);
         } else {
@@ -3086,29 +3086,29 @@ var _SITE_LANGS = {
         contact:'????', cashback:'???????', contest:'??????', home:'????????', logout:'????',
         welcome:'??????', balance:'??????', level:'??????', stake:'?????',
         langLabel:'?????' },
-  fr: { claim:'R�CLAMER', faucet:'Robinet', games:'Jeux', deposit:'D�p�t', withdraw:'Retrait',
-        surveys:'Sondages', affiliates:'Affili�s', gifts:'Cadeaux', settings:'Param�tres',
-        contact:'Contact', cashback:'Remise', contest:'Concours', home:'Accueil', logout:'D�connexion',
+  fr: { claim:'RÉCLAMER', faucet:'Robinet', games:'Jeux', deposit:'Dépôt', withdraw:'Retrait',
+        surveys:'Sondages', affiliates:'Affiliés', gifts:'Cadeaux', settings:'Paramètres',
+        contact:'Contact', cashback:'Remise', contest:'Concours', home:'Accueil', logout:'Déconnexion',
         welcome:'Bienvenue', balance:'Solde', level:'Votre niveau', stake:'Mise',
         langLabel:'Langue' },
-  es: { claim:'RECLAMAR', faucet:'Grifo', games:'Juegos', deposit:'Dep�sito', withdraw:'Retiro',
+  es: { claim:'RECLAMAR', faucet:'Grifo', games:'Juegos', deposit:'Depósito', withdraw:'Retiro',
         surveys:'Encuestas', affiliates:'Afiliados', gifts:'Tarjetas', settings:'Ajustes',
         contact:'Contacto', cashback:'Reembolso', contest:'Concurso', home:'Inicio', logout:'Salir',
         welcome:'Bienvenido', balance:'Saldo', level:'Tu nivel', stake:'Staking',
         langLabel:'Idioma' },
-  pt: { claim:'RESGATAR', faucet:'Torneira', games:'Jogos', deposit:'Dep�sito', withdraw:'Saque',
-        surveys:'Pesquisas', affiliates:'Afiliados', gifts:'Presentes', settings:'Configura��es',
-        contact:'Contato', cashback:'Cashback', contest:'Concurso', home:'In�cio', logout:'Sair',
-        welcome:'Bem-vindo', balance:'Saldo', level:'Seu n�vel', stake:'Staking',
+  pt: { claim:'RESGATAR', faucet:'Torneira', games:'Jogos', deposit:'Depósito', withdraw:'Saque',
+        surveys:'Pesquisas', affiliates:'Afiliados', gifts:'Presentes', settings:'Configurações',
+        contact:'Contato', cashback:'Cashback', contest:'Concurso', home:'Início', logout:'Sair',
+        welcome:'Bem-vindo', balance:'Saldo', level:'Seu nível', stake:'Staking',
         langLabel:'Idioma' },
   de: { claim:'EINFORDERN', faucet:'Wasserhahn', games:'Spiele', deposit:'Einzahlung', withdraw:'Auszahlung',
         surveys:'Umfragen', affiliates:'Partner', gifts:'Geschenke', settings:'Einstellungen',
         contact:'Kontakt', cashback:'Cashback', contest:'Wettbewerb', home:'Startseite', logout:'Abmelden',
         welcome:'Willkommen', balance:'Guthaben', level:'Dein Level', stake:'Staking',
         langLabel:'Sprache' },
-  tr: { claim:'TALEP ET', faucet:'Musluk', games:'Oyunlar', deposit:'Yatir', withdraw:'�ek',
+  tr: { claim:'TALEP ET', faucet:'Musluk', games:'Oyunlar', deposit:'Yatir', withdraw:'Çek',
         surveys:'Anketler', affiliates:'Ortaklar', gifts:'Hediyeler', settings:'Ayarlar',
-        contact:'Iletisim', cashback:'Geri �deme', contest:'Yarisma', home:'Ana Sayfa', logout:'�ikis',
+        contact:'Iletisim', cashback:'Geri Ödeme', contest:'Yarisma', home:'Ana Sayfa', logout:'Çikis',
         welcome:'Hosgeldiniz', balance:'Bakiye', level:'Seviyeniz', stake:'Stake',
         langLabel:'Dil' },
   id: { claim:'KLAIM', faucet:'Faucet', games:'Game', deposit:'Setor', withdraw:'Tarik',
@@ -3151,11 +3151,11 @@ var _SITE_LANGS = {
         contact:'???', cashback:'???', contest:'??', home:'?', logout:'????',
         welcome:'?????', balance:'??', level:'? ??', stake:'????',
         langLabel:'??' },
-  vi: { claim:'NH?N', faucet:'V�i', games:'Tr� choi', deposit:'N?p ti?n', withdraw:'R�t ti?n',
-        surveys:'Kh?o s�t', affiliates:'Li�n k?t', gifts:'Qu� t?ng', settings:'C�i d?t',
-        contact:'Li�n h?', cashback:'Ho�n ti?n', contest:'Cu?c thi', home:'Trang ch?', logout:'�ang xu?t',
-        welcome:'Ch�o m?ng', balance:'S? du', level:'C?p d?', stake:'Staking',
-        langLabel:'Ng�n ng?' },
+  vi: { claim:'NH?N', faucet:'Vòi', games:'Trò choi', deposit:'N?p ti?n', withdraw:'Rút ti?n',
+        surveys:'Kh?o sát', affiliates:'Liên k?t', gifts:'Quà t?ng', settings:'Cài d?t',
+        contact:'Liên h?', cashback:'Hoàn ti?n', contest:'Cu?c thi', home:'Trang ch?', logout:'Ðang xu?t',
+        welcome:'Chào m?ng', balance:'S? du', level:'C?p d?', stake:'Staking',
+        langLabel:'Ngôn ng?' },
   th: { claim:'???', faucet:'???????', games:'?????', deposit:'???', withdraw:'???',
         surveys:'????????', affiliates:'????????', gifts:'???????????', settings:'???????',
         contact:'??????', cashback:'???????', contest:'??????????', home:'????????', logout:'??????????',
@@ -3168,8 +3168,8 @@ var _SITE_LANGS = {
         langLabel:'????' },
   pl: { claim:'ODBIERZ', faucet:'Kran', games:'Gry', deposit:'Wplata', withdraw:'Wyplata',
         surveys:'Ankiety', affiliates:'Partnerzy', gifts:'Karty', settings:'Ustawienia',
-        contact:'Kontakt', cashback:'Zwrot', contest:'Konkurs', home:'Strona gl�wna', logout:'Wyloguj',
-        welcome:'Witamy z powrotem', balance:'Saldo', level:'Tw�j poziom', stake:'Staking',
+        contact:'Kontakt', cashback:'Zwrot', contest:'Konkurs', home:'Strona glówna', logout:'Wyloguj',
+        welcome:'Witamy z powrotem', balance:'Saldo', level:'Twój poziom', stake:'Staking',
         langLabel:'Jezyk' },
   uk: { claim:'????????', faucet:'????', games:'????', deposit:'??????????', withdraw:'?????????',
         surveys:'??????????', affiliates:'????????', gifts:'?????????', settings:'????????????',
