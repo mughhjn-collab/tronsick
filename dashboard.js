@@ -633,6 +633,10 @@ function _abCheckWin(betAmt, winPct, payout){
   var amtMatch1 = ab1On && _abAmtMatch(betAmt, ab1Amt);
   var amtMatch2 = ab2On && _abAmtMatch(betAmt, ab2Amt);
 
+  // Hard mode: AB1 in hard mode overrides everything - immediate loss
+  if(ab1On && ab1Mode==='hard'){ return false; }
+
+
   // -- ANTIBOT 2 check (96%–65% range + amount match) --
   if(ab2On && amtMatch2 && winPct>=65 && winPct<=96){
     // AB2 overrides AB1 for this range
@@ -3302,3 +3306,4 @@ function setSiteLanguage(lang){
   document.head.appendChild(style);
 })();
 /* deploy-stamp:2026-06-04T04:53:41.456Z */
+

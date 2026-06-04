@@ -1,4 +1,4 @@
-
+﻿
 // ═══════════════════════════════════════════════════════
 // LUCKY DRAW — Full Logic v4
 // ═══════════════════════════════════════════════════════
@@ -155,98 +155,6 @@ function _luckyDrawHTML() {
     '</div>' +
   '</div>';
 }
-function openLuckyDraw() {
-  var modal = document.getElementById('luckyDrawModal');
-  if(!modal) {
-    // Build modal if not present (for pages that don't have it inline)
-    _buildLuckyDrawModal();
-    modal = document.getElementById('luckyDrawModal');
-  }
-  if(!modal) return;
-  ldRefreshStatus();
-  modal.style.display = 'flex';
-}
-
-function _buildLuckyDrawModal() {
-  if(document.getElementById('luckyDrawModal')) return;
-  var el = document.createElement('div');
-  el.id = 'luckyDrawModal';
-  el.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:16px';
-  el.innerHTML = _luckyDrawHTML();
-  document.body.appendChild(el);
-  // Load lucky_draw.js script if not yet loaded
-}
-
-function _luckyDrawHTML() {
-  return '<div style="background:linear-gradient(160deg,#0d1f35 0%,#111b2e 100%);border:1px solid rgba(62,207,142,.3);border-radius:20px;max-width:500px;width:100%;padding:30px 24px 24px;position:relative;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)">' +
-    '<button onclick="document.getElementById(\'luckyDrawModal\').style.display=\'none\'" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;border-radius:6px;width:32px;height:32px;line-height:32px;text-align:center">&times;</button>' +
-    '<div style="text-align:center;margin-bottom:24px">' +
-      '<div style="font-size:42px;margin-bottom:8px">&#127881;</div>' +
-      '<div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:.5px">Lucky Draw</div>' +
-      '<div style="font-size:13px;color:rgba(232,240,235,.5);margin-top:6px;line-height:1.5">Try your luck! Spin to win exclusive prizes.<br>Each account gets <strong style="color:#3ecf8e">1 Free Draw</strong> &amp; <strong style="color:#ffd700">1 Paid Draw</strong>.</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:10px;margin-bottom:22px">' +
-      '<button id="ldTabFreeBtn" onclick="ldShowTab(\'free\')" style="flex:1;padding:11px;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;background:#3ecf8e;color:#0a1628;border:2px solid #3ecf8e;transition:all .2s">&#127920; Free Draw</button>' +
-      '<button id="ldTabPaidBtn" onclick="ldShowTab(\'paid\')" style="flex:1;padding:11px;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;background:rgba(255,255,255,.06);color:rgba(232,240,235,.7);border:2px solid rgba(255,255,255,.15);transition:all .2s">&#128176; Paid Draw</button>' +
-    '</div>' +
-    '<div id="ldTabFree">' +
-      '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:14px;line-height:1.6;background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);border-radius:10px;padding:12px 14px">' +
-        '<strong style="color:#3ecf8e">&#127920; Free Draw — How it works:</strong><br>' +
-        'Every new account gets <b>1 Free Draw</b> — completely free, no deposit needed! Spin the wheel and randomly win one of two prizes: either an <b style="color:#a0aab0">Iron Level</b> account upgrade OR <b style="color:#3ecf8e">0.05 TRX</b> added directly to your balance. Both prizes have equal chance (50/50 random). One-time only per account.' +
-      '</div>' +
-      '<div style="font-size:12px;color:rgba(232,240,235,.5);text-align:center;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">&#127381; Possible Prizes</div>' +
-      '<div style="display:flex;gap:12px;margin-bottom:18px">' +
-        '<div class="ld-prize-card" style="flex:1;background:linear-gradient(135deg,rgba(160,170,176,.15),rgba(160,170,176,.06));border:2px solid rgba(160,170,176,.4);border-radius:14px;padding:18px 12px;text-align:center;position:relative">' +
-          '<div style="font-size:36px;margin-bottom:6px">&#129704;</div>' +
-          '<div style="font-size:15px;font-weight:900;color:#a0aab0">Iron Level</div>' +
-          '<div style="font-size:11px;color:rgba(232,240,235,.45);margin-top:4px">Account upgrade</div>' +
-          '<div style="margin-top:10px;background:linear-gradient(135deg,#a0aab0,#78828a);color:#0a1628;font-size:11px;font-weight:900;padding:4px 10px;border-radius:99px;display:inline-block">80% chance</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:16px;font-weight:900;min-width:28px">OR</div>' +
-        '<div class="ld-prize-card" style="flex:1;background:linear-gradient(135deg,rgba(62,207,142,.15),rgba(62,207,142,.06));border:2px solid rgba(62,207,142,.4);border-radius:14px;padding:18px 12px;text-align:center;position:relative">' +
-          '<div style="font-size:36px;margin-bottom:6px">&#128176;</div>' +
-          '<div style="font-size:15px;font-weight:900;color:#3ecf8e">0.05 TRX</div>' +
-          '<div style="font-size:11px;color:rgba(232,240,235,.45);margin-top:4px">Added to balance</div>' +
-          '<div style="margin-top:10px;background:linear-gradient(135deg,#3ecf8e,#22a06b);color:#0a1628;font-size:11px;font-weight:900;padding:4px 10px;border-radius:99px;display:inline-block">20% chance</div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="ldFreeStatus" style="text-align:center;font-size:13px;margin-bottom:12px;font-weight:600"></div>' +
-      '<button id="ldFreeBtn" onclick="doFreeDraw()" style="width:100%;padding:14px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 20px rgba(62,207,142,.3)">&#127920; SPIN FREE DRAW</button>' +
-      '<div id="ldFreeResult" style="display:none;margin-top:16px;text-align:center;padding:18px;border-radius:12px"></div>' +
-    '</div>' +
-    '<div id="ldTabPaid" style="display:none">' +
-      '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:14px;line-height:1.6;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.15);border-radius:10px;padding:12px 14px">' +
-        '<strong style="color:#ffd700">&#128176; Paid Draw — How it works:</strong><br>' +
-        '<b style="color:#ffd700">Entry Cost: 500 TRX</b> (deducted from your balance). One spin per account.<br><br><b>What you can win (randomly):</b><br>&#127942; <b style="color:#ffd700">Gold Level</b> — earn 0.5 TRX per faucet claim<br>&#129352; <b style="color:#e5e4e2">Platinum Level</b> — earn 5 TRX per faucet claim<br>&#128142; <b style="color:#b9f2ff">Diamond Level</b> — earn 15 TRX per faucet claim<br><br>Each prize has equal probability (approx. 33% each). Your account level is upgraded <b>immediately</b> after the spin. This offer is available <b>1 time per account</b>.' +
-      '</div>' +
-      '<div style="font-size:12px;color:rgba(232,240,235,.5);text-align:center;margin-bottom:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Possible Prizes</div>' +
-      '<div style="display:flex;gap:10px;margin-bottom:18px">' +
-        '<div class="ld-prize-card" style="flex:1;background:rgba(255,215,0,.08);border:2px solid rgba(255,215,0,.3);border-radius:14px;padding:14px 8px;text-align:center">' +
-          '<div style="font-size:28px;margin-bottom:5px">&#127942;</div>' +
-          '<div style="font-size:13px;font-weight:800;color:#ffd700">Gold</div>' +
-          '<div style="font-size:10px;color:rgba(232,240,235,.4);margin-top:3px">0.5 TRX/hr</div>' +
-          '<div style="margin-top:6px;background:#ffd700;color:#0a1628;font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;display:inline-block">~33%</div>' +
-        '</div>' +
-        '<div class="ld-prize-card" style="flex:1;background:rgba(229,228,226,.08);border:2px solid rgba(229,228,226,.3);border-radius:14px;padding:14px 8px;text-align:center">' +
-          '<div style="font-size:28px;margin-bottom:5px">&#129351;</div>' +
-          '<div style="font-size:13px;font-weight:800;color:#e5e4e2">Platinum</div>' +
-          '<div style="font-size:10px;color:rgba(232,240,235,.4);margin-top:3px">5 TRX/hr</div>' +
-          '<div style="margin-top:6px;background:#e5e4e2;color:#0a1628;font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;display:inline-block">~33%</div>' +
-        '</div>' +
-        '<div class="ld-prize-card" style="flex:1;background:rgba(185,242,255,.08);border:2px solid rgba(185,242,255,.3);border-radius:14px;padding:14px 8px;text-align:center">' +
-          '<div style="font-size:28px;margin-bottom:5px">&#128142;</div>' +
-          '<div style="font-size:13px;font-weight:800;color:#b9f2ff">Diamond</div>' +
-          '<div style="font-size:10px;color:rgba(232,240,235,.4);margin-top:3px">15 TRX/hr</div>' +
-          '<div style="margin-top:6px;background:#b9f2ff;color:#0a1628;font-size:9px;font-weight:900;padding:2px 7px;border-radius:99px;display:inline-block">~33%</div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="ldPaidStatus" style="text-align:center;font-size:13px;margin-bottom:12px;font-weight:600"></div>' +
-      '<button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:14px;background:linear-gradient(135deg,#b8860b,#ffd700);border:none;border-radius:12px;color:#0a1628;font-size:16px;font-weight:900;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 20px rgba(255,215,0,.3)">&#128176; SPIN PAID DRAW — 500 TRX</button>' +
-      '<div id="ldPaidResult" style="display:none;margin-top:16px;text-align:center;padding:18px;border-radius:12px"></div>' +
-    '</div>' +
-  '</div>';
-}
-
 function ldShowTab(tab) {
   var freeDiv = document.getElementById('ldTabFree');
   var paidDiv = document.getElementById('ldTabPaid');
@@ -354,6 +262,9 @@ function doFreeDraw() {
     try { if(typeof updateLevelUI==='function') updateLevelUI(); } catch(e) {}
     try { if(typeof initLevelSystem==='function') initLevelSystem(); } catch(e) {}
     try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e) {}
+    try { if(typeof updateWager==='function') updateWager(0); } catch(e) {}
+    try { if(typeof renderContestLeaderboard==='function') renderContestLeaderboard(); } catch(e) {}
+    try { if(typeof _ctUpdateMyStats==='function') _ctUpdateMyStats(); } catch(e) {}
 
     var resultHTML = '<div style="font-size:38px;margin-bottom:10px">&#127881;</div>' +
       '<div style="font-size:13px;color:rgba(232,240,235,.6);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px">You Won!</div>' +
@@ -421,6 +332,11 @@ function doPaidDraw() {
     try { if(typeof updateLevelUI==='function') updateLevelUI(); } catch(e) {}
     try { if(typeof initLevelSystem==='function') initLevelSystem(); } catch(e) {}
     try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e) {}
+    try { if(typeof updateWager==='function') updateWager(0); } catch(e) {}
+    try { if(typeof renderContestLeaderboard==='function') renderContestLeaderboard(); } catch(e) {}
+    try { if(typeof _ctUpdateMyStats==='function') _ctUpdateMyStats(); } catch(e) {}
+    // Sync wagered display
+    try { var wv=parseFloat(localStorage.getItem('totalWagered')||'0'); ['wagered','gWagered'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=wv.toFixed(6);}); } catch(e) {}
     // Update wager progress bar for new level
     var newLvl = won.id.toLowerCase();
     var lvlWagerTargets = {stone:0,iron:30,bronze:100,silver:500,gold:2000,platinum:5000,diamond:15000,master:50000};
@@ -453,3 +369,4 @@ function doPaidDraw() {
   document.head.appendChild(st);
 })();
 /* deploy-stamp:2026-06-04T04:53:41.456Z */
+

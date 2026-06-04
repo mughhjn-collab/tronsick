@@ -6,8 +6,8 @@
   <title>Faucet - TronSick</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="dashboard.css?v=17"/>
-  <link rel="stylesheet" href="mobile.css?v=1"/>
+  <link rel="stylesheet" href="dashboard.css?v=18"/>
+  <link rel="stylesheet" href="mobile.css?v=2"/>
   <link rel="stylesheet" href="games_new.css?v=9"/>
   <link rel="stylesheet" href="dice_fixes.css?v=2"/>
 <script>function doSiteLogout(){var _un=localStorage.getItem('userName')||'';var keys=['userName','userEmail','userLoggedIn','userId','userBalance','regUser','bonusRolls','lastFaucet','lastBonus','lastClaim','totalWagered','userLevel','userRef','dep_addr_'+_un,'stakeData','stakeTimer'];// NOTE: newUserBonus_USERNAME intentionally NOT cleared - one-time only per account
@@ -33,7 +33,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
     <a class="sb-item"        id="nav-withdraw"    href="/withdraw.php">  <i>&#x1F3E6;</i><s>Withdraw</s></a>
     <a class="sb-item"        id="nav-cashback"    href="/cashback.php">  <i>&#x1F4B5;</i><s>Cashback</s></a>
     <a class="sb-item"        id="nav-contest"     href="/contest.php">   <i>&#x1F3C6;</i><s>Contest</s></a>
-    <a class="sb-item" id="nav-lucky" href="javascript:void(0)" onclick="openLuckyDraw()"><i>&#127381;</i><s>Lucky Draw</s></a>
+    <a class="sb-item"        id="nav-lucky"       href="javascript:void(0)" onclick="openLuckyDraw()"><i>&#127381;</i><s>Lucky Draw</s></a>
     <a class="sb-item"        id="nav-surveys"     href="/surveys.php">   <i>&#x1F4CB;</i><s>Surveys</s></a>
     <a class="sb-item"        id="nav-affiliates"  href="/affiliates.php"><i>&#x1F91D;</i><s>Affiliates</s></a>
     <a class="sb-item"        id="nav-gifts"       href="/gifts.php">     <i>&#x1F381;</i><s>Gifts</s></a>
@@ -53,7 +53,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
     <img src="https://s2.coinmarketcap.com/static/img/coins/32x32/1958.png" class="trx-hdr-logo" alt="TRX">
     <span class="tb-val" id="userBalance">0.000000</span>
   </div>
-  <button class="tb-wallet" href="/withdraw.php">WALLET</button>
+  <button class="tb-wallet" onclick="window.location.href='/withdraw.php'">WALLET</button>
 </header>
 
 <!-- MAIN -->
@@ -100,7 +100,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
           </table>
         </div>
 
-        <div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
+        <div id="faucetTimerBox" style="display:none;text-align:center;margin-bottom:18px;padding:20px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:2px solid rgba(245,158,11,.35);border-radius:16px;"><div style="font-size:12px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏳ Next Claim Available In</div><div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="capChk" onchange="onCap(this)"/>
@@ -815,7 +815,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
 })();
 </script>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=33"></script>
+<script src="dashboard.js?v=34"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers ? activate only if dashboard.js didn't define them
@@ -1024,33 +1024,67 @@ function renderContestLeaderboard(){
       <div style="font-size:20px;font-weight:900;color:#fff">Lucky Draw</div>
       <div style="font-size:13px;color:rgba(232,240,235,.5);margin-top:4px">Try your luck and win amazing prizes!</div>
     </div>
-    <!-- TABS -->
     <div style="display:flex;gap:10px;margin-bottom:20px">
       <button id="ldTabFreeBtn" onclick="ldShowTab('free')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#3ecf8e;color:#0a1628;border:2px solid #3ecf8e">&#127920; Free Draw</button>
       <button id="ldTabPaidBtn" onclick="ldShowTab('paid')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:rgba(255,255,255,.06);color:rgba(232,240,235,.7);border:2px solid rgba(255,255,255,.15)">&#128176; Paid Draw</button>
     </div>
-    <!-- FREE TAB -->
     <div id="ldTabFree">
       <div style="background:rgba(62,207,142,.07);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:18px;margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:#3ecf8e;margin-bottom:6px">&#127920; Free Draw</div>
-        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">One Free Draw per account — no cost! Randomly win: Iron Level upgrade OR 0.05 TRX (50/50 chance).</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">One Free Draw per account &mdash; no cost! <b style="color:#a0aab0">&#129704; Iron Level</b> (80%) or <b style="color:#3ecf8e">&#128176; 0.05 TRX</b> (20%)</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+          <div style="flex:1;background:linear-gradient(135deg,rgba(160,170,176,.15),rgba(120,130,136,.08));border:2px solid rgba(160,170,176,.4);border-radius:12px;padding:14px 10px;text-align:center">
+            <div style="font-size:30px;margin-bottom:4px">&#129704;</div>
+            <div style="font-size:13px;font-weight:800;color:#c0c8cc">Iron</div>
+            <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:3px">Level Upgrade</div>
+            <div style="margin-top:8px;background:linear-gradient(135deg,#8a9299,#5a6268);color:#fff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;display:inline-block">80% Chance</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-weight:900;font-size:14px">OR</div>
+          <div style="flex:1;background:linear-gradient(135deg,rgba(62,207,142,.15),rgba(62,207,142,.06));border:2px solid rgba(62,207,142,.4);border-radius:12px;padding:14px 10px;text-align:center">
+            <div style="font-size:30px;margin-bottom:4px">&#128176;</div>
+            <div style="font-size:13px;font-weight:800;color:#3ecf8e">0.05 TRX</div>
+            <div style="font-size:11px;color:rgba(232,240,235,.5);margin-top:3px">Added to Balance</div>
+            <div style="margin-top:8px;background:linear-gradient(135deg,#3ecf8e,#22a06b);color:#0a1628;font-size:11px;font-weight:900;padding:3px 10px;border-radius:99px;display:inline-block">20% Chance</div>
+          </div>
+        </div>
         <div id="ldFreeStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
         <button id="ldFreeBtn" onclick="doFreeDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#059669,#3ecf8e);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:800;cursor:pointer">&#127920; SPIN FREE DRAW</button>
         <div id="ldFreeResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
       </div>
     </div>
-    <!-- PAID TAB -->
     <div id="ldTabPaid" style="display:none">
       <div style="background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:18px;margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:#ffd700;margin-bottom:6px">&#128176; Paid Draw (500 TRX)</div>
-        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">Entry: 500 TRX from your balance (1 time per account). Randomly win: Gold, Platinum, or Diamond level upgrade (≈33% each)!</div>
+        <div style="font-size:12px;color:rgba(232,240,235,.6);margin-bottom:12px">Entry: 500 TRX from your balance (1 time per account). Win: Gold &#127942;, Platinum &#128142;, or Diamond &#128163; (approx 33% each)!</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <div style="flex:1;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,215,0,.06));border:2px solid rgba(255,215,0,.45);border-radius:12px;padding:14px 8px;text-align:center">
+            <div style="font-size:26px;margin-bottom:4px">&#127942;</div>
+            <div style="font-size:13px;font-weight:800;color:#ffd700">Gold</div>
+            <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">0.5 TRX/claim</div>
+            <div style="margin-top:6px;background:#ffd700;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+          </div>
+          <div style="flex:1;background:linear-gradient(135deg,rgba(229,228,226,.15),rgba(229,228,226,.06));border:2px solid rgba(229,228,226,.4);border-radius:12px;padding:14px 8px;text-align:center">
+            <div style="font-size:26px;margin-bottom:4px">&#128142;</div>
+            <div style="font-size:13px;font-weight:800;color:#e5e4e2">Platinum</div>
+            <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">5 TRX/claim</div>
+            <div style="margin-top:6px;background:#e5e4e2;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+          </div>
+          <div style="flex:1;background:linear-gradient(135deg,rgba(185,242,255,.15),rgba(185,242,255,.06));border:2px solid rgba(185,242,255,.4);border-radius:12px;padding:14px 8px;text-align:center">
+            <div style="font-size:26px;margin-bottom:4px">&#128163;</div>
+            <div style="font-size:13px;font-weight:800;color:#b9f2ff">Diamond</div>
+            <div style="font-size:10px;color:rgba(232,240,235,.5);margin-top:2px">15 TRX/claim</div>
+            <div style="margin-top:6px;background:#b9f2ff;color:#0a1628;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;display:inline-block">~33%</div>
+          </div>
+        </div>
         <div id="ldPaidStatus" style="font-size:13px;margin-bottom:12px;font-weight:600"></div>
-        <button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#b8860b,#ffd700);border:none;border-radius:10px;color:#0a1628;font-size:15px;font-weight:800;cursor:pointer">&#128176; ENTER PAID DRAW</button>
+        <button id="ldPaidBtn" onclick="doPaidDraw()" style="width:100%;padding:12px;background:linear-gradient(135deg,#b8860b,#ffd700);border:none;border-radius:10px;color:#0a1628;font-size:15px;font-weight:800;cursor:pointer">&#128176; ENTER PAID DRAW (500 TRX)</button>
         <div id="ldPaidResult" style="display:none;margin-top:14px;text-align:center;padding:16px;border-radius:10px"></div>
       </div>
     </div>
   </div>
 </div>
-<script src="lucky_draw.js?v=5"></script></body>
+<script src="lucky_draw.js?v=6"></script></body>
 </html>
 <!-- deploy-stamp:2026-06-04T04:53:41.456Z -->
+
+
