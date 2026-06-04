@@ -1006,3 +1006,4 @@ button{cursor:pointer}
 .dep-tx-empty{text-align:center;color:rgba(232,240,235,.3);padding:20px!important;font-size:13px}
 .dep-tc-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(232,240,235,.5)}
 @media(max-width:480px){.dep-card{padding:18px 14px}.dep-addr-inp{font-size:11px}}
+/* deploy-stamp:2026-06-04T04:53:41.456Z */
