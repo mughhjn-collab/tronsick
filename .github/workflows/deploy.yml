@@ -17,25 +17,21 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Deploy via lftp (no-delete, only upload changed files)
+      - name: Deploy via lftp
         env:
-          FTP_SERVER: 153.92.11.34
           FTP_USER: u895912460
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
           FTP_DIR: /domains/tronsick.io/public_html/
         run: |
           lftp -c "
-          set ftp:ssl-allow yes;
-          set ftp:ssl-force no;
-          set ftp:ssl-protect-data no;
+          set ftp:ssl-allow no;
           set ftp:passive-mode true;
           set net:timeout 60;
           set net:max-retries 5;
           set net:reconnect-interval-base 3;
           set net:reconnect-interval-multiplier 1;
           set ftp:use-mdtm yes;
-          set mirror:use-pget-n 1;
-          open -u $FTP_USER,$FTP_PASS ftp://$FTP_SERVER;
+          open -u $FTP_USER,$FTP_PASS ftp://153.92.11.34;
           mirror --reverse --only-newer --verbose \
             --exclude-glob .git \
             --exclude-glob .github \
