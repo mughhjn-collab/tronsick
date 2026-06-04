@@ -1083,9 +1083,10 @@ function renderContestLeaderboard(){
     </div>
   </div>
 </div>
-<script src="lucky_draw.js?v=7"></script></body>
+<script src="lucky_draw.js?v=20"></script></body>
 </html>
 <!-- deploy-stamp:2026-06-04T04:53:41.456Z -->
+
 
 
 
