@@ -23,10 +23,8 @@ jobs:
           FTP_HOST: 153.92.11.34
           FTP_DIR: /domains/tronsick.io/public_html
         run: |
-          # Get changed files (|| echo "" prevents non-zero exit)
           CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD 2>/dev/null || echo "")
 
-          # Filter to only uploadable site files (|| echo "" = FIX for grep exit 1 when no match)
           FILTERED=$(echo "$CHANGED" \
             | grep -E '\.(php|js|css|html)$' \
             | grep -v '^\.github/' \
@@ -54,11 +52,6 @@ jobs:
             [ -z "$file" ] && continue
             [ -f "$file" ] || continue
             echo "Uploading: $file"
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-              --user "$FTP_USER:$FTP_PASS" \
-              --upload-file "$file" \
-              --ftp-create-dirs \
-              "ftp://$FTP_HOST$FTP_DIR/$file")
             if curl -s -S \
               --user "$FTP_USER:$FTP_PASS" \
               --upload-file "$file" \
@@ -72,8 +65,5 @@ jobs:
             fi
           done <<< "$FILTERED"
 
-          echo ""
           echo "Uploaded: $SUCCESS | Failed: $FAIL"
           exit 0
-
-<!-- deploy-ts:202606031923 -->
