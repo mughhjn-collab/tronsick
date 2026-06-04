@@ -9,40 +9,49 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: 153.92.11.34
-          username: u895912460
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 21
-          protocol: ftp
-          local-dir: ./
-          server-dir: /domains/tronsick.io/public_html/
-          timeout: 60000
-          log-level: standard
-          dangerous-clean-slate: false
-          security: loose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.github/**
-            **/fix_*.js
-            **/append_*.js
-            **/rename_*.js
-            **/add_*.js
-            **/verify_*.js
-            **/deploy_*.js
-            **/push.js
-            **/bump_version.ps1
-            **/data/users.json
-            **/data/contest_wagers.json
-            **/data/antibot.json
-            **/data/site_settings.json
-            **/data/gen_payouts.json
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Deploy via lftp (passive, loose SSL, with timeouts)
+        env:
+          FTP_SERVER: 153.92.11.34
+          FTP_USER: u895912460
+          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: /domains/tronsick.io/public_html/
+        run: |
+          lftp -c "
+          set ftp:ssl-allow yes;
+          set ftp:ssl-force no;
+          set ftp:ssl-protect-data no;
+          set ftp:passive-mode true;
+          set net:timeout 30;
+          set net:max-retries 3;
+          set net:reconnect-interval-base 5;
+          set net:reconnect-interval-multiplier 1;
+          set mirror:use-pget-n 3;
+          set pget:default-n 3;
+          open -u $FTP_USER,$FTP_PASS ftp://$FTP_SERVER;
+          mirror --reverse --verbose \
+            --exclude-glob .git \
+            --exclude-glob .github \
+            --exclude-glob fix_*.js \
+            --exclude-glob append_*.js \
+            --exclude-glob rename_*.js \
+            --exclude-glob add_*.js \
+            --exclude-glob verify_*.js \
+            --exclude-glob deploy_*.js \
+            --exclude-glob push.js \
+            --exclude-glob bump_version.ps1 \
+            --exclude-glob data/users.json \
+            --exclude-glob data/contest_wagers.json \
+            --exclude-glob data/antibot.json \
+            --exclude-glob data/site_settings.json \
+            --exclude-glob data/gen_payouts.json \
+            ./ $FTP_DIR;
+          bye;
+          "
