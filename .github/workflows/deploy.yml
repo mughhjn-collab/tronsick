@@ -9,45 +9,51 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Deploy via lftp
+      - name: Deploy changed files via lftp put
         env:
           FTP_USER: u895912460
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-          FTP_DIR: /domains/tronsick.io/public_html/
+          FTP_HOST: 153.92.11.34
+          FTP_DIR: /domains/tronsick.io/public_html
         run: |
-          lftp -c "
-          set ftp:ssl-allow no;
-          set ftp:passive-mode true;
-          set net:timeout 60;
-          set net:max-retries 5;
-          set net:reconnect-interval-base 3;
-          set net:reconnect-interval-multiplier 1;
-          set ftp:use-mdtm yes;
-          open -u $FTP_USER,$FTP_PASS ftp://153.92.11.34;
-          mirror --reverse --only-newer --verbose \
-            --exclude-glob .git \
-            --exclude-glob .github \
-            --exclude-glob fix_*.js \
-            --exclude-glob append_*.js \
-            --exclude-glob rename_*.js \
-            --exclude-glob add_*.js \
-            --exclude-glob verify_*.js \
-            --exclude-glob deploy_*.js \
-            --exclude-glob push.js \
-            --exclude-glob bump_version.ps1 \
-            --exclude-glob data/users.json \
-            --exclude-glob data/contest_wagers.json \
-            --exclude-glob data/antibot.json \
-            --exclude-glob data/site_settings.json \
-            --exclude-glob data/gen_payouts.json \
-            ./ $FTP_DIR;
-          bye;
-          "
+          # Get list of changed files in this push (vs previous commit)
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --format="" HEAD)
+
+          # Filter: only PHP/JS/CSS/HTML files, skip data/, .github/, fix_ scripts
+          FILTERED=$(echo "$CHANGED" | grep -E '\.(php|js|css|html|json)$' | grep -v '^data/' | grep -v '^\.github/' | grep -v '^fix_' | grep -v '^append_' | grep -v '^rename_' | grep -v '^push\.js' | grep -v '^bump_' | grep -v '^verify_' | grep -v '^deploy_' | grep -v '^add_' | grep -v 'users\.json' | grep -v 'wagers\.json' | grep -v 'antibot\.json' | grep -v 'settings\.json' | grep -v 'payouts\.json')
+
+          echo "Files to upload:"
+          echo "$FILTERED"
+
+          if [ -z "$FILTERED" ]; then
+            echo "No files to upload."
+            exit 0
+          fi
+
+          # Build lftp put commands
+          CMDS="set ftp:ssl-allow no; set ftp:passive-mode yes; set net:timeout 30; set net:max-retries 3; open -u $FTP_USER,$FTP_PASS ftp://$FTP_HOST;"
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              DIR=$(dirname "$file")
+              if [ "$DIR" = "." ]; then
+                CMDS="$CMDS put $file -o $FTP_DIR/$file;"
+              else
+                CMDS="$CMDS mkdir -p $FTP_DIR/$DIR; put $file -o $FTP_DIR/$file;"
+              fi
+            fi
+          done <<< "$FILTERED"
+          CMDS="$CMDS bye;"
+
+          echo "Running lftp..."
+          lftp -c "$CMDS"
+          echo "Upload complete!"

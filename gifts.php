@@ -796,3 +796,5 @@
 <script>window._INIT_SECTION='gifts';</script>
 <script src="/lucky_draw.js?v=3"></script></body>
 </html>
+
+<!-- nav-updated -->

@@ -846,3 +846,4 @@
 <script src="dashboard.js?v=31"></script>
 <script>window._INIT_SECTION='deposit';</script>
 <script src="/lucky_draw.js?v=3"></script></body></html>
+<!-- nav-updated -->

@@ -1021,3 +1021,4 @@ document.addEventListener('DOMContentLoaded',init2FAStatus);
 setTimeout(init2FAStatus,200);
 </script>
 <script src="/lucky_draw.js?v=3"></script></body></html>
+<!-- nav-updated -->

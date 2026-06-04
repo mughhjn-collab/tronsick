@@ -1,7 +1,64 @@
 
 // ═══════════════════════════════════════════════════════
-// LUCKY DRAW — Full Logic v3
+// LUCKY DRAW — Full Logic v4
 // ═══════════════════════════════════════════════════════
+
+// Level targets & names (same as dashboard.js)
+var _LD_LEVEL_TARGETS = [300, 300, 3000, 30000, 300000, 3000000, 30000000];
+var _LD_LEVEL_NAMES   = ['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
+var _LD_LEVEL_ORDER   = {stone:0, iron:1, bronze:2, silver:3, gold:4, platinum:5, diamond:6, master:7};
+
+// Apply a level from Lucky Draw — updates localStorage + all visible UI elements
+function _ldApplyLevel(levelId) {
+  var levelName = levelId.charAt(0).toUpperCase() + levelId.slice(1);
+  localStorage.setItem('userLevel', levelName);
+
+  var lvlIdx = _LD_LEVEL_ORDER[levelId.toLowerCase()] || 0;
+
+  // 1) Update level label (header / faucet page)
+  ['curLevelLabel','gCurLevelLabel'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.textContent = levelName;
+  });
+
+  // 2) Update progress bar TARGET to next level's wager requirement
+  var nextTarget = lvlIdx < _LD_LEVEL_TARGETS.length ? _LD_LEVEL_TARGETS[lvlIdx] : _LD_LEVEL_TARGETS[_LD_LEVEL_TARGETS.length-1];
+  var targetStr  = nextTarget + ' TRX';
+  ['progTarget','gProgTarget','levelTarget'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.textContent = targetStr;
+  });
+
+  // 3) Update "from" and "to" level labels on progress bar
+  ['progFrom','gProgFrom'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.textContent = levelName;
+  });
+  ['progTo','gProgTo'].forEach(function(id){
+    var nextName = _LD_LEVEL_NAMES[Math.min(lvlIdx+1,7)];
+    var el = document.getElementById(id); if(el) el.textContent = nextName;
+  });
+
+  // 4) Update level table row highlights (remove tbl-on from all, add to current)
+  var levels = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
+  levels.forEach(function(l){
+    var row = document.getElementById('lvl-'+l);
+    if(!row) return;
+    row.classList.remove('tbl-on');
+    row.innerHTML = '<td>'+l.charAt(0).toUpperCase()+l.slice(1)+'</td>' + row.innerHTML.match(/<td>.*?<\/td>$/)?.[0];
+  });
+  var activeRow = document.getElementById('lvl-'+levelId.toLowerCase());
+  if(activeRow){
+    activeRow.classList.add('tbl-on');
+    // Add checkmark to level name
+    var firstTd = activeRow.querySelector('td');
+    if(firstTd && !firstTd.querySelector('strong')){
+      firstTd.innerHTML = '<strong>'+levelName+' &#10003;</strong>';
+    }
+  }
+
+  // 5) Try calling syncBal to re-render everything if available
+  try { syncBal(); } catch(e) {}
+  // 6) Try native updateLevelDisplay if it exists
+  try { if(typeof updateLevelDisplay==='function') updateLevelDisplay(); } catch(e2) {}
+}
 
 function openLuckyDraw() {
   var modal = document.getElementById('luckyDrawModal');
@@ -186,8 +243,7 @@ function doFreeDraw() {
     var won = prizes[Math.floor(Math.random() * prizes.length)];
 
     if(won.id === 'iron') {
-      localStorage.setItem('userLevel', 'Iron');
-      try { updateLevelDisplay(); } catch(e) {}
+      _ldApplyLevel('iron');
     } else if(won.id === 'trx005') {
       try { addBal(0.05); } catch(e) {
         var b = parseFloat(localStorage.getItem('userBalance')||'0');
@@ -256,8 +312,7 @@ function doPaidDraw() {
     ];
     var won = prizes[Math.floor(Math.random() * prizes.length)];
 
-    localStorage.setItem('userLevel', won.id.charAt(0).toUpperCase() + won.id.slice(1));
-    try { updateLevelDisplay(); } catch(e) {}
+    _ldApplyLevel(won.id);
 
     localStorage.setItem('ld_paid_' + user, '1');
 

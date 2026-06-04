@@ -52,7 +52,7 @@ try{
   // Also restore wager display
   var w=parseFloat(localStorage.getItem('totalWagered')||'0');
   if(w>0){
-    var LEVEL_TARGETS=[30,300,3000,30000,300000,3000000,30000000];
+    var LEVEL_TARGETS=[300,300,3000,30000,300000,3000000,30000000];
     var LEVEL_NAMES=['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
     var lvlIdx=0;
     for(var i=0;i<LEVEL_TARGETS.length;i++){if(w>=LEVEL_TARGETS[i])lvlIdx=i+1;}
@@ -266,7 +266,7 @@ function addBal(amt){try{var bal=parseFloat(localStorage.getItem('userBalance')|
 try{var _un=localStorage.getItem('userName')||'';if(_un){var _au=JSON.parse(localStorage.getItem('adm_users')||'[]');var _ui=_au.findIndex(function(u){return u.name.toLowerCase()===_un.toLowerCase();});if(_ui>=0){_au[_ui].balance=bal.toFixed(6);localStorage.setItem('adm_users',JSON.stringify(_au));}}}catch(ex){}syncBal();}catch(e){}}
 function updateWager(amt){
 try{
-  var LEVEL_TARGETS=[30,300,3000,30000,300000,3000000,30000000];
+  var LEVEL_TARGETS=[300,300,3000,30000,300000,3000000,30000000];
   var LEVEL_NAMES=['Stone','Iron','Bronze','Silver','Gold','Platinum','Diamond','Master'];
   var w=parseFloat(localStorage.getItem('totalWagered')||'0')+Math.abs(amt);
   localStorage.setItem('totalWagered',w.toString());

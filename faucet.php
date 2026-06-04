@@ -832,7 +832,7 @@ if(typeof setWdMax!=='function'){window.setWdMax=function(){var b=parseFloat(loc
   // Level definitions: {name, minWager (TRX to REACH this level), payout}
   var LEVELS = [
     { id:'stone',    name:'Stone',    min:0,       payout:'0.005000 TRX' },
-    { id:'iron',     name:'Iron',     min:30,      payout:'0.010000 TRX' },
+    { id:'iron',     name:'Iron',     min:300,      payout:'0.010000 TRX' },
     { id:'bronze',   name:'Bronze',   min:300,     payout:'0.020000 TRX' },
     { id:'silver',   name:'Silver',   min:1000,    payout:'0.070000 TRX' },
     { id:'gold',     name:'Gold',     min:3000,    payout:'0.500000 TRX' },
