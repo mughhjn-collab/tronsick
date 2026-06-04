@@ -1,4 +1,4 @@
-name: Deploy to Hostinger via FTP
+name: Deploy to Hostinger via SFTP
 
 on:
   push:
@@ -9,49 +9,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install lftp
-        run: sudo apt-get install -y lftp
-
-      - name: Deploy via lftp (passive, loose SSL, with timeouts)
-        env:
-          FTP_SERVER: 153.92.11.34
-          FTP_USER: u895912460
-          FTP_PASS: ${{ secrets.FTP_PASSWORD }}
-          FTP_DIR: /domains/tronsick.io/public_html/
-        run: |
-          lftp -c "
-          set ftp:ssl-allow yes;
-          set ftp:ssl-force no;
-          set ftp:ssl-protect-data no;
-          set ftp:passive-mode true;
-          set net:timeout 30;
-          set net:max-retries 3;
-          set net:reconnect-interval-base 5;
-          set net:reconnect-interval-multiplier 1;
-          set mirror:use-pget-n 3;
-          set pget:default-n 3;
-          open -u $FTP_USER,$FTP_PASS ftp://$FTP_SERVER;
-          mirror --reverse --verbose \
-            --exclude-glob .git \
-            --exclude-glob .github \
-            --exclude-glob fix_*.js \
-            --exclude-glob append_*.js \
-            --exclude-glob rename_*.js \
-            --exclude-glob add_*.js \
-            --exclude-glob verify_*.js \
-            --exclude-glob deploy_*.js \
-            --exclude-glob push.js \
-            --exclude-glob bump_version.ps1 \
-            --exclude-glob data/users.json \
-            --exclude-glob data/contest_wagers.json \
-            --exclude-glob data/antibot.json \
-            --exclude-glob data/site_settings.json \
-            --exclude-glob data/gen_payouts.json \
-            ./ $FTP_DIR;
-          bye;
-          "
+      - name: Deploy via SFTP (rsync over SSH)
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete --exclude='.git' --exclude='.github' --exclude='fix_*.js' --exclude='append_*.js' --exclude='rename_*.js' --exclude='add_*.js' --exclude='verify_*.js' --exclude='deploy_*.js' --exclude='push.js' --exclude='bump_version.ps1' --exclude='data/users.json' --exclude='data/contest_wagers.json' --exclude='data/antibot.json' --exclude='data/site_settings.json' --exclude='data/gen_payouts.json'
+          path: ./
+          remote_host: 153.92.11.34
+          remote_port: 22
+          remote_user: u895912460
+          remote_pass: ${{ secrets.FTP_PASSWORD }}
+          remote_path: /domains/tronsick.io/public_html/
