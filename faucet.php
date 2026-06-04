@@ -100,7 +100,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
           </table>
         </div>
 
-        <div id="faucetTimerBox" style="display:none;text-align:center;margin-bottom:18px;padding:20px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:2px solid rgba(245,158,11,.35);border-radius:16px;"><div style="font-size:12px;font-weight:700;color:rgba(245,158,11,.7);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⏳ Next Claim Available In</div><div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
+        <div id="faucetTimerDisplay" style="font-size:52px;font-weight:900;color:#f59e0b;letter-spacing:4px;font-family:'JetBrains Mono',monospace;line-height:1;">00:00</div><div style="font-size:12px;color:rgba(245,158,11,.55);margin-top:8px;font-weight:600;">Please wait before your next faucet claim</div></div>
         <div class="claim-wrap">
           <label class="cap">
             <input type="checkbox" id="capChk" onchange="onCap(this)"/>
@@ -108,7 +108,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
             <span>I am not a robot</span>
           </label>
           <button class="claim-btn" id="claimBtn" disabled onclick="doClaim()">CLAIM</button>
-          <p class="claim-note" id="claimNote" style="font-size:14px;font-weight:600;min-height:22px">Complete captcha to claim</p>
+          <p class="claim-note" id="claimNote" style="font-size:15px;font-weight:700;min-height:24px;text-align:center;">Complete captcha to claim</p>
         </div>
       </div>
 
@@ -815,7 +815,7 @@ keys.forEach(function(k){if(k)localStorage.removeItem(k);});localStorage.setItem
 })();
 </script>
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=32"></script>
+<script src="dashboard.js?v=33"></script>
 <script>
 window._INIT_SECTION='home';
 // Fallback helpers ? activate only if dashboard.js didn't define them
@@ -1051,6 +1051,6 @@ function renderContestLeaderboard(){
     </div>
   </div>
 </div>
-<script src="lucky_draw.js?v=4"></script></body>
+<script src="lucky_draw.js?v=5"></script></body>
 </html>
 <!-- deploy-stamp:2026-06-04T04:53:41.456Z -->

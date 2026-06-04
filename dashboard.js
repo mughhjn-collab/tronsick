@@ -465,7 +465,7 @@ function onBon(cb){const btn=document.getElementById('bonBtn'),note=document.get
 if(rollsLeft>0){btn.disabled=false;note.textContent='Click ROLL to use your '+rollsLeft+' bonus roll'+(rollsLeft>1?'s':'')+'!';note.style.color='#3ecf8e';}else{btn.disabled=true;note.textContent='No rolls remaining. Check back or earn more!';note.style.color='#f59e0b';}}else{btn.disabled=true;note.textContent='Complete captcha to roll';note.style.color='';}}
 let claimTimerInterval=null;
 function initClaimTimer(){const c=localStorage.getItem('lastClaim');if(!c)return;const rem=2400-Math.floor((Date.now()-parseInt(c))/1000);if(rem>0)startClaimCountdown(rem);else localStorage.removeItem('lastClaim');}
-function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk'),timerBox=document.getElementById('faucetTimerBox'),timerDisp=document.getElementById('faucetTimerDisplay');if(cap)cap.disabled=true;if(btn){btn.disabled=true;btn.textContent='CLAIM';btn.style.background='';btn.style.color='';btn.style.fontSize='';btn.style.fontWeight='';btn.style.letterSpacing='';}if(timerBox)timerBox.style.display='block';let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(timerDisp)timerDisp.textContent=m+':'+s;if(note){note.textContent='\u23F3 Next claim in: '+m+'m '+s+'s';note.style.color='#f59e0b';note.style.fontSize='15px';note.style.fontWeight='700';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(timerBox)timerBox.style.display='none';if(timerDisp)timerDisp.textContent='00:00';if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';note.style.fontSize='14px';}}else r();},1000);}
+function startClaimCountdown(sec){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote'),cap=document.getElementById('capChk');if(cap)cap.disabled=true;if(btn){btn.disabled=true;btn.textContent='CLAIM';}let left=sec;function r(){const m=String(Math.floor(left/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0');if(note){note.textContent='⏳ Next claim in: '+m+'m '+s+'s';note.style.color='#f59e0b';note.style.fontSize='16px';note.style.fontWeight='800';}}r();if(claimTimerInterval)clearInterval(claimTimerInterval);claimTimerInterval=setInterval(()=>{left--;if(left<=0){clearInterval(claimTimerInterval);claimTimerInterval=null;localStorage.removeItem('lastClaim');if(btn){btn.textContent='CLAIM';btn.disabled=true;}if(cap){cap.disabled=false;cap.checked=false;}if(note){note.textContent='Complete captcha to claim';note.style.color='';note.style.fontSize='15px';note.style.fontWeight='700';}}else r();},1000);}
 var LEVEL_PAYOUTS={stone:0.005,iron:0.01,bronze:0.02,silver:0.07,gold:0.5,platinum:5.0,diamond:15.0,master:60.0};
 function _getLevelPayouts(){
   return {
@@ -481,6 +481,43 @@ function _getLevelPayouts(){
 }
 function doClaim(){const btn=document.getElementById('claimBtn'),note=document.getElementById('claimNote');btn.disabled=true;btn.textContent='Processing...';setTimeout(()=>{var lvl=(localStorage.getItem('userLevel')||'stone').toLowerCase();var amt=(_getLevelPayouts()[lvl]||_getLevelPayouts().stone);addBal(amt);note.textContent='Claimed '+amt.toFixed(6)+' TRX!';note.style.color='#3ecf8e';btn.textContent='CLAIMED!';document.getElementById('capChk').checked=false;localStorage.setItem('lastClaim',Date.now().toString());try{var _claimUser=(localStorage.getItem('userName')||'').toLowerCase();var _refBy='';var _ru=JSON.parse(localStorage.getItem('site_registered_users')||'[]');var _rm=_ru.find(function(u){return (u.name||'').toLowerCase()===_claimUser;});if(_rm&&_rm.ref){_refBy=(_rm.ref||'').toLowerCase();}if(!_refBy){ var _urk=localStorage.getItem('userRef_'+_betUser); if(_urk) _refBy=_urk.toLowerCase(); } if(!_refBy){ var _auU=JSON.parse(localStorage.getItem('adm_users')||'[]');var _am=_auU.find(function(u){return (u.name||u.username||'').toLowerCase()===_claimUser;});if(_am&&_am.ref)_refBy=(_am.ref||'').toLowerCase();}if(_refBy){var _ck='ref_claims_'+_claimUser;localStorage.setItem(_ck,parseInt(localStorage.getItem(_ck)||'0')+1);var _fEarnKey='ref_earned_faucet_'+_refBy;var _prev=parseFloat(localStorage.getItem(_fEarnKey)||'0');localStorage.setItem(_fEarnKey,(_prev+amt*0.5).toFixed(8));}// Track server-side claim
 if(window.SiteSync&&SiteSync.updateUserStats) SiteSync.updateUserStats(_claimUser,0,1,0);}catch(ex){}setTimeout(()=>startClaimCountdown(2400),1500);},1200);}
+
+// ── Lucky Draw level sync: called after win ──
+window.updateLevelUI = function() {
+  try {
+    var lvl = (localStorage.getItem('userLevel') || 'stone').toLowerCase();
+    var levelsInOrder = ['stone','iron','bronze','silver','gold','platinum','diamond','master'];
+    var wagerTargets = {stone:0,iron:30,bronze:100,silver:500,gold:2000,platinum:5000,diamond:15000,master:50000};
+    var payouts = {stone:'0.005000',iron:'0.010000',bronze:'0.020000',silver:'0.070000',gold:'0.500000',platinum:'5.000000',diamond:'15.000000',master:'60.000000'};
+    // Update level label
+    ['curLevelLabel','gCurLevelLabel'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=lvl.charAt(0).toUpperCase()+lvl.slice(1); });
+    // Update table rows
+    levelsInOrder.forEach(function(l){
+      var row = document.getElementById('lvl-'+l);
+      if(!row) return;
+      row.classList.remove('tbl-on');
+      var isActive = (l === lvl);
+      row.innerHTML = '<td>'+(isActive?'<strong>'+l.charAt(0).toUpperCase()+l.slice(1)+' &#10003;</strong>':(l.charAt(0).toUpperCase()+l.slice(1)))+'</td><td>'+(isActive?'<strong>':'')+payouts[l]+' TRX'+(isActive?'</strong>':'')+'</td>';
+      if(isActive) row.classList.add('tbl-on');
+    });
+    // Update progress bar
+    var lvlIdx = levelsInOrder.indexOf(lvl);
+    var nextIdx = Math.min(lvlIdx+1, 7);
+    var nextName = levelsInOrder[nextIdx].charAt(0).toUpperCase()+levelsInOrder[nextIdx].slice(1);
+    var nextTarget = wagerTargets[levelsInOrder[nextIdx]] || 50000;
+    ['progFrom','gProgFrom'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=lvl.charAt(0).toUpperCase()+lvl.slice(1); });
+    ['progTo','gProgTo'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=nextName; });
+    ['progTarget','gProgTarget','levelTarget'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=nextTarget+' TRX'; });
+    // Also refresh wager display
+    var wagerVal = parseFloat(localStorage.getItem('totalWagered')||'0');
+    ['wagered','gWagered'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=wagerVal.toFixed(6); });
+    // Progress %
+    var pct = nextTarget > 0 ? Math.min(100, (wagerVal/nextTarget)*100) : 100;
+    ['progFill','gProgFill'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.width=pct.toFixed(1)+'%'; });
+    ['progPct','gProgPct'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=pct.toFixed(0)+'%'; });
+  } catch(e) {}
+};
+
 let rollsLeft=0;
 function initNewUserBonus(){
   var _uname=(localStorage.getItem('userName')||'').toLowerCase();

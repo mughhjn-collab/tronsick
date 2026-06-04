@@ -763,7 +763,7 @@
 </script>
 <link rel="stylesheet" href="games_tp.css?v=8">
 <script src="site_sync.js?v=4"></script>
-<script src="dashboard.js?v=32"></script>
+<script src="dashboard.js?v=33"></script>
 <script src="dice_new.js?v=8"></script>
 <script src="limbo_new.js?v=8"></script>
 <script src="lucky_draw.js?v=2"></script>
